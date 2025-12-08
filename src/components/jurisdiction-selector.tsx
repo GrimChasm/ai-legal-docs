@@ -288,7 +288,7 @@ export default function JurisdictionSelector({
             e.stopPropagation()
             handleInputClick()
           }}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main active:scale-90 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded p-1"
           aria-label="Open jurisdiction selector"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,7 +335,7 @@ export default function JurisdictionSelector({
                       key={country.code}
                       type="button"
                       onClick={() => handleCountrySelect(country)}
-                      className="w-full text-left px-4 py-3 hover:bg-bg-muted transition-colors text-sm text-text-main focus:outline-none focus:bg-bg-muted focus:ring-2 focus:ring-accent focus:ring-inset"
+                      className="w-full text-left px-4 py-3 hover:bg-bg-muted active:bg-gray-200 transition-all duration-150 text-sm text-text-main focus:outline-none focus:bg-bg-muted focus:ring-2 focus:ring-accent focus:ring-inset"
                       role="option"
                       aria-label={`Select ${country.name}`}
                     >
@@ -357,7 +357,7 @@ export default function JurisdictionSelector({
                     setSearchQuery("")
                     setStateSearchQuery("")
                   }}
-                  className="text-sm text-accent hover:text-accent-hover font-medium mb-2 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded px-2 py-1"
+                  className="text-sm text-accent hover:text-accent-hover active:scale-95 active:text-accent-hover font-medium mb-2 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded px-2 py-1 transition-all duration-150"
                   aria-label="Back to country selection"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +396,7 @@ export default function JurisdictionSelector({
                         key={state}
                         type="button"
                         onClick={() => handleStateSelect(state)}
-                        className={`w-full text-left px-4 py-3 hover:bg-bg-muted transition-colors text-sm focus:outline-none focus:bg-bg-muted focus:ring-2 focus:ring-accent focus:ring-inset ${
+                        className={`w-full text-left px-4 py-3 hover:bg-bg-muted active:bg-gray-200 transition-all duration-150 text-sm focus:outline-none focus:bg-bg-muted focus:ring-2 focus:ring-accent focus:ring-inset ${
                           isSelected 
                             ? "bg-blue-50 text-blue-700 font-semibold border-l-2 border-accent" 
                             : "text-text-main"

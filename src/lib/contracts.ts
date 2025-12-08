@@ -67,6 +67,9 @@ export interface ContractDefinition {
   description: string
   formSchema: FormSchema
   template: ContractTemplateFn | ((values: Record<string, string | number>) => string) | ((values: any) => string)
+  industry?: string
+  documentType?: string
+  category?: string
 }
 
 export type ContractRegistry = Record<string, ContractDefinition>
@@ -82,6 +85,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Non-Disclosure Agreement (NDA)",
     description:
       "A contract used to protect confidential information shared between two parties.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Legal Protection",
     formSchema: {
       clientName: { label: "Client Name", type: "text" },
       recipientName: { label: "Recipient Name", type: "text" },
@@ -105,6 +111,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Independent Contractor Agreement",
     description:
       "Defines scope, compensation, responsibilities, and terms for contractor work.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Employment",
     formSchema: {
       clientName: { label: "Client/Company Name", type: "text" },
       contractorName: { label: "Contractor Name", type: "text" },
@@ -123,6 +132,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Privacy Policy",
     description:
       "Explains how your website or business collects, uses, and protects customer data.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Policy",
+    category: "Legal Compliance",
     formSchema: {
       businessName: { label: "Business or Website Name", type: "text" },
       contactEmail: { label: "Contact Email", type: "text" },
@@ -152,6 +164,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Terms & Conditions",
     description:
       "A legal agreement outlining rules, responsibilities, and acceptable use for your service or website.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Agreement",
+    category: "Legal Compliance",
     formSchema: {
       businessName: { label: "Business or Website Name", type: "text" },
       companyLocation: {
@@ -175,6 +190,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Consulting Agreement",
     description:
       "An agreement defining services, compensation, duties, and legal terms for hiring a consultant.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Service Contract",
     formSchema: {
       consultantName: { label: "Consultant Name", type: "text" },
       clientName: { label: "Client Name", type: "text" },
@@ -196,6 +214,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Cookie Policy",
     description:
       "Explains how your website uses cookies and provides disclosure required by privacy laws.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Policy",
+    category: "Legal Compliance",
     formSchema: {
       businessName: { label: "Business or Website Name", type: "text" },
       cookieTypes: { label: "Types of Cookies Used", type: "textarea" },
@@ -218,6 +239,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Employment Offer Letter",
     description:
       "A formal job offer including role, salary, start date, and employment conditions.",
+    industry: "HR / Employment",
+    documentType: "Letter",
+    category: "Employment",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       employeeName: { label: "Employee Full Name", type: "text" },
@@ -239,6 +263,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Residential Lease Agreement",
     description:
       "A contract outlining the rental terms between a landlord and tenant.",
+    industry: "Real Estate",
+    documentType: "Agreement",
+    category: "Lease",
     formSchema: {
       landlordName: { label: "Landlord Name", type: "text" },
       tenantName: { label: "Tenant Name", type: "text" },
@@ -257,6 +284,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Return & Refund Policy",
     description:
       "Outlines your business's return and refund procedures for customers.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Policy",
+    category: "Customer Service",
     formSchema: {
       businessName: { label: "Business Name", type: "text" },
       contactEmail: { label: "Contact Email", type: "text" },
@@ -275,6 +305,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Shipping Policy",
     description:
       "Details your shipping methods, rates, and delivery timeframes for customers.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Policy",
+    category: "Customer Service",
     formSchema: {
       businessName: { label: "Business Name", type: "text" },
       contactEmail: { label: "Contact Email", type: "text" },
@@ -293,6 +326,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Employee Handbook",
     description:
       "A comprehensive guide covering company policies, procedures, and expectations for employees.",
+    industry: "HR / Employment",
+    documentType: "Policy",
+    category: "HR Documentation",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       effectiveDate: { label: "Effective Date", type: "date" },
@@ -311,6 +347,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Employment Contract",
     description:
       "A formal employment agreement defining terms, compensation, and conditions of employment.",
+    industry: "HR / Employment",
+    documentType: "Agreement",
+    category: "Employment",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       employeeName: { label: "Employee Name", type: "text" },
@@ -332,6 +371,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Contractor Termination Letter",
     description:
       "A formal letter terminating an independent contractor agreement.",
+    industry: "HR / Employment",
+    documentType: "Letter",
+    category: "Termination",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       contractorName: { label: "Contractor Name", type: "text" },
@@ -350,6 +392,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Non-Compete Agreement",
     description:
       "An agreement restricting an employee or contractor from competing with your business.",
+    industry: "HR / Employment",
+    documentType: "Agreement",
+    category: "Legal Protection",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       employeeName: { label: "Employee/Contractor Name", type: "text" },
@@ -368,6 +413,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Non-Solicitation Agreement",
     description:
       "An agreement preventing solicitation of customers, employees, or business partners.",
+    industry: "HR / Employment",
+    documentType: "Agreement",
+    category: "Legal Protection",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       employeeName: { label: "Employee Name", type: "text" },
@@ -386,6 +434,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Invoice Template",
     description:
       "A professional invoice template for billing clients and customers.",
+    industry: "Business / Startup",
+    documentType: "Document",
+    category: "Billing",
     formSchema: {
       businessName: { label: "Business Name", type: "text" },
       businessAddress: { label: "Business Address", type: "textarea" },
@@ -407,6 +458,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Affiliate Program Terms",
     description:
       "Terms and conditions for your affiliate or referral program.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Agreement",
+    category: "Business Terms",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       contactEmail: { label: "Contact Email", type: "text" },
@@ -425,6 +479,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Licensing Agreement",
     description:
       "An agreement granting rights to use intellectual property, trademarks, or other assets.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Intellectual Property",
     formSchema: {
       licensorName: { label: "Licensor Name", type: "text" },
       licenseeName: { label: "Licensee Name", type: "text" },
@@ -445,6 +502,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Photo/Video Release Form",
     description:
       "A release form granting permission to use someone's image or likeness in media.",
+    industry: "Freelancers / Creators",
+    documentType: "Form",
+    category: "Content Creation",
     formSchema: {
       companyName: { label: "Company/Organization Name", type: "text" },
       participantName: { label: "Participant Name", type: "text" },
@@ -464,6 +524,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Partnership Agreement",
     description:
       "A legal agreement defining the terms and structure of a business partnership.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Business Formation",
     formSchema: {
       partnershipName: { label: "Partnership Name", type: "text" },
       partner1Name: { label: "Partner 1 Name", type: "text" },
@@ -485,6 +548,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Founders' Agreement",
     description:
       "An agreement between co-founders defining equity, roles, and company structure.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Business Formation",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       founder1Name: { label: "Founder 1 Name", type: "text" },
@@ -506,6 +572,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Acceptable Use Policy (AUP)",
     description:
       "A policy defining acceptable and prohibited uses of your service or platform.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Policy",
+    category: "Legal Compliance",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       serviceDescription: { label: "Service/Platform Description", type: "textarea" },
@@ -524,6 +593,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Cease & Desist Letter",
     description:
       "A formal letter demanding that someone stop engaging in illegal or harmful activities.",
+    industry: "Business / Startup",
+    documentType: "Letter",
+    category: "Legal Action",
     formSchema: {
       senderName: { label: "Sender Name/Company", type: "text" },
       senderAddress: { label: "Sender Address", type: "textarea" },
@@ -544,6 +616,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Contract Breach Notice",
     description:
       "A formal notice informing a party that they have breached a contract and must remedy the situation.",
+    industry: "Business / Startup",
+    documentType: "Letter",
+    category: "Legal Action",
     formSchema: {
       senderName: { label: "Sender Name/Company", type: "text" },
       senderAddress: { label: "Sender Address", type: "textarea" },
@@ -564,6 +639,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Lease Termination Letter",
     description:
       "A formal letter terminating a lease agreement between landlord and tenant.",
+    industry: "Real Estate",
+    documentType: "Letter",
+    category: "Termination",
     formSchema: {
       landlordName: { label: "Landlord Name", type: "text" },
       tenantName: { label: "Tenant Name", type: "text" },
@@ -583,6 +661,9 @@ export const contractRegistry: ContractRegistry = {
     title: "Roommate Agreement",
     description:
       "An agreement between roommates outlining rent, utilities, rules, and responsibilities.",
+    industry: "Real Estate",
+    documentType: "Agreement",
+    category: "Lease",
     formSchema: {
       propertyAddress: { label: "Property Address", type: "textarea" },
       roommate1Name: { label: "Roommate 1 Name", type: "text" },
@@ -604,6 +685,9 @@ export const contractRegistry: ContractRegistry = {
     id: "sow",
     title: "Statement of Work (SOW)",
     description: "A detailed document outlining project scope, deliverables, timeline, and terms for a specific project.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Service Contract",
     formSchema: {
       projectName: { label: "Project Name", type: "text" },
       clientName: { label: "Client Name", type: "text" },
@@ -625,6 +709,9 @@ export const contractRegistry: ContractRegistry = {
     id: "service-agreement",
     title: "Service Agreement",
     description: "A contract defining services to be provided, fees, terms, and conditions between a service provider and client.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Service Contract",
     formSchema: {
       serviceProviderName: { label: "Service Provider Name", type: "text" },
       clientName: { label: "Client Name", type: "text" },
@@ -644,6 +731,9 @@ export const contractRegistry: ContractRegistry = {
     id: "equity-split-agreement",
     title: "Equity Split Agreement",
     description: "An agreement defining equity distribution, vesting, and roles among co-founders or partners.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Business Formation",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       founder1Name: { label: "Founder 1 Name", type: "text" },
@@ -664,6 +754,9 @@ export const contractRegistry: ContractRegistry = {
     id: "cesa-safe",
     title: "CESA/SAFE Agreement",
     description: "A Convertible Equity Security Agreement or Simple Agreement for Future Equity for early-stage investments.",
+    industry: "Business / Startup",
+    documentType: "Agreement",
+    category: "Investment",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       investorName: { label: "Investor Name", type: "text" },
@@ -681,6 +774,9 @@ export const contractRegistry: ContractRegistry = {
     id: "saas-terms-of-service",
     title: "SaaS Terms of Service",
     description: "Terms and conditions for a Software-as-a-Service platform, including subscription terms, usage rights, and limitations.",
+    industry: "E-Commerce / Online Business",
+    documentType: "Agreement",
+    category: "Legal Compliance",
     formSchema: {
       companyName: { label: "Company Name", type: "text" },
       serviceName: { label: "Service Name", type: "text" },
@@ -699,6 +795,9 @@ export const contractRegistry: ContractRegistry = {
     id: "sublease-agreement",
     title: "Sublease Agreement",
     description: "An agreement allowing a tenant to sublet their rental property to another party.",
+    industry: "Real Estate",
+    documentType: "Agreement",
+    category: "Lease",
     formSchema: {
       originalTenantName: { label: "Original Tenant Name", type: "text" },
       subtenantName: { label: "Subtenant Name", type: "text" },
@@ -719,6 +818,9 @@ export const contractRegistry: ContractRegistry = {
     id: "rent-increase-notice",
     title: "Rent Increase Notice",
     description: "A formal notice informing a tenant of an upcoming rent increase.",
+    industry: "Real Estate",
+    documentType: "Letter",
+    category: "Notice",
     formSchema: {
       landlordName: { label: "Landlord Name", type: "text" },
       landlordAddress: { label: "Landlord Address", type: "textarea" },
@@ -739,6 +841,9 @@ export const contractRegistry: ContractRegistry = {
     id: "eviction-notice",
     title: "Eviction Notice",
     description: "A formal notice to a tenant to vacate the property due to lease violations or other legal reasons.",
+    industry: "Real Estate",
+    documentType: "Letter",
+    category: "Legal Action",
     formSchema: {
       landlordName: { label: "Landlord Name", type: "text" },
       landlordAddress: { label: "Landlord Address", type: "textarea" },
@@ -758,6 +863,9 @@ export const contractRegistry: ContractRegistry = {
     id: "influencer-agreement",
     title: "Influencer Agreement",
     description: "A contract between a brand and influencer for sponsored content and marketing campaigns.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Content Creation",
     formSchema: {
       brandName: { label: "Brand/Company Name", type: "text" },
       influencerName: { label: "Influencer Name", type: "text" },
@@ -778,6 +886,9 @@ export const contractRegistry: ContractRegistry = {
     id: "brand-deal-contract",
     title: "Brand Deal Contract",
     description: "A comprehensive contract for brand partnerships and influencer marketing campaigns.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Content Creation",
     formSchema: {
       brandName: { label: "Brand Name", type: "text" },
       creatorName: { label: "Creator/Influencer Name", type: "text" },
@@ -798,6 +909,9 @@ export const contractRegistry: ContractRegistry = {
     id: "social-media-management-contract",
     title: "Social Media Management Contract",
     description: "An agreement for social media management services, including content creation, posting, and analytics.",
+    industry: "Freelancers / Creators",
+    documentType: "Agreement",
+    category: "Service Contract",
     formSchema: {
       clientName: { label: "Client Name", type: "text" },
       agencyName: { label: "Agency/Service Provider Name", type: "text" },
@@ -818,6 +932,9 @@ export const contractRegistry: ContractRegistry = {
     id: "purchase-agreement",
     title: "Real Estate Purchase Agreement",
     description: "A contract for the sale and purchase of real estate property.",
+    industry: "Real Estate",
+    documentType: "Agreement",
+    category: "Purchase",
     formSchema: {
       buyerName: { label: "Buyer Name", type: "text" },
       sellerName: { label: "Seller Name", type: "text" },
@@ -837,6 +954,9 @@ export const contractRegistry: ContractRegistry = {
     id: "property-deed",
     title: "Property Deed",
     description: "A legal document transferring ownership of real property from one party to another.",
+    industry: "Real Estate",
+    documentType: "Document",
+    category: "Title Transfer",
     formSchema: {
       grantorName: { label: "Grantor (Seller) Name", type: "text" },
       grantorAddress: { label: "Grantor Address", type: "textarea" },
@@ -857,6 +977,9 @@ export const contractRegistry: ContractRegistry = {
     id: "title-document",
     title: "Title Document",
     description: "A document establishing ownership and title status of real property.",
+    industry: "Real Estate",
+    documentType: "Document",
+    category: "Title Transfer",
     formSchema: {
       propertyAddress: { label: "Property Address", type: "textarea" },
       ownerName: { label: "Owner Name", type: "text" },

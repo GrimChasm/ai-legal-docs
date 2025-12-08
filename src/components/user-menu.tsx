@@ -18,7 +18,9 @@ export default function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#F3F5F7] transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#F3F5F7] active:scale-95 active:bg-gray-200 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+        aria-label="User menu"
+        aria-expanded={isOpen}
       >
         <div className="w-8 h-8 rounded-full bg-[#1A73E8] flex items-center justify-center text-white font-semibold text-sm">
           {userInitial}
@@ -46,14 +48,14 @@ export default function UserMenu() {
             <div className="py-1">
               <Link
                 href="/dashboard"
-                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] transition-colors"
+                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
                 onClick={() => setIsOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 href="/drafts"
-                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] transition-colors"
+                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
                 onClick={() => setIsOpen(false)}
               >
                 My Drafts
@@ -64,7 +66,7 @@ export default function UserMenu() {
                   setIsOpen(false)
                   signOut()
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
               >
                 Sign out
               </button>

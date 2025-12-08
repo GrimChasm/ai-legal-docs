@@ -66,7 +66,8 @@ export default function ContractsPage() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-text-main transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-text-main active:scale-90 transition-all duration-150 rounded focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+                    aria-label="Clear search"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

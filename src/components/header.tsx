@@ -49,6 +49,20 @@ export default function Header() {
           </div>
 
 
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-2 flex-1 justify-center">
+            <Link href="/templates-library">
+              <Button variant="ghost" size="sm">
+                Templates
+              </Button>
+            </Link>
+            <Link href="/contracts">
+              <Button variant="ghost" size="sm">
+                All Documents
+              </Button>
+            </Link>
+          </nav>
+
           {/* Right Side Actions */}
           <div className="flex items-center gap-2 md:gap-3 flex-shrink-0 overflow-visible">
             {status === "loading" ? (

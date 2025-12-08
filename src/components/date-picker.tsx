@@ -166,7 +166,7 @@ export default function DatePicker({
             onChange={(e) => {
               setSelectedMonth(Number(e.target.value))
             }}
-            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-xs font-medium"
+            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent hover:border-accent/50 transition-all duration-200 outline-none text-xs font-medium cursor-pointer"
             aria-label="Select month"
           >
             {months.map((month, idx) => (
@@ -180,7 +180,7 @@ export default function DatePicker({
             onChange={(e) => {
               setSelectedYear(Number(e.target.value))
             }}
-            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-xs font-medium"
+            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent hover:border-accent/50 transition-all duration-200 outline-none text-xs font-medium cursor-pointer"
             aria-label="Select year"
           >
             {years.map((year) => (
@@ -223,12 +223,12 @@ export default function DatePicker({
                 type="button"
                 onClick={() => handleDateSelect(day)}
                 onKeyDown={(e) => handleKeyDown(e, day)}
-                className={`aspect-square rounded transition-all text-xs focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 ${
+                className={`aspect-square rounded transition-all duration-150 text-xs focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 active:scale-90 ${
                   isSelected
-                    ? "bg-accent/10 border-2 border-accent text-[#101623] font-bold hover:bg-accent/20"
+                    ? "bg-accent/10 border-2 border-accent text-[#101623] font-bold hover:bg-accent/20 active:bg-accent/30"
                     : isToday
-                    ? "bg-bg-muted font-semibold text-text-main hover:bg-border"
-                    : "text-text-main hover:bg-bg-muted font-medium"
+                    ? "bg-bg-muted font-semibold text-text-main hover:bg-border active:bg-gray-300"
+                    : "text-text-main hover:bg-bg-muted font-medium active:bg-gray-200"
                 }`}
                 aria-label={`Select ${months[selectedMonth]} ${day}, ${selectedYear}`}
                 aria-pressed={isSelected}

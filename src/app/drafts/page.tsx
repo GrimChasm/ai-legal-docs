@@ -114,7 +114,8 @@ export default function DraftsPage() {
                       </h3>
                       <button
                         onClick={() => handleDelete(draft.id)}
-                        className="text-text-muted hover:text-danger transition-colors"
+                        className="text-text-muted hover:text-danger active:scale-90 transition-all duration-150 rounded p-1 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+                        aria-label="Delete draft"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path

@@ -78,12 +78,13 @@ export default function BundlesPage() {
                     ) : (
                       <span className="text-lg font-semibold text-[#1A73E8]">Free</span>
                     )}
-                    <Button
-                      className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
-                      asChild
-                    >
-                      <Link href={`/bundles/${bundle.id}`}>View Bundle</Link>
-                    </Button>
+                    <Link href={`/bundles/${bundle.id}`}>
+                      <Button
+                        className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
+                      >
+                        View Bundle
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

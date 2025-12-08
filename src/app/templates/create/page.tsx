@@ -226,39 +226,57 @@ export default function CreateTemplatePage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="category" className="mb-2 block">
-                        Category (Optional)
+                      <Label htmlFor="industry" className="mb-2 block">
+                        Industry *
                       </Label>
-                      <Input
-                        id="category"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        placeholder="e.g., Business, Legal"
-                      />
+                      <select
+                        id="industry"
+                        value={industry}
+                        onChange={(e) => setIndustry(e.target.value)}
+                        className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none bg-bg text-text-main"
+                        required
+                      >
+                        <option value="">Select Industry</option>
+                        <option value="Business / Startup">Business / Startup</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Freelancers / Creators">Freelancers / Creators</option>
+                        <option value="HR / Employment">HR / Employment</option>
+                        <option value="E-Commerce / Online Business">E-Commerce / Online Business</option>
+                        <option value="Other">Other</option>
+                      </select>
                     </div>
 
                     <div>
                       <Label htmlFor="documentType" className="mb-2 block">
-                        Document Type (Optional)
+                        Document Type *
                       </Label>
-                      <Input
+                      <select
                         id="documentType"
                         value={documentType}
                         onChange={(e) => setDocumentType(e.target.value)}
-                        placeholder="e.g., Agreement, Policy"
-                      />
+                        className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none bg-bg text-text-main"
+                        required
+                      >
+                        <option value="">Select Type</option>
+                        <option value="Agreement">Agreement</option>
+                        <option value="Policy">Policy</option>
+                        <option value="Letter">Letter</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Form">Form</option>
+                        <option value="Document">Document</option>
+                      </select>
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="industry" className="mb-2 block">
-                      Industry (Optional)
+                    <Label htmlFor="category" className="mb-2 block">
+                      Category (Optional)
                     </Label>
                     <Input
-                      id="industry"
-                      value={industry}
-                      onChange={(e) => setIndustry(e.target.value)}
-                      placeholder="e.g., Technology, Healthcare"
+                      id="category"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      placeholder="e.g., Legal Protection, Service Contract"
                     />
                   </div>
 
@@ -268,9 +286,9 @@ export default function CreateTemplatePage() {
                       id="isPublic"
                       checked={isPublic}
                       onChange={(e) => setIsPublic(e.target.checked)}
-                      className="w-4 h-4"
+                      className="w-4 h-4 cursor-pointer accent-accent hover:accent-accent-hover transition-all duration-200 focus:ring-2 focus:ring-accent focus:ring-offset-2 rounded"
                     />
-                    <Label htmlFor="isPublic" className="cursor-pointer">
+                    <Label htmlFor="isPublic" className="cursor-pointer hover:text-accent transition-colors duration-200">
                       Make this template public
                     </Label>
                   </div>
@@ -280,7 +298,7 @@ export default function CreateTemplatePage() {
                   <Button
                     variant="primary"
                     onClick={() => setStep(2)}
-                    disabled={!title || !description}
+                    disabled={!title || !description || !industry || !documentType}
                   >
                     Next: Form Fields
                   </Button>
@@ -372,7 +390,8 @@ export default function CreateTemplatePage() {
                         </div>
                         <button
                           onClick={() => removeField(name)}
-                          className="text-danger hover:text-danger-hover text-sm font-medium"
+                          className="text-danger hover:text-danger-hover active:scale-95 transition-all duration-150 text-sm font-medium px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+                          aria-label={`Remove ${config.label} field`}
                         >
                           Remove
                         </button>
