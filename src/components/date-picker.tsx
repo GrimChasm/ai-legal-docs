@@ -1,6 +1,33 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+/**
+ * DatePicker Component
+ * 
+ * A reusable static calendar date picker component for selecting dates in forms.
+ * 
+ * Features:
+ * - Static calendar always visible (not a popover)
+ * - Month/year dropdowns for navigation
+ * - Keyboard accessible
+ * - Outputs dates in YYYY-MM-DD format
+ * 
+ * Usage:
+ * ```tsx
+ * <DatePicker
+ *   value={dateValue}
+ *   onChange={(date) => setDateValue(date)}
+ *   id="effective-date"
+ *   required
+ *   placeholder="Select effective date"
+ * />
+ * ```
+ * 
+ * To use in contract forms:
+ * - Set field type to "date" in the formSchema
+ * - The component will automatically be used for that field
+ */
+
+import { useState, useEffect } from "react"
 import { Input } from "./ui/input"
 
 interface DatePickerProps {
@@ -9,6 +36,7 @@ interface DatePickerProps {
   id?: string
   required?: boolean
   placeholder?: string
+  label?: string
 }
 
 export default function DatePicker({
@@ -17,33 +45,26 @@ export default function DatePicker({
   id,
   required,
   placeholder = "Select date",
+  label,
 }: DatePickerProps) {
-  const [isOpen, setIsOpen] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
-  const pickerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      return () => document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen])
-
+  // Parse existing value and set month/year - handle YYYY-MM-DD format
   useEffect(() => {
     if (value) {
+      // Try parsing YYYY-MM-DD format first
+      const parts = value.split("-")
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10)
+        const month = parseInt(parts[1], 10) - 1 // Month is 0-indexed
+        if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) {
+          setSelectedYear(year)
+          setSelectedMonth(month)
+          return
+        }
+      }
+      // Fallback to Date parsing for other formats
       const date = new Date(value)
       if (!isNaN(date.getTime())) {
         setSelectedMonth(date.getMonth())
@@ -52,24 +73,25 @@ export default function DatePicker({
     }
   }, [value])
 
-  useEffect(() => {
-    // Reposition on scroll
-    const handleScroll = () => {
-      if (isOpen && pickerRef.current) {
-        const position = getInputPosition()
-        pickerRef.current.style.top = `${position.top}px`
-        pickerRef.current.style.left = `${position.left}px`
-      }
-    }
-
-    if (isOpen) {
-      window.addEventListener("scroll", handleScroll, true)
-      return () => window.removeEventListener("scroll", handleScroll, true)
-    }
-  }, [isOpen])
-
+  // Format date for display (MM/DD/YYYY)
   const formatDate = (dateString: string) => {
     if (!dateString) return ""
+    // Parse YYYY-MM-DD format directly to avoid timezone issues
+    const parts = dateString.split("-")
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10)
+      const month = parseInt(parts[1], 10) - 1 // Month is 0-indexed
+      const day = parseInt(parts[2], 10)
+      const date = new Date(year, month, day)
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+      }
+    }
+    // Fallback for other formats
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString
     return date.toLocaleDateString("en-US", {
@@ -79,13 +101,17 @@ export default function DatePicker({
     })
   }
 
+  // Handle date selection - format as YYYY-MM-DD without timezone conversion
   const handleDateSelect = (day: number) => {
-    const date = new Date(selectedYear, selectedMonth, day)
-    const formatted = date.toISOString().split("T")[0]
+    // Format directly as YYYY-MM-DD to avoid timezone issues
+    const year = selectedYear
+    const month = String(selectedMonth + 1).padStart(2, "0") // Month is 0-indexed, so add 1
+    const dayStr = String(day).padStart(2, "0")
+    const formatted = `${year}-${month}-${dayStr}`
     onChange(formatted)
-    setIsOpen(false)
   }
 
+  // Calendar utilities
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month + 1, 0).getDate()
   }
@@ -104,150 +130,115 @@ export default function DatePicker({
     "July", "August", "September", "October", "November", "December"
   ]
 
-  const years = Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - 50 + i)
+  // Generate years (current year ± 50 years)
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 101 }, (_, i) => currentYear - 50 + i)
 
-  const getInputPosition = () => {
-    if (!inputRef.current) return { top: 0, left: 0 }
-    const rect = inputRef.current.getBoundingClientRect()
-    const scrollY = window.scrollY || window.pageYOffset
-    const scrollX = window.scrollX || window.pageXOffset
-    
-    // Position below the input with some spacing
-    let top = rect.bottom + scrollY + 8
-    let left = rect.left + scrollX
-    
-    // Check if calendar would go off bottom of viewport
-    const viewportHeight = window.innerHeight
-    const calendarHeight = 350 // Approximate calendar height
-    if (rect.bottom + calendarHeight > viewportHeight) {
-      // Position above input instead
-      top = rect.top + scrollY - calendarHeight - 8
+  // Handle keyboard navigation
+  const handleKeyDown = (event: React.KeyboardEvent, day: number) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault()
+      handleDateSelect(day)
     }
-    
-    // Check if calendar would go off right edge
-    const viewportWidth = window.innerWidth
-    const calendarWidth = 300
-    if (left + calendarWidth > viewportWidth) {
-      left = viewportWidth - calendarWidth - 16
-    }
-    
-    return { top, left }
   }
 
-  const position = isOpen ? getInputPosition() : { top: 0, left: 0 }
-
   return (
-    <div className="relative">
-      <div className="relative">
-        <Input
-          ref={inputRef}
-          id={id}
-          type="text"
-          value={formatDate(value)}
-          onChange={() => {}} // Controlled by calendar
-          onClick={() => setIsOpen(!isOpen)}
-          onFocus={() => setIsOpen(true)}
-          required={required}
-          placeholder={placeholder}
-          readOnly
-          className="pr-10 cursor-pointer"
-        />
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
-        </button>
-      </div>
+    <div className="w-full space-y-4">
+      {/* Display selected date in input */}
+      <Input
+        id={id}
+        type="text"
+        value={formatDate(value)}
+        onChange={() => {}} // Controlled by calendar
+        required={required}
+        placeholder={placeholder}
+        readOnly
+        className="cursor-default"
+        aria-label={label || placeholder}
+      />
 
-      {isOpen && (
-        <div
-          ref={pickerRef}
-          className="fixed z-50 bg-bg border border-border rounded-lg shadow-lg p-4 min-w-[300px]"
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-          }}
-        >
-          {/* Month and Year Dropdowns */}
-          <div className="flex items-center justify-between mb-4 gap-2">
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="flex-1 px-3 py-2 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
-            >
-              {months.map((month, idx) => (
-                <option key={idx} value={idx}>
-                  {month}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="flex-1 px-3 py-2 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm"
-            >
-              {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Day Headers */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
-              <div key={day} className="text-center text-xs font-semibold text-text-muted py-1">
-                {day}
-              </div>
+      {/* Static Calendar */}
+      <div className="bg-white border border-border rounded-lg shadow-sm p-3 md:p-4 max-w-[280px]">
+        {/* Month and Year Dropdowns */}
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <select
+            value={selectedMonth}
+            onChange={(e) => {
+              setSelectedMonth(Number(e.target.value))
+            }}
+            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-xs font-medium"
+            aria-label="Select month"
+          >
+            {months.map((month, idx) => (
+              <option key={idx} value={idx}>
+                {month}
+              </option>
             ))}
-          </div>
-
-          {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {emptyDays.map((_, idx) => (
-              <div key={`empty-${idx}`} className="aspect-square" />
+          </select>
+          <select
+            value={selectedYear}
+            onChange={(e) => {
+              setSelectedYear(Number(e.target.value))
+            }}
+            className="flex-1 px-3 py-1.5 border border-border rounded-lg bg-bg text-text-main focus:ring-2 focus:ring-accent focus:border-accent outline-none text-xs font-medium"
+            aria-label="Select year"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
             ))}
-            {days.map((day) => {
-              const isSelected =
-                value &&
-                new Date(value).getDate() === day &&
-                new Date(value).getMonth() === selectedMonth &&
-                new Date(value).getFullYear() === selectedYear
-              const isToday =
-                day === new Date().getDate() &&
-                selectedMonth === new Date().getMonth() &&
-                selectedYear === new Date().getFullYear()
-
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  onClick={() => handleDateSelect(day)}
-                  className={`aspect-square rounded-lg hover:bg-bg-muted transition-colors text-sm font-medium ${
-                    isSelected
-                      ? "bg-accent text-white hover:bg-accent-hover"
-                      : isToday
-                      ? "bg-bg-muted font-semibold text-text-main"
-                      : "text-text-main"
-                  }`}
-                >
-                  {day}
-                </button>
-              )
-            })}
-          </div>
+          </select>
         </div>
-      )}
+
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+            <div key={day} className="text-center text-[10px] font-semibold text-text-muted py-1">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {emptyDays.map((_, idx) => (
+            <div key={`empty-${idx}`} className="aspect-square" />
+          ))}
+            {days.map((day) => {
+              // Format date string directly to match what handleDateSelect produces
+              const year = selectedYear
+              const month = String(selectedMonth + 1).padStart(2, "0")
+              const dayStr = String(day).padStart(2, "0")
+              const dateString = `${year}-${month}-${dayStr}`
+              const isSelected = value === dateString
+            const isToday =
+              day === new Date().getDate() &&
+              selectedMonth === new Date().getMonth() &&
+              selectedYear === new Date().getFullYear()
+
+            return (
+              <button
+                key={day}
+                type="button"
+                onClick={() => handleDateSelect(day)}
+                onKeyDown={(e) => handleKeyDown(e, day)}
+                className={`aspect-square rounded transition-all text-xs focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 ${
+                  isSelected
+                    ? "bg-accent/10 border-2 border-accent text-[#101623] font-bold hover:bg-accent/20"
+                    : isToday
+                    ? "bg-bg-muted font-semibold text-text-main hover:bg-border"
+                    : "text-text-main hover:bg-bg-muted font-medium"
+                }`}
+                aria-label={`Select ${months[selectedMonth]} ${day}, ${selectedYear}`}
+                aria-pressed={isSelected}
+              >
+                {day}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

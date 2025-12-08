@@ -68,36 +68,36 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-text-main text-center mb-12">
             How ContractVault Works
           </h2>
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-6 md:p-8 pt-8 md:pt-10 text-center">
-                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-semibold text-white">1</span>
+              <CardContent className="p-5 md:p-6 text-center">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-xl font-semibold text-white">1</span>
                 </div>
-                <h3 className="text-xl font-semibold text-text-main mb-3">Answer a few questions</h3>
-                <p className="text-base text-text-main leading-relaxed opacity-90">
+                <h3 className="text-lg font-semibold text-text-main mb-2">Answer a few questions</h3>
+                <p className="text-sm text-text-main leading-relaxed">
                   Fill out a simple form with the details needed for your document.
                 </p>
               </CardContent>
             </Card>
             <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-6 md:p-8 pt-8 md:pt-10 text-center">
-                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-semibold text-white">2</span>
+              <CardContent className="p-5 md:p-6 text-center">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-xl font-semibold text-white">2</span>
                 </div>
-                <h3 className="text-xl font-semibold text-text-main mb-3">We generate a tailored legal document</h3>
-                <p className="text-base text-text-main leading-relaxed opacity-90">
+                <h3 className="text-lg font-semibold text-text-main mb-2">We generate a tailored legal document</h3>
+                <p className="text-sm text-text-main leading-relaxed">
                   Our AI creates a professional, legally sound document customized to your needs.
                 </p>
               </CardContent>
             </Card>
             <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-6 md:p-8 pt-8 md:pt-10 text-center">
-                <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-                  <span className="text-2xl font-semibold text-white">3</span>
+              <CardContent className="p-5 md:p-6 text-center">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-xl font-semibold text-white">3</span>
                 </div>
-                <h3 className="text-xl font-semibold text-text-main mb-3">Download as PDF or DOCX</h3>
-                <p className="text-base text-text-main leading-relaxed opacity-90">
+                <h3 className="text-lg font-semibold text-text-main mb-2">Download as PDF or DOCX</h3>
+                <p className="text-sm text-text-main leading-relaxed">
                   Export your document in the format you need, ready to use or sign.
                 </p>
               </CardContent>
@@ -115,10 +115,10 @@ export default function Home() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.slice(0, 6).map((template) => (
               <Link key={template.id} href={`/contracts/${template.id}`}>
-                <Card className="hover:shadow-card-hover transition-all cursor-pointer h-full">
-                  <CardContent className="p-6 pt-8">
-                    <h3 className="text-lg font-semibold text-text-main mb-2">{template.title}</h3>
-                    <p className="text-sm text-text-main line-clamp-2 leading-relaxed opacity-90">{template.description}</p>
+                <Card className="hover:shadow-card-hover transition-all cursor-pointer h-full flex flex-col">
+                  <CardContent className="p-6 md:p-8 flex flex-col flex-1">
+                    <h3 className="text-lg font-semibold text-text-main mb-3">{template.title}</h3>
+                    <p className="text-sm text-text-main line-clamp-2 leading-relaxed flex-1">{template.description}</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -140,7 +140,7 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-text-main text-center mb-12">
             Trust & Safety
           </h2>
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-8">
             <div className="flex items-start gap-4">
               <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center flex-shrink-0 mt-1">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-semibold text-text-main mb-1">Accurate, plain-language legal documents</h3>
-                <p className="text-sm text-text-main leading-relaxed opacity-90">Professionally crafted with clear, understandable language.</p>
+                <p className="text-sm text-text-main leading-relaxed">Professionally crafted with clear, understandable language.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -160,7 +160,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-semibold text-text-main mb-1">Private & secure</h3>
-                <p className="text-sm text-text-main leading-relaxed opacity-90">Your documents are kept confidential and secure.</p>
+                <p className="text-sm text-text-main leading-relaxed">Your documents are kept confidential and secure.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -171,7 +171,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-semibold text-text-main mb-1">Edit before downloading</h3>
-                <p className="text-sm text-text-main leading-relaxed opacity-90">Review and customize your document before finalizing.</p>
+                <p className="text-sm text-text-main leading-relaxed">Review and customize your document before finalizing.</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -182,7 +182,7 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-semibold text-text-main mb-1">Fast, automated, always available</h3>
-                <p className="text-sm text-text-main leading-relaxed opacity-90">Generate documents instantly, 24/7.</p>
+                <p className="text-sm text-text-main leading-relaxed">Generate documents instantly, 24/7.</p>
               </div>
             </div>
           </div>
@@ -195,12 +195,12 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-text-main text-center mb-12">
             Simple, Transparent Pricing
           </h2>
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-10">
             <Card>
               <CardContent className="p-6 md:p-8 pt-8 md:pt-10">
                 <h3 className="text-2xl font-bold text-text-main mb-2">Per Document</h3>
                 <div className="text-4xl font-bold text-primary mb-4">$9.99</div>
-                <p className="text-base text-text-main mb-6 opacity-90">Pay only for what you need</p>
+                <p className="text-base text-text-main mb-6">Pay only for what you need</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,9 +233,9 @@ export default function Home() {
                   <span className="bg-accent text-white text-xs font-semibold px-2 py-1 rounded">Popular</span>
                 </div>
                 <div className="text-4xl font-bold text-primary mb-4">
-                  $29.99<span className="text-lg text-text-main font-normal opacity-75">/month</span>
+                  $29.99<span className="text-lg text-text-main font-normal">/month</span>
                 </div>
-                <p className="text-base text-text-main mb-6 opacity-90">Unlimited documents</p>
+                <p className="text-base text-text-main mb-6">Unlimited documents</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

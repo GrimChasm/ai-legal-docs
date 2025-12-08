@@ -92,7 +92,6 @@ export default function TemplatesPage() {
         ) : templates.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <div className="text-6xl mb-4">📄</div>
               <h3 className="text-2xl font-semibold text-text-main mb-2">No templates found</h3>
               <p className="text-base text-text-muted mb-6">
                 {filter === "mine"
@@ -110,28 +109,28 @@ export default function TemplatesPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => (
               <Link key={template.id} href={`/templates/${template.id}`}>
-                <Card className="h-full hover:shadow-card-hover transition-all cursor-pointer">
-                  <CardContent className="p-6 pt-8">
-                    <div className="flex items-start justify-between mb-3">
+                <Card className="h-full hover:shadow-card-hover transition-all cursor-pointer flex flex-col">
+                  <CardContent className="p-6 md:p-8 flex flex-col flex-1">
+                    <div className="flex items-start justify-between mb-4">
                       <h3 className="text-lg font-semibold text-text-main">{template.title}</h3>
                       {template.isPublic && (
-                        <span className="text-xs bg-accent/10 text-accent px-2 py-1 rounded">
+                        <span className="text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded">
                           Public
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-text-muted mb-4 line-clamp-2 leading-relaxed">
+                    <p className="text-sm text-text-muted mb-4 line-clamp-2 leading-relaxed flex-1">
                       {template.description || "No description"}
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-text-muted mb-4">
+                    <div className="flex items-center gap-2 text-xs text-text-muted mb-6">
                       {template.category && (
-                        <span className="bg-bg-muted px-2 py-1 rounded">{template.category}</span>
+                        <span className="bg-gray-100 text-gray-700 font-medium px-2.5 py-1 rounded text-xs">{template.category}</span>
                       )}
                       {template.industry && (
-                        <span className="bg-bg-muted px-2 py-1 rounded">{template.industry}</span>
+                        <span className="bg-gray-100 text-gray-700 font-medium px-2.5 py-1 rounded text-xs">{template.industry}</span>
                       )}
                     </div>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full mt-auto">
                       Use Template
                     </Button>
                   </CardContent>

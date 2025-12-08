@@ -34,11 +34,18 @@ export default function ContractForm({
   const [selectedModel, setSelectedModel] = useState("auto")
 
   const fields = Object.entries(formSchema)
-  const filledCount = Object.values(values).filter(v => v.trim() !== "").length
+  // Robust check for filled fields: must have actual content, not empty/whitespace/undefined/null
+  const filledCount = Object.values(values).filter(v => {
+    if (!v || typeof v !== 'string') return false
+    const trimmed = v.trim()
+    return trimmed !== "" && trimmed !== "undefined" && trimmed !== "null"
+  }).length
   const progress = (filledCount / fields.length) * 100
 
   const handleChange = (field: string, value: string) => {
-    setValues((prev) => ({ ...prev, [field]: value }))
+    // Normalize empty values: if value is empty, whitespace-only, or invalid, set to empty string
+    const normalizedValue = (value && typeof value === 'string' && value.trim() !== "") ? value : ""
+    setValues((prev) => ({ ...prev, [field]: normalizedValue }))
     setError(null)
   }
 
@@ -89,33 +96,33 @@ export default function ContractForm({
   if (result) {
     return (
       <div className="space-y-6">
-        <Card className="border-accent/30 bg-accent/10">
-          <CardContent className="p-6 md:p-8 text-center">
-            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
+        <Card className="border-2 border-accent bg-blue-50">
+          <CardContent className="p-8 md:p-10 text-center">
+            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-text-main mb-2">Your Document is Ready!</h2>
-            <p className="text-base text-text-muted">Review your generated legal document below</p>
+            <h2 className="text-2xl font-bold text-[#101623] mb-3">Your Document is Ready!</h2>
+            <p className="text-base text-[#4A5568] font-medium">Review your generated legal document below</p>
           </CardContent>
         </Card>
 
         <Card id="generated-document" className="overflow-hidden">
-          <div className="bg-bg-muted px-6 md:px-8 py-4 md:py-6 border-b border-border">
+          <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-b border-border">
             <h3 className="text-xl font-semibold text-text-main">Generated Document</h3>
             <p className="text-sm text-text-muted mt-1">Your professional legal document</p>
           </div>
           
-          <CardContent className="p-6 md:p-8">
+          <CardContent className="p-8 md:p-10 lg:p-12">
             <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap text-text-main leading-relaxed">
+              <div className="whitespace-pre-wrap text-[#101623] leading-relaxed text-base" style={{ lineHeight: '1.8' }}>
                 {result}
               </div>
             </div>
           </CardContent>
 
-          <div className="bg-bg-muted px-6 md:px-8 py-4 md:py-6 border-t border-border flex flex-col sm:flex-row gap-3">
+          <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-t border-border flex flex-col sm:flex-row gap-4">
             <Button 
               variant="secondary" 
               disabled={exportingPDF}
@@ -221,18 +228,27 @@ export default function ContractForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
         {/* AI Model Selector */}
-        <div className="bg-accent/10 border border-accent/30 rounded-lg p-4">
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 md:p-8">
           <AIModelSelector value={selectedModel} onChange={setSelectedModel} />
         </div>
 
         {fields.map(([field, config]) => {
           const isFocused = focusedField === field
-          const hasValue = values[field]?.trim() !== ""
+          // More robust check: ensure value exists, is not empty, not just whitespace, and not placeholder-like values
+          const fieldValue = values[field]
+          const hasValue = fieldValue && 
+                          typeof fieldValue === 'string' && 
+                          fieldValue.trim() !== "" && 
+                          fieldValue.trim() !== "undefined" && 
+                          fieldValue.trim() !== "null"
+          
+          // Normalize field type to ensure consistent matching (handle both standard and custom templates)
+          const fieldType = config.type?.toLowerCase().trim() || "text"
           
           return (
-            <div key={field} className="space-y-2">
+            <div key={field} className="space-y-3">
               <Label 
                 htmlFor={field}
                 className={isFocused ? "text-accent" : ""}
@@ -243,7 +259,7 @@ export default function ContractForm({
                 )}
               </Label>
 
-              {config.type === "textarea" ? (
+              {fieldType === "textarea" ? (
                 <Textarea
                   id={field}
                   value={values[field] || ""}
@@ -252,17 +268,18 @@ export default function ContractForm({
                   onBlur={() => setFocusedField(null)}
                   required={!config.label.includes("(Optional)")}
                   placeholder={`Enter ${config.label.toLowerCase()}...`}
-                  className={hasValue && !isFocused ? "border-accent/40 bg-accent/10" : ""}
+                  className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
                 />
-              ) : config.type === "date" ? (
+              ) : fieldType === "date" ? (
                 <DatePicker
                   id={field}
                   value={values[field] || ""}
                   onChange={(value) => handleChange(field, value)}
                   required={!config.label.includes("(Optional)")}
                   placeholder={`Select ${config.label.toLowerCase()}...`}
+                  label={config.label}
                 />
-              ) : config.type === "country/state" ? (
+              ) : fieldType === "country/state" ? (
                 <JurisdictionSelector
                   id={field}
                   value={values[field] || ""}
@@ -270,24 +287,25 @@ export default function ContractForm({
                   required={!config.label.includes("(Optional)")}
                   placeholder={`Select ${config.label.toLowerCase()}...`}
                   includeState={true}
+                  label={config.label}
                 />
               ) : (
                 <Input
                   id={field}
-                  type={config.type}
+                  type={fieldType === "number" ? "number" : "text"}
                   value={values[field] || ""}
                   onChange={(e) => handleChange(field, e.target.value)}
                   onFocus={() => setFocusedField(field)}
                   onBlur={() => setFocusedField(null)}
                   required={!config.label.includes("(Optional)")}
                   placeholder={`Enter ${config.label.toLowerCase()}...`}
-                  className={hasValue && !isFocused ? "border-accent/40 bg-accent/10" : ""}
+                  className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
                 />
               )}
 
               {hasValue && !isFocused && (
-                <div className="flex items-center text-accent text-sm">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center text-blue-700 text-sm font-semibold">
+                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span>Field completed</span>
@@ -297,7 +315,7 @@ export default function ContractForm({
           )
         })}
 
-        <div className="pt-4 space-y-4">
+        <div className="pt-6 space-y-6">
           <Button 
             type="submit" 
             variant="primary"
@@ -324,12 +342,12 @@ export default function ContractForm({
           </Button>
 
           {error && (
-            <div className="bg-danger/10 border border-danger/20 rounded-lg p-4">
-              <div className="flex items-start gap-2">
-                <svg className="w-5 h-5 text-danger flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm text-danger">{error}</p>
+                <p className="text-sm text-red-800 font-semibold leading-relaxed">{error}</p>
               </div>
             </div>
           )}

@@ -43,7 +43,6 @@ export default function DashboardPage() {
           <Link href="/drafts">
             <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
-                <div className="text-4xl mb-4">📝</div>
                 <h3 className="text-xl font-semibold text-[#101623] mb-2">My Drafts</h3>
                 <p className="text-[#6C7783] text-sm">View and manage your saved document drafts</p>
               </CardContent>
@@ -53,7 +52,6 @@ export default function DashboardPage() {
           <Link href="/templates">
             <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
-                <div className="text-4xl mb-4">📄</div>
                 <h3 className="text-xl font-semibold text-[#101623] mb-2">Templates</h3>
                 <p className="text-[#6C7783] text-sm">Browse and create custom document templates</p>
               </CardContent>
@@ -63,7 +61,6 @@ export default function DashboardPage() {
           <Link href="/contracts">
             <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
-                <div className="text-4xl mb-4">📋</div>
                 <h3 className="text-xl font-semibold text-[#101623] mb-2">All Documents</h3>
                 <p className="text-[#6C7783] text-sm">Browse all available document templates</p>
               </CardContent>

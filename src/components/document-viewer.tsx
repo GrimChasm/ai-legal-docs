@@ -17,9 +17,13 @@ export default function DocumentViewer({
       className={`prose prose-sm max-w-none ${className}`}
       style={{
         fontFamily: "system-ui, -apple-system, sans-serif",
+        color: '#101623',
+        lineHeight: '1.8',
       }}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <div style={{ padding: '24px 0' }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      </div>
     </div>
   )
 }

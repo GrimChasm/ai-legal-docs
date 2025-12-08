@@ -66,7 +66,6 @@ export default function TemplatePage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <Card className="border border-[#E0E5EC]">
             <CardContent className="p-12 text-center">
-              <div className="text-6xl mb-4">❌</div>
               <h3 className="text-2xl font-semibold text-[#101623] mb-2">Template Not Found</h3>
               <p className="text-[#6C7783] mb-6">{error || "The template you're looking for doesn't exist."}</p>
               <Button

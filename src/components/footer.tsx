@@ -17,7 +17,7 @@ export default function Footer() {
               </div>
               <span className="font-bold text-xl">ContractVault</span>
             </div>
-            <p className="text-sm text-white leading-relaxed opacity-90">
+            <p className="text-sm text-white leading-relaxed">
               Instant, lawyer-grade legal documents from your answers.
             </p>
           </div>
@@ -25,7 +25,7 @@ export default function Footer() {
           {/* Links */}
           <div>
             <h3 className="font-semibold mb-4 text-base">Product</h3>
-            <ul className="space-y-2 text-sm text-white opacity-90">
+            <ul className="space-y-2 text-sm text-white">
               <li>
                 <Link href="/contracts" className="hover:text-white transition-colors">
                   Templates
@@ -51,7 +51,7 @@ export default function Footer() {
 
           <div>
             <h3 className="font-semibold mb-4 text-base">Company</h3>
-            <ul className="space-y-2 text-sm text-white opacity-90">
+            <ul className="space-y-2 text-sm text-white">
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
                   About
@@ -72,7 +72,7 @@ export default function Footer() {
 
           <div>
             <h3 className="font-semibold mb-4 text-base">Legal</h3>
-            <ul className="space-y-2 text-sm text-white opacity-90">
+            <ul className="space-y-2 text-sm text-white">
               <li>
                 <Link href="/privacy-policy" className="hover:text-white transition-colors">
                   Privacy Policy
@@ -87,7 +87,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/20 pt-8 text-center text-sm text-white opacity-90">
+        <div className="border-t border-white/20 pt-8 text-center text-sm text-white">
           <p>&copy; {new Date().getFullYear()} ContractVault. All rights reserved.</p>
         </div>
       </div>

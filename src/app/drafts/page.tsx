@@ -85,7 +85,6 @@ export default function DraftsPage() {
         ) : drafts.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <div className="text-6xl mb-4">📝</div>
               <h3 className="text-2xl font-semibold text-text-main mb-2">No drafts yet</h3>
               <p className="text-base text-text-muted mb-6">
                 Start creating a document to save your first draft.
@@ -106,10 +105,10 @@ export default function DraftsPage() {
               return (
                 <Card
                   key={draft.id}
-                  className="hover:shadow-card-hover transition-all"
+                  className="hover:shadow-card-hover transition-all h-full flex flex-col"
                 >
-                  <CardContent className="p-6 pt-8">
-                    <div className="flex items-start justify-between mb-3">
+                  <CardContent className="p-6 md:p-8 flex flex-col flex-1">
+                    <div className="flex items-start justify-between mb-4">
                       <h3 className="text-lg font-semibold text-text-main">
                         {contract?.title || "Unknown Document"}
                       </h3>
@@ -130,7 +129,7 @@ export default function DraftsPage() {
                     <p className="text-sm text-text-muted mb-4">
                       Last updated: {formatDate(draft.updatedAt)}
                     </p>
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-6 flex-1">
                       {Object.entries(values)
                         .slice(0, 3)
                         .map(([key, value]) => (
@@ -143,7 +142,7 @@ export default function DraftsPage() {
                           </div>
                         ))}
                     </div>
-                    <Link href={`/contracts/${draft.contractId}?draftId=${draft.id}`}>
+                    <Link href={`/contracts/${draft.contractId}?draftId=${draft.id}`} className="mt-auto">
                       <Button variant="primary" className="w-full">
                         Continue Editing
                       </Button>

@@ -19,7 +19,7 @@ const CardHeader = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <div
     ref={ref}
-    className={`flex flex-col space-y-2 p-6 ${className}`}
+    className={`flex flex-col space-y-2 p-6 md:p-8 ${className}`}
     {...props}
   />
 ))
@@ -44,7 +44,7 @@ const CardDescription = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <p
     ref={ref}
-    className={`text-sm text-[#101623] leading-relaxed opacity-90 ${className}`}
+    className={`text-sm text-[#101623] leading-relaxed ${className}`}
     style={{ color: '#101623' }}
     {...props}
   />
@@ -57,7 +57,7 @@ const CardContent = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <div
     ref={ref}
-    className={`p-6 pt-0 ${className}`}
+    className={`p-6 md:p-8 pt-0 ${className}`}
     {...props}
   />
 ))

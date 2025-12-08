@@ -180,7 +180,7 @@ export default function CreateTemplatePage() {
         </div>
 
         {error && (
-          <div className="mb-6 bg-danger/10 border border-danger/20 text-danger px-4 py-3 rounded-lg">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 font-medium px-6 py-4 rounded-lg">
             {error}
           </div>
         )}

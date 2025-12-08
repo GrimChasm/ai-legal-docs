@@ -1,15 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  /* ContractVault Brand Colors */
+  /* ContractVault Brand Colors - All solid, no transparency */
   --color-primary: #0A1B2A; /* Deep Navy */
+  --color-primary-hover: #0D2333; /* Slightly lighter for hover */
   --color-accent: #1A73E8; /* Electric Blue */
+  --color-accent-hover: #1557B8; /* Darker for hover */
   --color-accent-soft: #5CC8C1; /* Soft Teal */
   --color-bg: #FFFFFF; /* White */
   --color-bg-muted: #F3F5F7; /* Light Gray */
-  --color-text-main: #101623; /* Near-Black */
-  --color-text-muted: #6C7783; /* Slate Gray */
+  --color-text-main: #101623; /* Near-Black - 100% opaque */
+  --color-text-muted: #4A5568; /* Darker gray for better contrast - 100% opaque */
   --color-border: #E0E5EC; /* Neutral Border */
+  --color-danger: #DC2626; /* Red for errors */
+  --color-danger-hover: #B91C1C; /* Darker red for hover */
+  --color-white: #FFFFFF; /* Pure white */
+  
+  /* Spacing Tokens - Consistent across all components */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  
+  /* Component Padding */
+  --padding-card: 24px; /* Desktop card padding */
+  --padding-card-mobile: 16px; /* Mobile card padding */
+  --padding-button-vertical: 12px;
+  --padding-button-horizontal: 20px;
+  --padding-input-vertical: 12px;
+  --padding-input-horizontal: 16px;
+  --padding-section: 32px; /* Section vertical padding */
+  --padding-section-mobile: 24px; /* Mobile section padding */
 
   /* Legacy variables for compatibility */
   --background: var(--color-bg);
