@@ -1,0 +1,213 @@
+import jsPDF from "jspdf"
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx"
+import { saveAs } from "file-saver"
+
+/**
+ * Convert markdown text to plain text (basic conversion)
+ */
+function markdownToText(markdown: string): string {
+  return markdown
+    .replace(/^#+\s+/gm, "") // Remove headers
+    .replace(/\*\*(.+?)\*\*/g, "$1") // Remove bold
+    .replace(/\*(.+?)\*/g, "$1") // Remove italic
+    .replace(/`(.+?)`/g, "$1") // Remove code
+    .replace(/\[(.+?)\]\(.+?\)/g, "$1") // Remove links
+    .trim()
+}
+
+/**
+ * Parse markdown into paragraphs for DOCX
+ */
+function parseMarkdownToParagraphs(markdown: string): Paragraph[] {
+  const lines = markdown.split("\n")
+  const paragraphs: Paragraph[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i]
+
+    // Skip empty lines
+    if (!line.trim()) {
+      paragraphs.push(new Paragraph({ text: "" }))
+      continue
+    }
+
+    // Handle headers
+    if (line.startsWith("# ")) {
+      const text = parseInlineFormatting(line.substring(2))
+      paragraphs.push(
+        new Paragraph({
+          children: text,
+          heading: HeadingLevel.HEADING_1,
+        })
+      )
+    } else if (line.startsWith("## ")) {
+      const text = parseInlineFormatting(line.substring(3))
+      paragraphs.push(
+        new Paragraph({
+          children: text,
+          heading: HeadingLevel.HEADING_2,
+        })
+      )
+    } else if (line.startsWith("### ")) {
+      const text = parseInlineFormatting(line.substring(4))
+      paragraphs.push(
+        new Paragraph({
+          children: text,
+          heading: HeadingLevel.HEADING_3,
+        })
+      )
+    } else if (line.match(/^[-*]\s/)) {
+      // Handle bullet points
+      const text = parseInlineFormatting(line.substring(2))
+      paragraphs.push(
+        new Paragraph({
+          children: text,
+          bullet: { level: 0 },
+        })
+      )
+    } else {
+      // Regular paragraph
+      const text = parseInlineFormatting(line)
+      paragraphs.push(new Paragraph({ children: text }))
+    }
+  }
+
+  return paragraphs
+}
+
+/**
+ * Parse inline markdown formatting (bold, italic) into TextRun array
+ */
+function parseInlineFormatting(text: string): TextRun[] {
+  const runs: TextRun[] = []
+  let remaining = text
+  let lastIndex = 0
+
+  // Match bold (**text** or __text__)
+  const boldRegex = /\*\*(.+?)\*\*|__(.+?)__/g
+  // Match italic (*text* or _text_)
+  const italicRegex = /(?<!\*)\*([^*]+?)\*(?!\*)|(?<!_)_([^_]+?)_(?!_)/g
+
+  // Collect all matches with their positions
+  const matches: Array<{ start: number; end: number; text: string; bold?: boolean; italic?: boolean }> = []
+
+  let match
+  while ((match = boldRegex.exec(text)) !== null) {
+    matches.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      text: match[1] || match[2],
+      bold: true,
+    })
+  }
+
+  // Reset regex
+  boldRegex.lastIndex = 0
+  while ((match = italicRegex.exec(text)) !== null) {
+    const start = match.index
+    const end = start + match[0].length
+    // Check if this is already part of a bold match
+    const isInBold = matches.some((m) => start >= m.start && end <= m.end)
+    if (!isInBold) {
+      matches.push({
+        start,
+        end,
+        text: match[1] || match[2],
+        italic: true,
+      })
+    }
+  }
+
+  // Sort matches by position
+  matches.sort((a, b) => a.start - b.start)
+
+  // Build TextRun array
+  let currentPos = 0
+  for (const match of matches) {
+    // Add text before match
+    if (match.start > currentPos) {
+      const beforeText = text.substring(currentPos, match.start)
+      if (beforeText) {
+        runs.push(new TextRun({ text: beforeText }))
+      }
+    }
+    // Add matched text with formatting
+    runs.push(new TextRun({ text: match.text, bold: match.bold, italics: match.italic }))
+    currentPos = match.end
+  }
+
+  // Add remaining text
+  if (currentPos < text.length) {
+    const remainingText = text.substring(currentPos)
+    if (remainingText) {
+      runs.push(new TextRun({ text: remainingText }))
+    }
+  }
+
+  // If no formatting found, return single run
+  if (runs.length === 0) {
+    runs.push(new TextRun({ text }))
+  }
+
+  return runs
+}
+
+/**
+ * Export markdown content as PDF
+ */
+export async function exportToPDF(content: string, filename: string = "document.pdf") {
+  try {
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 20
+    const maxWidth = pageWidth - margin * 2
+    let yPosition = margin
+
+    // Convert markdown to plain text and split into lines
+    const text = markdownToText(content)
+    const lines = doc.splitTextToSize(text, maxWidth)
+
+    doc.setFontSize(12)
+    doc.setTextColor(0, 0, 0)
+
+    for (let i = 0; i < lines.length; i++) {
+      if (yPosition > pageHeight - margin) {
+        doc.addPage()
+        yPosition = margin
+      }
+      doc.text(lines[i], margin, yPosition)
+      yPosition += 7
+    }
+
+    doc.save(filename)
+  } catch (error) {
+    console.error("Error exporting to PDF:", error)
+    throw new Error("Failed to export PDF")
+  }
+}
+
+/**
+ * Export markdown content as DOCX
+ */
+export async function exportToDOCX(content: string, filename: string = "document.docx") {
+  try {
+    const paragraphs = parseMarkdownToParagraphs(content)
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: paragraphs,
+        },
+      ],
+    })
+
+    const blob = await Packer.toBlob(doc)
+    saveAs(blob, filename)
+  } catch (error) {
+    console.error("Error exporting to DOCX:", error)
+    throw new Error("Failed to export DOCX")
+  }
+}
+
