@@ -11,6 +11,7 @@ import { contractRegistry } from "@/lib/contracts"
 import DatePicker from "@/components/date-picker"
 import JurisdictionSelector from "@/components/jurisdiction-selector"
 import AIModelSelector from "@/components/ai-model-selector"
+import InterviewForm from "@/components/interview-form"
 
 export default function ContractForm({
   contractId,
@@ -32,6 +33,7 @@ export default function ContractForm({
   const [exportingPDF, setExportingPDF] = useState(false)
   const [exportingDOCX, setExportingDOCX] = useState(false)
   const [selectedModel, setSelectedModel] = useState("auto")
+  const [interviewMode, setInterviewMode] = useState<"step-by-step" | "grouped">("step-by-step")
 
   const fields = Object.entries(formSchema)
   // Robust check for filled fields: must have actual content, not empty/whitespace/undefined/null
@@ -229,91 +231,46 @@ export default function ContractForm({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
+        {/* Mode Toggle */}
+        <div className="flex items-center justify-between bg-bg-muted rounded-lg p-4">
+          <div>
+            <h3 className="text-sm font-semibold text-text-main mb-1">Interview Style</h3>
+            <p className="text-xs text-text-muted">Choose how you'd like to answer questions</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={interviewMode === "step-by-step" ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setInterviewMode("step-by-step")}
+            >
+              Step-by-Step
+            </Button>
+            <Button
+              type="button"
+              variant={interviewMode === "grouped" ? "primary" : "outline"}
+              size="sm"
+              onClick={() => setInterviewMode("grouped")}
+            >
+              By Section
+            </Button>
+          </div>
+        </div>
+
         {/* AI Model Selector */}
         <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 md:p-8">
           <AIModelSelector value={selectedModel} onChange={setSelectedModel} />
         </div>
 
-        {fields.map(([field, config]) => {
-          const isFocused = focusedField === field
-          // More robust check: ensure value exists, is not empty, not just whitespace, and not placeholder-like values
-          const fieldValue = values[field]
-          const hasValue = fieldValue && 
-                          typeof fieldValue === 'string' && 
-                          fieldValue.trim() !== "" && 
-                          fieldValue.trim() !== "undefined" && 
-                          fieldValue.trim() !== "null"
-          
-          // Normalize field type to ensure consistent matching (handle both standard and custom templates)
-          const fieldType = config.type?.toLowerCase().trim() || "text"
-          
-          return (
-            <div key={field} className="space-y-3">
-              <Label 
-                htmlFor={field}
-                className={isFocused ? "text-accent" : ""}
-              >
-                {config.label}
-                {!config.label.includes("(Optional)") && (
-                  <span className="text-danger ml-1">*</span>
-                )}
-              </Label>
-
-              {fieldType === "textarea" ? (
-                <Textarea
-                  id={field}
-                  value={values[field] || ""}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  onFocus={() => setFocusedField(field)}
-                  onBlur={() => setFocusedField(null)}
-                  required={!config.label.includes("(Optional)")}
-                  placeholder={`Enter ${config.label.toLowerCase()}...`}
-                  className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
-                />
-              ) : fieldType === "date" ? (
-                <DatePicker
-                  id={field}
-                  value={values[field] || ""}
-                  onChange={(value) => handleChange(field, value)}
-                  required={!config.label.includes("(Optional)")}
-                  placeholder={`Select ${config.label.toLowerCase()}...`}
-                  label={config.label}
-                />
-              ) : fieldType === "country/state" ? (
-                <JurisdictionSelector
-                  id={field}
-                  value={values[field] || ""}
-                  onChange={(value) => handleChange(field, value)}
-                  required={!config.label.includes("(Optional)")}
-                  placeholder={`Select ${config.label.toLowerCase()}...`}
-                  includeState={true}
-                  label={config.label}
-                />
-              ) : (
-                <Input
-                  id={field}
-                  type={fieldType === "number" ? "number" : "text"}
-                  value={values[field] || ""}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  onFocus={() => setFocusedField(field)}
-                  onBlur={() => setFocusedField(null)}
-                  required={!config.label.includes("(Optional)")}
-                  placeholder={`Enter ${config.label.toLowerCase()}...`}
-                  className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
-                />
-              )}
-
-              {hasValue && !isFocused && (
-                <div className="flex items-center text-blue-700 text-sm font-semibold">
-                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Field completed</span>
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {/* Interview Form */}
+        <InterviewForm
+          formSchema={formSchema}
+          values={values}
+          onChange={handleChange}
+          onFocus={setFocusedField}
+          onBlur={() => setFocusedField(null)}
+          mode={interviewMode}
+        />
 
         <div className="pt-6 space-y-6">
           <Button 

@@ -30,7 +30,7 @@ export default function BundlesPage() {
                   bundle.popular
                     ? "border-[#1A73E8] shadow-card-hover"
                     : "border-[#E0E5EC]"
-                } hover:shadow-card-hover transition-all`}
+                } hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 cursor-pointer`}
               >
                 <CardContent className="p-6 pt-8">
                   {bundle.popular && (
@@ -78,7 +78,7 @@ export default function BundlesPage() {
                     ) : (
                       <span className="text-lg font-semibold text-[#1A73E8]">Free</span>
                     )}
-                    <Link href={`/bundles/${bundle.id}`}>
+                    <Link href={`/bundles/${bundle.id}`} className="inline-block active:scale-[0.98] transition-transform duration-150">
                       <Button
                         className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
                       >

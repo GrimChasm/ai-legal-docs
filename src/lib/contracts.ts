@@ -45,11 +45,18 @@ import titleDocumentTemplate from "@/templates/title-document"
 // Types
 // -----------------------------
 
-export type FieldType = "text" | "textarea" | "date" | "number"
+export type FieldType = "text" | "textarea" | "date" | "number" | "country/state"
 
 export interface FieldConfig {
   label: string
   type: FieldType
+  // Interview-style metadata
+  question?: string // Plain-English question (e.g., "What is your company name?")
+  description?: string // Helpful explanation of what this field is for
+  helpText?: string // Additional guidance or examples
+  group?: string // Group related fields together (e.g., "Parties", "Dates", "Terms")
+  order?: number // Optional ordering within group
+  required?: boolean // Whether field is required (defaults to true unless label contains "(Optional)")
 }
 
 export type FormSchema = Record<string, FieldConfig>
@@ -89,40 +96,132 @@ export const contractRegistry: ContractRegistry = {
     documentType: "Agreement",
     category: "Legal Protection",
     formSchema: {
-      clientName: { label: "Client Name", type: "text" },
-      recipientName: { label: "Recipient Name", type: "text" },
-      effectiveDate: { label: "Effective Date", type: "date" },
-      jurisdiction: { label: "Jurisdiction (State)", type: "country/state" },
+      clientName: { 
+        label: "Client Name", 
+        type: "text",
+        question: "What is the name of the party disclosing confidential information?",
+        description: "This is typically your company or organization name.",
+        group: "Parties",
+        order: 1
+      },
+      recipientName: { 
+        label: "Recipient Name", 
+        type: "text",
+        question: "Who will be receiving the confidential information?",
+        description: "Enter the name of the person, company, or organization receiving the information.",
+        group: "Parties",
+        order: 2
+      },
+      effectiveDate: { 
+        label: "Effective Date", 
+        type: "date",
+        question: "When should this agreement take effect?",
+        description: "Select the date when the NDA becomes legally binding.",
+        helpText: "This is usually today's date or a future date when the agreement starts.",
+        group: "Dates & Terms",
+        order: 1
+      },
+      jurisdiction: { 
+        label: "Governing State", 
+        type: "country/state",
+        question: "Which state or country's laws will govern this agreement?",
+        description: "Select the jurisdiction where legal disputes would be resolved.",
+        helpText: "Typically, this is the state where your business is located.",
+        group: "Dates & Terms",
+        order: 2
+      },
       confidentialityTerm: {
         label: "Confidentiality Term (Years)",
         type: "number",
+        question: "How long should the confidentiality obligation last?",
+        description: "Enter the number of years the recipient must keep information confidential.",
+        helpText: "Common terms are 2-5 years. Some NDAs last indefinitely.",
+        group: "Dates & Terms",
+        order: 3
       },
       purpose: {
         label: "Purpose of Disclosure",
         type: "textarea",
+        question: "What is the reason for sharing confidential information?",
+        description: "Briefly describe why you're sharing confidential information with the recipient.",
+        helpText: "Examples: 'To evaluate a potential business partnership' or 'For product development collaboration'.",
+        group: "Details",
+        order: 1
       },
     },
     template: ndaTemplate as ContractTemplateFn,
   },
 
   // 2. Independent Contractor Agreement
-  "contractor-agreement": {
-    id: "contractor-agreement",
-    title: "Independent Contractor Agreement",
-    description:
-      "Defines scope, compensation, responsibilities, and terms for contractor work.",
-    industry: "Business / Startup",
-    documentType: "Agreement",
-    category: "Employment",
-    formSchema: {
-      clientName: { label: "Client/Company Name", type: "text" },
-      contractorName: { label: "Contractor Name", type: "text" },
-      services: { label: "Services Description", type: "textarea" },
-      compensation: { label: "Compensation Terms", type: "textarea" },
-      startDate: { label: "Start Date", type: "date" },
-      endDate: { label: "End Date (Optional)", type: "date" },
-      jurisdiction: { label: "Governing State", type: "country/state" },
-    },
+        "contractor-agreement": {
+          id: "contractor-agreement",
+          title: "Independent Contractor Agreement",
+          description:
+            "Defines scope, compensation, responsibilities, and terms for contractor work.",
+          industry: "Business / Startup",
+          documentType: "Agreement",
+          category: "Employment",
+          formSchema: {
+            clientName: { 
+              label: "Client/Company Name", 
+              type: "text",
+              question: "What is your company or business name?",
+              description: "The entity hiring the contractor.",
+              group: "Parties",
+              order: 1
+            },
+            contractorName: { 
+              label: "Contractor Name", 
+              type: "text",
+              question: "What is the contractor's full name or business name?",
+              description: "The person or business providing services.",
+              group: "Parties",
+              order: 2
+            },
+            services: { 
+              label: "Services Description", 
+              type: "textarea",
+              question: "What services will the contractor provide?",
+              description: "Describe the work, deliverables, or services in detail.",
+              helpText: "Be specific: e.g., 'Web development for company website including frontend and backend'",
+              group: "Services & Scope",
+              order: 1
+            },
+            compensation: { 
+              label: "Compensation Terms", 
+              type: "textarea",
+              question: "How will the contractor be paid?",
+              description: "Specify payment amount, schedule, and method.",
+              helpText: "Examples: '$5,000 per month', '$50/hour', 'Fixed fee of $10,000 upon completion'",
+              group: "Payment",
+              order: 1
+            },
+            startDate: { 
+              label: "Start Date", 
+              type: "date",
+              question: "When does this contract begin?",
+              description: "The date when the contractor starts work.",
+              group: "Timeline",
+              order: 1
+            },
+            endDate: { 
+              label: "End Date (Optional)", 
+              type: "date",
+              question: "When does this contract end? (Optional)",
+              description: "Leave blank if this is an ongoing contract without a fixed end date.",
+              group: "Timeline",
+              order: 2,
+              required: false
+            },
+            jurisdiction: { 
+              label: "Governing State", 
+              type: "country/state",
+              question: "Which state or country's laws will govern this agreement?",
+              description: "Select the jurisdiction for legal matters.",
+              group: "Legal Terms",
+              order: 1
+            },
+          },
     template: contractorAgreementTemplate as ContractTemplateFn,
   },
 

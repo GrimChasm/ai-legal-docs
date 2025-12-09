@@ -56,7 +56,7 @@ export default function TemplatesPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-text-main mb-2">Template Library</h1>
             <p className="text-base text-text-muted">Create and manage custom document templates</p>
           </div>
-          <Link href="/templates/create">
+          <Link href="/templates/create" className="inline-block active:scale-[0.98] transition-transform duration-150">
             <Button variant="primary">
               Create Template
             </Button>
@@ -98,7 +98,7 @@ export default function TemplatesPage() {
                   ? "You haven't created any templates yet."
                   : "No templates match your filter."}
               </p>
-              <Link href="/templates/create">
+              <Link href="/templates/create" className="inline-block active:scale-[0.98] transition-transform duration-150">
                 <Button variant="primary">
                   Create Your First Template
                 </Button>
@@ -108,8 +108,8 @@ export default function TemplatesPage() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template) => (
-              <Link key={template.id} href={`/templates/${template.id}`}>
-                <Card className="h-full hover:shadow-card-hover transition-all cursor-pointer flex flex-col">
+              <Link key={template.id} href={`/templates/${template.id}`} className="block active:scale-[0.98] transition-transform duration-150">
+                <Card className="h-full hover:shadow-card-hover hover:border-accent/50 transition-all duration-200 cursor-pointer flex flex-col">
                   <CardContent className="p-6 md:p-8 flex flex-col flex-1">
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="text-lg font-semibold text-text-main">{template.title}</h3>
@@ -130,9 +130,11 @@ export default function TemplatesPage() {
                         <span className="bg-gray-100 text-gray-700 font-medium px-2.5 py-1 rounded text-xs">{template.industry}</span>
                       )}
                     </div>
-                    <Button variant="outline" className="w-full mt-auto">
-                      Use Template
-                    </Button>
+                    <div className="mt-auto active:scale-[0.98] transition-transform duration-150">
+                      <Button variant="outline" className="w-full">
+                        Use Template
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>

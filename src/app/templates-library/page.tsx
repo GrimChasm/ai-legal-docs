@@ -32,6 +32,7 @@ export default function TemplatesLibraryPage() {
   const [selectedIndustry, setSelectedIndustry] = useState<IndustryFilter>("All")
   const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentTypeFilter>("All")
   const [previewTemplate, setPreviewTemplate] = useState<ContractDefinition | null>(null)
+  const [viewMode, setViewMode] = useState<"grouped" | "all">("grouped")
 
   const contracts = Object.values(contractRegistry)
 
@@ -220,24 +221,61 @@ export default function TemplatesLibraryPage() {
           </div>
         ) : (
           <>
-            {/* Show filtered results or industry sections */}
-            {searchQuery || selectedIndustry !== "All" || selectedDocumentType !== "All" ? (
-              // Filtered view
+            {/* View Mode Toggle */}
+            <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
               <div>
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold text-text-main">
-                    {filteredTemplates.length} template{filteredTemplates.length !== 1 ? "s" : ""} found
-                  </h2>
+                <h2 className="text-2xl font-semibold text-text-main">
+                  {searchQuery || selectedIndustry !== "All" || selectedDocumentType !== "All"
+                    ? `${filteredTemplates.length} template${filteredTemplates.length !== 1 ? "s" : ""} found`
+                    : `${filteredTemplates.length} template${filteredTemplates.length !== 1 ? "s" : ""} available`}
+                </h2>
+              </div>
+              {!searchQuery && selectedIndustry === "All" && selectedDocumentType === "All" && (
+                <div className="flex items-center gap-2 bg-bg-muted rounded-lg p-1">
+                  <Button
+                    type="button"
+                    variant={viewMode === "grouped" ? "primary" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grouped")}
+                    className="active:scale-[0.98]"
+                  >
+                    By Industry
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={viewMode === "all" ? "primary" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("all")}
+                    className="active:scale-[0.98]"
+                  >
+                    All Templates
+                  </Button>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredTemplates.map((template) => (
-                    <TemplateCard
-                      key={template.id}
-                      template={template}
-                      onPreview={handlePreview}
-                    />
-                  ))}
-                </div>
+              )}
+            </div>
+
+            {/* Show filtered results, grouped view, or all templates view */}
+            {searchQuery || selectedIndustry !== "All" || selectedDocumentType !== "All" ? (
+              // Filtered view - always flat grid
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredTemplates.map((template) => (
+                  <TemplateCard
+                    key={template.id}
+                    template={template}
+                    onPreview={handlePreview}
+                  />
+                ))}
+              </div>
+            ) : viewMode === "all" ? (
+              // All templates view - flat grid without grouping
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredTemplates.map((template) => (
+                  <TemplateCard
+                    key={template.id}
+                    template={template}
+                    onPreview={handlePreview}
+                  />
+                ))}
               </div>
             ) : (
               // Industry sections view
@@ -327,7 +365,7 @@ export default function TemplatesLibraryPage() {
                 </ul>
               </div>
               <div className="pt-4 flex gap-3">
-                <Link href={`/contracts/${previewTemplate.id}`} className="flex-1">
+                <Link href={`/contracts/${previewTemplate.id}`} className="flex-1 active:scale-[0.98] transition-transform duration-150">
                   <Button variant="primary" className="w-full">
                     Use This Template
                   </Button>
@@ -353,17 +391,19 @@ function TemplateCard({ template, onPreview }: TemplateCardProps) {
   const fieldCount = Object.keys(template.formSchema).length
 
   return (
-    <Card className="h-full hover:shadow-card-hover hover:border-accent/50 transition-all duration-200 flex flex-col cursor-pointer">
+    <Card className="h-full hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 flex flex-col">
       <CardContent className="p-6 md:p-8 flex flex-col flex-1">
-        <div className="mb-4">
-          <h3 className="text-xl font-semibold text-text-main mb-2 group-hover:text-accent transition-colors duration-200">
+        {/* Header Section */}
+        <div className="mb-5">
+          <h3 className="text-xl font-semibold text-text-main mb-3 leading-tight">
             {template.title}
           </h3>
-          <p className="text-sm text-text-muted leading-relaxed line-clamp-2 mb-4">
+          <p className="text-sm text-text-muted leading-relaxed line-clamp-2">
             {template.description}
           </p>
         </div>
 
+        {/* Tags Section */}
         <div className="flex flex-wrap gap-2 mb-6">
           {template.industry && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
@@ -377,26 +417,35 @@ function TemplateCard({ template, onPreview }: TemplateCardProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-4 pt-6 mt-auto border-t border-border">
-          <div className="flex items-center gap-1.5 text-xs text-text-muted">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>{fieldCount} fields</span>
+        {/* Footer Section - Spacer to push to bottom */}
+        <div className="mt-auto pt-6 border-t border-border">
+          {/* Field Count - Better organized */}
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-bg-muted rounded-lg border border-border">
+              <svg className="w-4 h-4 text-text-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium text-text-main">
+                {fieldCount} {fieldCount === 1 ? "field" : "fields"}
+              </span>
+            </div>
           </div>
-          <div className="ml-auto flex gap-2">
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="outline"
+              size="md"
               onClick={(e) => {
                 e.preventDefault()
                 onPreview(template)
               }}
+              className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:scale-[0.98] active:bg-gray-100 active:shadow-sm transition-all duration-150"
             >
               Preview
             </Button>
-            <Link href={`/contracts/${template.id}`}>
-              <Button variant="primary" size="sm">
+            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150">
+              <Button variant="primary" size="md" className="w-full">
                 Use Template
               </Button>
             </Link>

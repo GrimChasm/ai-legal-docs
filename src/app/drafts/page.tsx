@@ -105,7 +105,7 @@ export default function DraftsPage() {
               return (
                 <Card
                   key={draft.id}
-                  className="hover:shadow-card-hover transition-all h-full flex flex-col"
+                  className="hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 h-full flex flex-col cursor-pointer"
                 >
                   <CardContent className="p-6 md:p-8 flex flex-col flex-1">
                     <div className="flex items-start justify-between mb-4">
@@ -143,7 +143,7 @@ export default function DraftsPage() {
                           </div>
                         ))}
                     </div>
-                    <Link href={`/contracts/${draft.contractId}?draftId=${draft.id}`} className="mt-auto">
+                    <Link href={`/contracts/${draft.contractId}?draftId=${draft.id}`} className="mt-auto inline-block active:scale-[0.98] transition-transform duration-150">
                       <Button variant="primary" className="w-full">
                         Continue Editing
                       </Button>

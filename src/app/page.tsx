@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { contractRegistry } from "@/lib/contracts"
+import { ContractDefinition, contractRegistry } from "@/lib/contracts"
+import Logo from "@/components/logo"
 
 const popularTemplates = [
   "nda",
@@ -26,13 +28,8 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 max-w-container">
           <div className="text-center max-w-4xl mx-auto">
             {/* Logo/Brand */}
-            <div className="mb-8 flex items-center justify-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-primary">ContractVault</h1>
+            <div className="mb-8 flex justify-center">
+              <Logo size="lg" showText={true} href="/" />
             </div>
 
             {/* Tagline */}
@@ -47,13 +44,17 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/contracts">
+              <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
                 <Button size="lg" variant="primary">
                   Generate a document
                 </Button>
               </Link>
-              <Link href="/contracts">
-                <Button size="lg" variant="outline">
+              <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+                >
                   View templates
                 </Button>
               </Link>
@@ -68,35 +69,35 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-text-main text-center mb-12">
             How ContractVault Works
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-5 md:p-6 text-center">
-                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl font-semibold text-white">1</span>
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
+              <CardContent className="p-4 md:p-5 text-center">
+                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-lg font-semibold text-white">1</span>
                 </div>
-                <h3 className="text-lg font-semibold text-text-main mb-2">Answer a few questions</h3>
+                <h3 className="text-base font-semibold text-text-main mb-2">Answer a few questions</h3>
                 <p className="text-sm text-text-main leading-relaxed">
                   Fill out a simple form with the details needed for your document.
                 </p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-5 md:p-6 text-center">
-                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl font-semibold text-white">2</span>
+            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
+              <CardContent className="p-4 md:p-5 text-center">
+                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-lg font-semibold text-white">2</span>
                 </div>
-                <h3 className="text-lg font-semibold text-text-main mb-2">We generate a tailored legal document</h3>
+                <h3 className="text-base font-semibold text-text-main mb-2">We generate a tailored legal document</h3>
                 <p className="text-sm text-text-main leading-relaxed">
                   Our AI creates a professional, legally sound document customized to your needs.
                 </p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-card-hover transition-all">
-              <CardContent className="p-5 md:p-6 text-center">
-                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl font-semibold text-white">3</span>
+            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
+              <CardContent className="p-4 md:p-5 text-center">
+                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-lg font-semibold text-white">3</span>
                 </div>
-                <h3 className="text-lg font-semibold text-text-main mb-2">Download as PDF or DOCX</h3>
+                <h3 className="text-base font-semibold text-text-main mb-2">Download as PDF or DOCX</h3>
                 <p className="text-sm text-text-main leading-relaxed">
                   Export your document in the format you need, ready to use or sign.
                 </p>
@@ -114,18 +115,11 @@ export default function Home() {
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.slice(0, 6).map((template) => (
-              <Link key={template.id} href={`/contracts/${template.id}`}>
-                <Card className="hover:shadow-card-hover transition-all cursor-pointer h-full flex flex-col">
-                  <CardContent className="p-6 md:p-8 flex flex-col flex-1">
-                    <h3 className="text-lg font-semibold text-text-main mb-3">{template.title}</h3>
-                    <p className="text-sm text-text-main line-clamp-2 leading-relaxed flex-1">{template.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
+              <TemplateCard key={template.id} template={template} />
             ))}
           </div>
           <div className="text-center mt-10">
-            <Link href="/contracts">
+            <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
               <Button variant="outline">
                 View all templates
               </Button>
@@ -270,13 +264,79 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6 max-w-container text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to get started?</h2>
           <p className="text-lg md:text-xl text-white mb-8">Create your first legal document in minutes.</p>
-          <Link href="/contracts">
-            <Button size="lg" variant="outline" className="bg-white text-primary hover:bg-bg-muted">
+          <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="bg-white text-primary hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+            >
               Generate a document
             </Button>
           </Link>
         </div>
       </section>
     </div>
+  )
+}
+
+interface TemplateCardProps {
+  template: ContractDefinition
+}
+
+function TemplateCard({ template }: TemplateCardProps) {
+  const fieldCount = Object.keys(template.formSchema).length
+
+  return (
+    <Card className="h-full hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 flex flex-col">
+      <CardContent className="p-6 md:p-8 flex flex-col flex-1">
+        {/* Header Section */}
+        <div className="mb-5">
+          <h3 className="text-xl font-semibold text-text-main mb-3 leading-tight">
+            {template.title}
+          </h3>
+          <p className="text-sm text-text-muted leading-relaxed line-clamp-2">
+            {template.description}
+          </p>
+        </div>
+
+        {/* Tags Section */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {template.industry && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
+              {template.industry}
+            </span>
+          )}
+          {template.documentType && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
+              {template.documentType}
+            </span>
+          )}
+        </div>
+
+        {/* Footer Section - Spacer to push to bottom */}
+        <div className="mt-auto pt-6 border-t border-border">
+          {/* Field Count - Better organized */}
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-bg-muted rounded-lg border border-border">
+              <svg className="w-4 h-4 text-text-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium text-text-main">
+                {fieldCount} {fieldCount === 1 ? "field" : "fields"}
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150">
+              <Button variant="primary" size="md" className="w-full">
+                Use Template
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

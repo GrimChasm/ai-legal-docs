@@ -40,8 +40,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <Link href="/drafts">
-            <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
+          <Link href="/drafts" className="block active:scale-[0.98] transition-transform duration-150">
+            <Card className="border border-[#E0E5EC] hover:shadow-card-hover hover:border-accent/50 transition-all duration-200 cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
                 <h3 className="text-xl font-semibold text-[#101623] mb-2">My Drafts</h3>
                 <p className="text-[#6C7783] text-sm">View and manage your saved document drafts</p>
@@ -49,8 +49,8 @@ export default function DashboardPage() {
             </Card>
           </Link>
 
-          <Link href="/templates">
-            <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
+          <Link href="/templates" className="block active:scale-[0.98] transition-transform duration-150">
+            <Card className="border border-[#E0E5EC] hover:shadow-card-hover hover:border-accent/50 transition-all duration-200 cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
                 <h3 className="text-xl font-semibold text-[#101623] mb-2">Templates</h3>
                 <p className="text-[#6C7783] text-sm">Browse and create custom document templates</p>
@@ -58,10 +58,10 @@ export default function DashboardPage() {
             </Card>
           </Link>
 
-          <Link href="/contracts">
-            <Card className="border border-[#E0E5EC] hover:shadow-card-hover transition-all cursor-pointer h-full">
+          <Link href="/templates-library" className="block active:scale-[0.98] transition-transform duration-150">
+            <Card className="border border-[#E0E5EC] hover:shadow-card-hover hover:border-accent/50 transition-all duration-200 cursor-pointer h-full">
               <CardContent className="p-6 pt-8">
-                <h3 className="text-xl font-semibold text-[#101623] mb-2">All Documents</h3>
+                <h3 className="text-xl font-semibold text-[#101623] mb-2">Templates Library</h3>
                 <p className="text-[#6C7783] text-sm">Browse all available document templates</p>
               </CardContent>
             </Card>
@@ -73,18 +73,24 @@ export default function DashboardPage() {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-[#101623] mb-4">Quick Actions</h3>
               <div className="flex flex-wrap gap-3">
-                <Link href="/contracts">
-                  <Button className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white">
+                <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
+                  <Button className="bg-[#0A1B2A] hover:bg-[#0f2538] hover:shadow-md active:bg-[#0D1F2E] active:shadow-sm text-white transition-all duration-150">
                     Create New Document
                   </Button>
                 </Link>
-                <Link href="/templates/create">
-                  <Button variant="outline" className="border-[#0A1B2A] text-[#0A1B2A]">
+                <Link href="/templates/create" className="inline-block active:scale-[0.98] transition-transform duration-150">
+                  <Button 
+                    variant="outline" 
+                    className="border-[#0A1B2A] text-[#0A1B2A] hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+                  >
                     Create Custom Template
                   </Button>
                 </Link>
-                <Link href="/bundles">
-                  <Button variant="outline" className="border-[#0A1B2A] text-[#0A1B2A]">
+                <Link href="/bundles" className="inline-block active:scale-[0.98] transition-transform duration-150">
+                  <Button 
+                    variant="outline" 
+                    className="border-[#0A1B2A] text-[#0A1B2A] hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+                  >
                     View Bundles
                   </Button>
                 </Link>

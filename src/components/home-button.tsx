@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 
 export default function HomeButton() {
   return (
-    <Link href="/">
+    <Link href="/" className="inline-block active:scale-[0.98] transition-transform duration-150">
       <Button
         variant="ghost"
         className="flex items-center gap-2 hover:bg-gray-100"

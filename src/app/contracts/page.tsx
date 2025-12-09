@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { contractRegistry } from "@/lib/contracts"
+import { ContractDefinition, contractRegistry } from "@/lib/contracts"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 export default function ContractsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -113,69 +114,9 @@ export default function ContractsPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {filteredContracts.map((contract) => {
-                  const fieldCount = Object.keys(contract.formSchema).length
-                  
-                  return (
-                    <Link
-                      key={contract.id}
-                      href={`/contracts/${contract.id}`}
-                      className="group block"
-                    >
-                      <Card className="h-full hover:shadow-card-hover transition-all cursor-pointer flex flex-col">
-                        <CardContent className="p-6 md:p-8 flex flex-col flex-1">
-                          {/* Title and Arrow */}
-                          <div className="flex items-start justify-between mb-4">
-                            <h3 className="text-xl font-semibold text-text-main group-hover:text-accent transition-colors duration-200 flex-1">
-                              {contract.title}
-                            </h3>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2 flex-shrink-0">
-                              <svg
-                                className="w-6 h-6 text-accent transform group-hover:translate-x-1 transition-transform"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-sm text-text-muted leading-relaxed mb-6 line-clamp-2 flex-1">
-                            {contract.description}
-                          </p>
-
-                          {/* Footer Info - Anchored to bottom */}
-                          <div className="flex items-center gap-4 pt-6 mt-auto border-t border-border">
-                            <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                              <span>{fieldCount} fields</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                              <span>Quick</span>
-                            </div>
-                            <div className="ml-auto">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 group-hover:bg-blue-100 transition-colors">
-                                Start →
-                              </span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                {filteredContracts.map((contract) => (
+                  <TemplateCard key={contract.id} template={contract} />
+                ))}
               </div>
             </>
           )}
@@ -210,5 +151,67 @@ export default function ContractsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+interface TemplateCardProps {
+  template: ContractDefinition
+}
+
+function TemplateCard({ template }: TemplateCardProps) {
+  const fieldCount = Object.keys(template.formSchema).length
+
+  return (
+    <Card className="h-full hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 flex flex-col">
+      <CardContent className="p-6 md:p-8 flex flex-col flex-1">
+        {/* Header Section */}
+        <div className="mb-5">
+          <h3 className="text-xl font-semibold text-text-main mb-3 leading-tight">
+            {template.title}
+          </h3>
+          <p className="text-sm text-text-muted leading-relaxed line-clamp-2">
+            {template.description}
+          </p>
+        </div>
+
+        {/* Tags Section */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {template.industry && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
+              {template.industry}
+            </span>
+          )}
+          {template.documentType && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700 font-medium">
+              {template.documentType}
+            </span>
+          )}
+        </div>
+
+        {/* Footer Section - Spacer to push to bottom */}
+        <div className="mt-auto pt-6 border-t border-border">
+          {/* Field Count - Better organized */}
+          <div className="mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-bg-muted rounded-lg border border-border">
+              <svg className="w-4 h-4 text-text-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-medium text-text-main">
+                {fieldCount} {fieldCount === 1 ? "field" : "fields"}
+              </span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150">
+              <Button variant="primary" size="md" className="w-full">
+                Use Template
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

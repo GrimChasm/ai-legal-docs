@@ -1,94 +1,162 @@
 "use client"
 
 import Link from "next/link"
+import Logo from "./logo"
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-white py-12 mt-20">
+    <footer className="bg-bg-muted border-t border-border py-16 mt-20">
       <div className="container mx-auto px-4 md:px-6 max-w-container">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Brand */}
+        {/* Top Row: Navigation Sections */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
+          {/* Product */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <span className="font-bold text-xl">ContractVault</span>
-            </div>
-            <p className="text-sm text-white leading-relaxed">
-              Instant, lawyer-grade legal documents from your answers.
-            </p>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h3 className="font-semibold mb-4 text-base">Product</h3>
-            <ul className="space-y-2 text-sm text-white">
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Product</h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/contracts" className="hover:text-white transition-colors">
-                  Templates
+                <Link href="/templates-library" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Templates Library
                 </Link>
               </li>
               <li>
-                <Link href="/templates" className="hover:text-white transition-colors">
-                  Template Library
-                </Link>
-              </li>
-              <li>
-                <Link href="/bundles" className="hover:text-white transition-colors">
+                <Link href="/bundles" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Bundles
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-white transition-colors">
+                <Link href="/templates/create" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Create Template
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Pricing
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Use Cases */}
           <div>
-            <h3 className="font-semibold mb-4 text-base">Company</h3>
-            <ul className="space-y-2 text-sm text-white">
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Use Cases</h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  About
+                <Link href="/templates-library?industry=Business / Startup" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Business & Startup
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="hover:text-white transition-colors">
+                <Link href="/templates-library?industry=Real Estate" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Real Estate
+                </Link>
+              </li>
+              <li>
+                <Link href="/templates-library?industry=HR / Employment" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  HR & Employment
+                </Link>
+              </li>
+              <li>
+                <Link href="/templates-library?industry=Freelancers / Creators" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Freelancers
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Resources</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link href="/faq" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition-colors">
+                <Link href="/about" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Company</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link href="/about" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/careers" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Contact
                 </Link>
               </li>
             </ul>
           </div>
 
+          {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-4 text-base">Legal</h3>
-            <ul className="space-y-2 text-sm text-white">
+            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Legal</h3>
+            <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms-of-service" className="hover:text-white transition-colors">
+                <Link href="/terms-of-service" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/cookie-policy" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                  Cookie Policy
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/20 pt-8 text-center text-sm text-white">
-          <p>&copy; {new Date().getFullYear()} ContractVault. All rights reserved.</p>
+        {/* Brand Section - Centered below Product and Use Cases */}
+        <div className="flex justify-center mb-12">
+          <div className="text-center max-w-md">
+            <div className="flex justify-center mb-4">
+              <Logo size="lg" showText={true} href="/" />
+            </div>
+            <p className="text-sm text-text-muted leading-relaxed">
+              Instant, lawyer-grade legal documents from your answers.
+            </p>
+          </div>
+        </div>
+
+        {/* Copyright Section */}
+        <div className="border-t border-border pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-text-muted">
+              &copy; {new Date().getFullYear()} ContractVault. All rights reserved.
+            </p>
+            <p className="text-xs text-text-muted leading-relaxed max-w-2xl text-center md:text-right">
+              This tool helps generate documents but is not a law firm and does not provide legal advice. Consult a licensed attorney for legal guidance.
+            </p>
+          </div>
         </div>
       </div>
     </footer>
