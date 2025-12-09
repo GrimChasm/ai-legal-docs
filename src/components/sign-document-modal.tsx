@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import SignaturePad from "./signature-pad"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
@@ -160,6 +161,17 @@ export default function SignDocumentModal({
                   <strong>{signerName}</strong> ({signerEmail})
                 </p>
               </div>
+              
+              {/* E-Signature Disclaimer */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-xs text-yellow-800 leading-relaxed">
+                  <strong className="font-semibold">E-Signature Notice:</strong> Electronic signatures are generally legally binding in many jurisdictions, but their enforceability may vary by location and document type. By signing, you acknowledge that you have read and agree to the document terms. ContractVault does not guarantee the legal enforceability of electronic signatures. Consult with legal counsel if you have questions about signature requirements for your specific situation.{" "}
+                  <Link href="/terms" className="underline hover:text-yellow-900">
+                    View Terms
+                  </Link>
+                </p>
+              </div>
+              
               <SignaturePad
                 onSign={handleSignature}
                 onCancel={() => setStep("details")}

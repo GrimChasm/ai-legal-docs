@@ -117,18 +117,13 @@ export default function Footer() {
             <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-text-main">Legal</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link href="/privacy-policy" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                <Link href="/privacy" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms-of-service" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
+                <Link href="/terms" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/cookie-policy" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
-                  Cookie Policy
                 </Link>
               </li>
             </ul>

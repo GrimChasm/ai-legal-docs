@@ -11,21 +11,13 @@ export async function GET(
     const comments = await prisma.comment.findMany({
       where: { draftId: id },
       orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     })
 
     const formattedComments = comments.map((comment) => ({
       id: comment.id,
       content: comment.content,
-      userId: comment.userId,
-      userName: comment.user.name || comment.user.email,
+      userId: comment.authorId,
+      userName: comment.user?.name || comment.user?.email || comment.authorName || "Unknown",
       createdAt: comment.createdAt.toISOString(),
       resolved: comment.resolved,
     }))
@@ -57,18 +49,11 @@ export async function POST(
     const comment = await prisma.comment.create({
       data: {
         draftId: id,
-        userId: session.user.id,
+        authorId: session.user.id,
+        authorName: session.user.name || session.user.email || "Unknown",
+        authorEmail: session.user.email || null,
         content,
-        x,
-        y,
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+        position: x && y ? JSON.stringify({ x, y }) : null,
       },
     })
 
@@ -76,8 +61,8 @@ export async function POST(
       comment: {
         id: comment.id,
         content: comment.content,
-        userId: comment.userId,
-        userName: comment.user.name || comment.user.email,
+        userId: comment.authorId,
+        userName: comment.user?.name || comment.user?.email || comment.authorName || "Unknown",
         createdAt: comment.createdAt.toISOString(),
         resolved: comment.resolved,
       },

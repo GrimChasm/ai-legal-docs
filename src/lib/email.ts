@@ -62,7 +62,12 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     try {
       // Dynamic import to avoid bundling issues if not installed
-      const nodemailer = await import("nodemailer")
+      // Use type assertion to handle optional dependency
+      const nodemailer = await import("nodemailer").catch(() => null)
+      if (!nodemailer) {
+        console.warn("Nodemailer not installed. Install it with: npm install nodemailer")
+        return false
+      }
       
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,

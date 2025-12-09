@@ -368,6 +368,16 @@ export default function ContractForm({
                 <p className="text-sm text-text-muted mt-1">Your professional legal document</p>
               </div>
               
+              {/* Legal Disclaimer */}
+              <div className="bg-yellow-50 border-b border-yellow-200 px-6 md:px-8 lg:px-10 py-4">
+                <p className="text-xs text-yellow-800 leading-relaxed">
+                  <strong className="font-semibold">Legal Disclaimer:</strong> This document is generated from templates and may not be suitable for your specific legal needs. ContractVault is not a law firm and does not provide legal advice. You should consult with a qualified attorney before using this document, especially for complex matters or high-value transactions. The enforceability of this document may vary by jurisdiction.{" "}
+                  <Link href="/terms" className="underline hover:text-yellow-900">
+                    View Terms of Service
+                  </Link>
+                </p>
+              </div>
+              
               <CardContent 
                 className="p-8 md:p-10 lg:p-12"
                 style={{

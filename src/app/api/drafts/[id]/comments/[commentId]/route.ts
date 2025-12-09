@@ -21,7 +21,7 @@ export async function PUT(
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    if (comment.userId !== session.user.id) {
+    if (comment.authorId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
@@ -34,22 +34,14 @@ export async function PUT(
         content: content !== undefined ? content : undefined,
         resolved: resolved !== undefined ? resolved : undefined,
       },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
     })
 
     return NextResponse.json({
       comment: {
         id: updated.id,
         content: updated.content,
-        userId: updated.userId,
-        userName: updated.user.name || updated.user.email,
+        userId: updated.authorId,
+        userName: updated.authorName,
         createdAt: updated.createdAt.toISOString(),
         resolved: updated.resolved,
       },
@@ -82,7 +74,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Comment not found" }, { status: 404 })
     }
 
-    if (comment.userId !== session.user.id) {
+    if (comment.authorId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
