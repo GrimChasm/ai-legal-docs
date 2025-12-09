@@ -64,41 +64,85 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 md:py-20 bg-bg-muted">
-        <div className="container mx-auto px-4 md:px-6 max-w-container">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-main text-center mb-12">
-            How ContractVault Works
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
-              <CardContent className="p-4 md:p-5 text-center">
-                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-lg font-semibold text-white">1</span>
+      <section className="py-16 md:py-20 bg-bg-muted relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-accent rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-64 h-64 bg-primary rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-6 max-w-container relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-text-main mb-4">
+              How ContractVault Works
+            </h2>
+            <p className="text-lg text-text-muted max-w-2xl mx-auto">
+              Create professional legal documents in three simple steps
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto relative">
+            {/* Step 1 */}
+            <Card className="hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 relative bg-white border-2 border-border group">
+              <CardContent className="p-6 md:p-8 text-center">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-bg-muted border-2 border-accent/30 rounded-2xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg group-hover:border-accent group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-8 h-8 text-text-main" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-text-main border-2 border-white rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                    1
+                  </div>
                 </div>
-                <h3 className="text-base font-semibold text-text-main mb-2">Answer a few questions</h3>
-                <p className="text-sm text-text-main leading-relaxed">
+                <h3 className="text-lg md:text-xl font-bold text-text-main mb-3 group-hover:text-accent transition-colors">
+                  Answer a few questions
+                </h3>
+                <p className="text-sm md:text-base text-text-muted leading-relaxed">
                   Fill out a simple form with the details needed for your document.
                 </p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
-              <CardContent className="p-4 md:p-5 text-center">
-                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-lg font-semibold text-white">2</span>
+
+            {/* Step 2 */}
+            <Card className="hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 relative bg-white border-2 border-border group">
+              <CardContent className="p-6 md:p-8 text-center">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-bg-muted border-2 border-accent/30 rounded-2xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg group-hover:border-accent group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-8 h-8 text-text-main" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-text-main border-2 border-white rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                    2
+                  </div>
                 </div>
-                <h3 className="text-base font-semibold text-text-main mb-2">We generate a tailored legal document</h3>
-                <p className="text-sm text-text-main leading-relaxed">
+                <h3 className="text-lg md:text-xl font-bold text-text-main mb-3 group-hover:text-accent transition-colors">
+                  We generate a tailored legal document
+                </h3>
+                <p className="text-sm md:text-base text-text-muted leading-relaxed">
                   Our AI creates a professional, legally sound document customized to your needs.
                 </p>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-card-hover hover:border-accent/50 transition-all duration-200">
-              <CardContent className="p-4 md:p-5 text-center">
-                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-lg font-semibold text-white">3</span>
+
+            {/* Step 3 */}
+            <Card className="hover:shadow-card-hover hover:border-accent/50 active:scale-[0.98] transition-all duration-200 relative bg-white border-2 border-border group">
+              <CardContent className="p-6 md:p-8 text-center">
+                <div className="relative mb-6">
+                  <div className="w-16 h-16 bg-bg-muted border-2 border-accent/30 rounded-2xl flex items-center justify-center mx-auto shadow-md group-hover:shadow-lg group-hover:border-accent group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-8 h-8 text-text-main" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-7 h-7 bg-text-main border-2 border-white rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">
+                    3
+                  </div>
                 </div>
-                <h3 className="text-base font-semibold text-text-main mb-2">Download as PDF or DOCX</h3>
-                <p className="text-sm text-text-main leading-relaxed">
+                <h3 className="text-lg md:text-xl font-bold text-text-main mb-3 group-hover:text-accent transition-colors">
+                  Download as PDF or DOCX
+                </h3>
+                <p className="text-sm md:text-base text-text-muted leading-relaxed">
                   Export your document in the format you need, ready to use or sign.
                 </p>
               </CardContent>
@@ -120,7 +164,10 @@ export default function Home() {
           </div>
           <div className="text-center mt-10">
             <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
-              <Button variant="outline">
+              <Button 
+                variant="outline"
+                className="hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+              >
                 View all templates
               </Button>
             </Link>

@@ -156,21 +156,23 @@ export default function CreateTemplatePage() {
         </div>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-center mb-8 gap-4 md:gap-8">
           {[1, 2, 3].map((s) => (
-            <div key={s} className="flex items-center flex-1">
+            <div key={s} className="flex items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                  step >= s
-                    ? "bg-accent text-white"
-                    : "bg-border text-text-muted"
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 transition-all duration-200 ${
+                  step === s
+                    ? "bg-accent/20 border-accent text-text-main shadow-md scale-110"
+                    : step > s
+                    ? "bg-bg-muted border-border text-text-main"
+                    : "bg-bg-muted border-border text-text-muted"
                 }`}
               >
                 {s}
               </div>
               {s < 3 && (
                 <div
-                  className={`flex-1 h-1 mx-2 ${
+                  className={`w-12 md:w-16 h-1 mx-2 transition-colors duration-200 ${
                     step > s ? "bg-accent" : "bg-border"
                   }`}
                 />
