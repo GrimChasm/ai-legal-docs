@@ -17,6 +17,9 @@ import DocumentStylePanel from "@/components/document-style-panel"
 import { DocumentStyle, defaultStyle, getDocumentStyleClasses, getDocumentStyleStyles, getFontFamilyName, getFontSizePt, getLineSpacingValue, presets } from "@/lib/document-styles"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import SignDocumentModal from "@/components/sign-document-modal"
+import SendForSignatureModal from "@/components/send-for-signature-modal"
+import SignaturePositioning from "@/components/signature-positioning"
 
 export default function ContractForm({
   contractId,
@@ -48,6 +51,10 @@ export default function ContractForm({
   const [documentSaved, setDocumentSaved] = useState(false)
   const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId || null)
   const [documentStyle, setDocumentStyle] = useState<DocumentStyle>(defaultStyle)
+  const [showSignModal, setShowSignModal] = useState(false)
+  const [showSendForSignatureModal, setShowSendForSignatureModal] = useState(false)
+  const [signatures, setSignatures] = useState<Array<{ id: string; signerName: string; signerEmail: string; signatureData: string; createdAt: string; position?: "bottom" | "custom"; customY?: number }>>([])
+  const [signatureInvites, setSignatureInvites] = useState<Array<{ id: string; recipientName: string; recipientEmail: string; status: string; signedAt: string | null }>>([])
   const { data: session } = useSession()
 
   // Load user's preferred document style on mount
@@ -283,6 +290,50 @@ export default function ContractForm({
     }
   }, [filledCount, fields.length, result, loading])
 
+  // Load signatures and invites when draft is available
+  useEffect(() => {
+    if (currentDraftId && result) {
+      loadSignatures()
+      loadSignatureInvites()
+    }
+  }, [currentDraftId, result])
+
+  const loadSignatures = async () => {
+    if (!currentDraftId) return
+    try {
+      const response = await fetch(`/api/signatures?draftId=${currentDraftId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSignatures(data.signatures || [])
+      }
+    } catch (error) {
+      console.error("Error loading signatures:", error)
+    }
+  }
+
+  const loadSignatureInvites = async () => {
+    if (!currentDraftId) return
+    try {
+      const response = await fetch(`/api/signature-invites?draftId=${currentDraftId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSignatureInvites(data.invites || [])
+      }
+    } catch (error) {
+      console.error("Error loading signature invites:", error)
+    }
+  }
+
+  const handleSigned = () => {
+    setShowSignModal(false)
+    loadSignatures()
+  }
+
+  const handleInvitesSent = () => {
+    setShowSendForSignatureModal(false)
+    loadSignatureInvites()
+  }
+
   if (result) {
     // Apply document styles to preview
     const styleClasses = getDocumentStyleClasses(documentStyle)
@@ -413,6 +464,43 @@ export default function ContractForm({
                     {result}
                   </ReactMarkdown>
                 </div>
+                
+                {/* Signature Blocks */}
+                {signatures.length > 0 && (
+                  <div className="mt-12 pt-8 border-t-2 border-border space-y-8 px-8 md:px-10 lg:px-12">
+                    <h3 className="text-lg font-semibold text-text-main mb-6">Signatures</h3>
+                    {signatures.map((signature) => (
+                      <div key={signature.id} className="space-y-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 border-b-2 border-text-main pb-2" style={{ minWidth: "200px" }}>
+                            <img
+                              src={signature.signatureData}
+                              alt={`Signature of ${signature.signerName}`}
+                              className="max-h-20 object-contain"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-text-main">
+                            {signature.signerName}
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            {signature.signerEmail}
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            Date: {new Date(signature.createdAt).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
 
               <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-t border-border flex flex-col sm:flex-row gap-4">
@@ -463,8 +551,9 @@ export default function ContractForm({
                   const stylePreset = Object.keys(presets).find(
                     key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
                   ) || "custom"
-                  const filename = `${contract?.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() || "document"}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
-                  await exportToPDF(result, filename, documentStyle)
+                  const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                  const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
+                  await exportToPDF(result, filename, documentStyle, signatures)
                 } catch (err: any) {
                   setError(err.message || "Failed to export PDF")
                 } finally {
@@ -503,8 +592,9 @@ export default function ContractForm({
                   const stylePreset = Object.keys(presets).find(
                     key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
                   ) || "custom"
-                  const filename = `${contract?.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() || "document"}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
-                  await exportToDOCX(result, filename, documentStyle)
+                  const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                  const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
+                  await exportToDOCX(result, filename, documentStyle, signatures)
                 } catch (err: any) {
                   setError(err.message || "Failed to export DOCX")
                 } finally {
@@ -545,6 +635,113 @@ export default function ContractForm({
             </Button>
               </div>
             </Card>
+
+            {/* Signature Actions */}
+            {session && currentDraftId && (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="lg"
+                  onClick={() => setShowSignModal(true)}
+                  className="flex-1"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Sign This Document
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowSendForSignatureModal(true)}
+                  className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Send for Signature
+                </Button>
+              </div>
+            )}
+
+            {/* Signature Positioning */}
+            {signatures.length > 0 && (
+              <SignaturePositioning
+                signatures={signatures}
+                onPositionChange={async (signatureId, position, customY) => {
+                  // Update signature position in the database
+                  try {
+                    const response = await fetch(`/api/signatures/${signatureId}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ position, customY }),
+                    })
+                    if (response.ok) {
+                      // Update local state
+                      setSignatures(
+                        signatures.map((sig) =>
+                          sig.id === signatureId
+                            ? { ...sig, position, customY }
+                            : sig
+                        )
+                      )
+                    }
+                  } catch (error) {
+                    console.error("Error updating signature position:", error)
+                  }
+                }}
+              />
+            )}
+
+            {/* Signature Status */}
+            {signatureInvites.length > 0 && (
+              <Card className="border border-border">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-text-main mb-4">Signature Status</h3>
+                  <div className="space-y-3">
+                    {signatureInvites.map((invite) => (
+                      <div key={invite.id} className="flex items-center justify-between p-3 bg-bg-muted rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-text-main">
+                            {invite.recipientName}
+                          </p>
+                          <p className="text-xs text-text-muted">{invite.recipientEmail}</p>
+                        </div>
+                        <div className="text-right">
+                          {invite.status === "signed" ? (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              Signed {invite.signedAt ? new Date(invite.signedAt).toLocaleDateString() : ""}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Modals */}
+            {showSignModal && currentDraftId && (
+              <SignDocumentModal
+                draftId={currentDraftId}
+                onSigned={handleSigned}
+                onClose={() => setShowSignModal(false)}
+              />
+            )}
+            {showSendForSignatureModal && currentDraftId && (
+              <SendForSignatureModal
+                draftId={currentDraftId}
+                onSent={handleInvitesSent}
+                onClose={() => setShowSendForSignatureModal(false)}
+              />
+            )}
       </div>
     )
   }

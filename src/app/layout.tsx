@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Satisfy, Kalam } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/header";
@@ -15,6 +15,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Cursive fonts for signature pad
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const satisfy = Satisfy({
+  variable: "--font-satisfy",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const kalam = Kalam({
+  variable: "--font-kalam",
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+});
+
 export const metadata: Metadata = {
   title: "ContractVault – Instant AI-generated legal documents",
   description: "Instant, lawyer-grade legal documents from your answers. Create contracts, agreements, and essential legal documents in minutes.",
@@ -28,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${satisfy.variable} ${kalam.variable} antialiased`}
       >
         <Providers>
           <Header />

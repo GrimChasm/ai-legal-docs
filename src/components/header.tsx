@@ -47,9 +47,8 @@ export default function Header() {
 
   const navigationItems = [
     { href: "/", label: "Home" },
-    { href: "/templates-library", label: "Templates Library" },
     { href: "/drafts", label: "My Drafts", requiresAuth: true },
-    { href: "/dashboard", label: "Dashboard", requiresAuth: true },
+    { href: "/templates-library", label: "Templates Library" },
     { href: "/templates/create", label: "Create Template", requiresAuth: true },
     { href: "/bundles", label: "Bundles" },
   ]

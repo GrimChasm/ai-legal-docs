@@ -143,11 +143,22 @@ export default function DraftsPage() {
                           </div>
                         ))}
                     </div>
-                    <Link href={`/contracts/${draft.contractId}?draftId=${draft.id}`} className="mt-auto inline-block active:scale-[0.98] transition-transform duration-150">
-                      <Button variant="primary" className="w-full">
-                        Continue Editing
-                      </Button>
-                    </Link>
+                    {(() => {
+                      // Check if this is a template-based draft (contractId starts with "custom-")
+                      const isTemplate = draft.contractId.startsWith("custom-")
+                      const templateId = isTemplate ? draft.contractId.replace("custom-", "") : null
+                      const href = isTemplate 
+                        ? `/templates/${templateId}?draftId=${draft.id}`
+                        : `/contracts/${draft.contractId}?draftId=${draft.id}`
+                      
+                      return (
+                        <Link href={href} className="mt-auto inline-block active:scale-[0.98] transition-transform duration-150">
+                          <Button variant="primary" className="w-full">
+                            Continue Editing
+                          </Button>
+                        </Link>
+                      )
+                    })()}
                   </CardContent>
                 </Card>
               )

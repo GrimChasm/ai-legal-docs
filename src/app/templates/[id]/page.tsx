@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import ContractForm from "@/components/contract-form"
@@ -22,7 +22,9 @@ interface Template {
 export default function TemplatePage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const templateId = params.id as string
+  const draftId = searchParams.get("draftId")
   const [template, setTemplate] = useState<Template | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -116,6 +118,7 @@ export default function TemplatePage() {
               contractId={`custom-${template.id}`}
               formSchema={formSchema}
               templateCode={template.templateCode}
+              draftId={draftId || undefined}
             />
           </CardContent>
         </Card>

@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
 
+/**
+ * POST /api/signatures
+ * Create a new signature for a document
+ * 
+ * Body:
+ * - draftId: string
+ * - signerName: string
+ * - signerEmail: string
+ * - signatureData: string (base64 image)
+ * - signatureType: "drawn" | "typed" | "uploaded"
+ * - role: "creator" | "counterparty"
+ * - typedText?: string (optional, for typed signatures)
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -10,8 +23,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { draftId, signerEmail, signerName, provider } = body
+    const { draftId, signerName, signerEmail, signatureData, signatureType, role, typedText } = body
 
+    // Validate required fields
+    if (!draftId || !signerName || !signerEmail || !signatureData || !signatureType) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    // Verify draft exists and user has access
     const draft = await prisma.draft.findUnique({
       where: { id: draftId },
     })
@@ -20,36 +42,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Draft not found" }, { status: 404 })
     }
 
-    if (draft.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    // Check if user is the owner or has permission
+    if (draft.userId !== session.user.id && role !== "counterparty") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    // In a real implementation, you would integrate with DocuSign or HelloSign here
-    // For now, we'll just create a signature request record
-    const signatureRequest = await prisma.signatureRequest.create({
+    // Get IP address if available
+    const ipAddress = request.headers.get("x-forwarded-for") || 
+                     request.headers.get("x-real-ip") || 
+                     null
+
+    // Create signature
+    // Verify signature model exists
+    if (!prisma.signature) {
+      console.error("Prisma signature model not available. Please restart the dev server.")
+      return NextResponse.json(
+        { error: "Signature model not available. Please restart the server." },
+        { status: 500 }
+      )
+    }
+
+    const signature = await prisma.signature.create({
       data: {
         draftId,
-        userId: session.user.id,
-        provider: provider || "docusign",
-        signerEmail,
         signerName,
-        status: "pending",
+        signerEmail,
+        signatureData,
+        signatureType,
+        role: role || "creator",
+        ipAddress,
       },
     })
 
-    // TODO: Integrate with actual signature provider API
-    // This is a placeholder - you would call DocuSign/HelloSign API here
-
-    return NextResponse.json({ signatureRequest })
+    return NextResponse.json({ signature }, { status: 201 })
   } catch (error: any) {
-    console.error("Error creating signature request:", error)
+    console.error("Error creating signature:", error)
     return NextResponse.json(
-      { error: "Failed to create signature request" },
+      { error: error.message || "Failed to create signature" },
       { status: 500 }
     )
   }
 }
 
+/**
+ * GET /api/signatures?draftId=xxx
+ * Get all signatures for a document
+ */
 export async function GET(request: NextRequest) {
   try {
     const session = await auth()
@@ -60,23 +98,38 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const draftId = searchParams.get("draftId")
 
-    const where: any = { userId: session.user.id }
-    if (draftId) {
-      where.draftId = draftId
+    if (!draftId) {
+      return NextResponse.json(
+        { error: "draftId is required" },
+        { status: 400 }
+      )
     }
 
-    const requests = await prisma.signatureRequest.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
+    // Verify draft exists and user has access
+    const draft = await prisma.draft.findUnique({
+      where: { id: draftId },
     })
 
-    return NextResponse.json({ requests })
+    if (!draft) {
+      return NextResponse.json({ error: "Draft not found" }, { status: 404 })
+    }
+
+    if (draft.userId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
+
+    // Get signatures
+    const signatures = await prisma.signature.findMany({
+      where: { draftId },
+      orderBy: { createdAt: "asc" },
+    })
+
+    return NextResponse.json({ signatures })
   } catch (error: any) {
-    console.error("Error fetching signature requests:", error)
+    console.error("Error fetching signatures:", error)
     return NextResponse.json(
-      { error: "Failed to fetch signature requests" },
+      { error: error.message || "Failed to fetch signatures" },
       { status: 500 }
     )
   }
 }
-

@@ -21,6 +21,8 @@ model User {
   drafts        Draft[]
   sessions      Session[]
   Template      Template[]
+  SignatureRequests SignatureRequest[] @relation("SignatureRequests")
+  SentSignatureInvites SignatureInvite[] @relation("SentSignatureInvites")
 }
 
 model Account {
@@ -70,6 +72,8 @@ model Draft {
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   shares            Share[]
   signatureRequests SignatureRequest[]
+  signatureInvites  SignatureInvite[] @relation("SignatureInvites")
+  signatures        Signature[]
   versions          Version[]
 
   @@index([userId])
@@ -162,11 +166,32 @@ model SignatureRequest {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   draft             Draft     @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  user              User      @relation("SignatureRequests", fields: [createdBy], references: [id], onDelete: Cascade)
 
   @@index([draftId])
   @@index([status])
   @@index([externalId])
   @@index([createdBy])
+}
+
+model SignatureInvite {
+  id            String   @id @default(cuid())
+  draftId       String
+  senderUserId  String
+  recipientName String
+  recipientEmail String
+  token         String   @unique
+  status        String   @default("pending") // "pending" | "signed" | "declined"
+  signedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  draft         Draft    @relation("SignatureInvites", fields: [draftId], references: [id], onDelete: Cascade)
+  user          User     @relation("SentSignatureInvites", fields: [senderUserId], references: [id], onDelete: Cascade)
+
+  @@index([draftId])
+  @@index([senderUserId])
+  @@index([token])
+  @@index([recipientEmail])
 }
 
 model Template {
@@ -186,4 +211,22 @@ model Template {
 
   @@index([isPublic])
   @@index([userId])
+}
+
+model Signature {
+  id            String   @id @default(cuid())
+  draftId       String
+  signerName    String
+  signerEmail   String
+  signatureData String   // Base64 encoded image or typed text
+  signatureType String   // "drawn" | "typed" | "uploaded"
+  role          String   @default("creator") // "creator" | "counterparty"
+  position      String?  @default("bottom") // "bottom" | "custom"
+  customY       Int?     // Custom Y position in points (for custom positioning)
+  ipAddress     String?
+  createdAt     DateTime @default(now())
+  draft         Draft    @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@index([draftId])
+  @@index([signerEmail])
 }
