@@ -5,11 +5,14 @@ import { notFound } from "next/navigation"
 import ContractForm from "@/components/contract-form"
 
 export default async function ContractPage({ 
-  params 
+  params,
+  searchParams
 }: { 
-  params: Promise<{ contractId: string }> 
+  params: Promise<{ contractId: string }>
+  searchParams: Promise<{ draftId?: string }>
 }) {
   const { contractId } = await params
+  const { draftId } = await searchParams
   const contract = contractRegistry[contractId]
 
   if (!contract) {
@@ -39,7 +42,8 @@ export default async function ContractPage({
         <div className="bg-bg rounded-card shadow-card border border-border p-6 md:p-10 lg:p-12 max-w-3xl mx-auto">
           <ContractForm 
             contractId={contractId} 
-            formSchema={contract.formSchema} 
+            formSchema={contract.formSchema}
+            draftId={draftId}
           />
         </div>
       </div>

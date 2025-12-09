@@ -55,13 +55,13 @@ export async function PUT(
     const updated = await prisma.template.update({
       where: { id },
       data: {
-        title,
-        description,
+        title: title?.trim(),
+        description: description?.trim(),
         formSchema: formSchema ? JSON.stringify(formSchema) : undefined,
-        templateCode,
-        category,
-        documentType,
-        industry,
+        templateCode: templateCode?.trim(),
+        category: category?.trim() || null,
+        documentType: documentType?.trim() || null,
+        industry: industry?.trim() || null,
         isPublic,
       },
     })

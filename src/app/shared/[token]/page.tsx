@@ -102,7 +102,7 @@ export default function SharedDocumentPage() {
         {draft.markdown ? (
           <Card className="border border-[#E0E5EC] shadow-card">
             <CardContent className="p-8">
-              <DocumentViewer markdown={draft.markdown} />
+              <DocumentViewer content={draft.markdown} />
             </CardContent>
           </Card>
         ) : (

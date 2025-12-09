@@ -14,9 +14,10 @@ interface InterviewFormProps {
   formSchema: Record<string, FieldConfig>
   values: Record<string, string>
   onChange: (field: string, value: string) => void
-  onFocus?: (field: string) => void
+  onFocus?: (field: string | null) => void
   onBlur?: () => void
   mode?: "step-by-step" | "grouped" // Step-by-step shows one question at a time, grouped shows sections
+  focusedField?: string | null // Current focused field for highlighting
 }
 
 /**
@@ -39,7 +40,8 @@ export default function InterviewForm({
   onChange,
   onFocus,
   onBlur,
-  mode = "step-by-step"
+  mode = "step-by-step",
+  focusedField = null
 }: InterviewFormProps) {
   const fields = Object.entries(formSchema)
   
@@ -159,12 +161,13 @@ export default function InterviewForm({
     
     const fieldType = config.type?.toLowerCase().trim() || "text"
     const isRequired = config.required !== false && !config.label.includes("(Optional)")
+    const isCurrentlyFocused = focusedField === fieldKey || isFocused
 
     return (
       <div key={fieldKey} className="space-y-4">
         {/* Question/Label */}
         <div className="space-y-2">
-          <Label htmlFor={fieldKey} className={isFocused ? "text-accent" : ""}>
+          <Label htmlFor={fieldKey} className={isCurrentlyFocused ? "text-accent" : ""}>
             {config.question || config.label}
             {isRequired && <span className="text-danger ml-1">*</span>}
           </Label>
@@ -195,7 +198,7 @@ export default function InterviewForm({
             onBlur={() => onBlur?.()}
             required={isRequired}
             placeholder={`Enter ${(config.question || config.label).toLowerCase()}...`}
-            className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
+            className={hasValue && !isCurrentlyFocused ? "border-blue-300 bg-blue-50" : ""}
             rows={4}
           />
         ) : fieldType === "date" ? (
@@ -227,12 +230,12 @@ export default function InterviewForm({
             onBlur={() => onBlur?.()}
             required={isRequired}
             placeholder={`Enter ${(config.question || config.label).toLowerCase()}...`}
-            className={hasValue && !isFocused ? "border-blue-300 bg-blue-50" : ""}
+            className={hasValue && !isCurrentlyFocused ? "border-blue-300 bg-blue-50" : ""}
           />
         )}
 
         {/* Completion indicator */}
-        {hasValue && !isFocused && (
+        {hasValue && !isCurrentlyFocused && (
           <div className="flex items-center text-blue-700 text-sm font-semibold">
             <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -289,8 +292,13 @@ export default function InterviewForm({
         {/* Navigation */}
         <div className="flex items-center justify-between gap-4">
           <Button
+            type="button"
             variant="outline"
-            onClick={goToPrevious}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              goToPrevious()
+            }}
             disabled={currentStep === 0}
             className="min-w-[120px]"
           >
@@ -313,7 +321,12 @@ export default function InterviewForm({
               return (
                 <button
                   key={index}
-                  onClick={() => goToStep(index)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    goToStep(index)
+                  }}
                   className={`w-3 h-3 rounded-full transition-all ${
                     index === currentStep
                       ? "bg-accent scale-125"
@@ -328,8 +341,13 @@ export default function InterviewForm({
           </div>
 
           <Button
+            type="button"
             variant="primary"
-            onClick={goToNext}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              goToNext()
+            }}
             disabled={currentStep === stepFields.length - 1}
             className="min-w-[120px]"
           >

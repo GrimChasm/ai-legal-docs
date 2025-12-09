@@ -262,9 +262,11 @@ export default function Home() {
                     <span className="text-base text-text-main">Unlimited edits</span>
                   </li>
                 </ul>
-                <Button className="w-full" variant="primary">
-                  Get Started
-                </Button>
+                <Link href="/templates-library" className="block active:scale-[0.98] transition-transform duration-150">
+                  <Button className="w-full" variant="primary">
+                    Get Started
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
             <Card className="border-2 border-accent">
@@ -297,9 +299,11 @@ export default function Home() {
                     <span className="text-base text-text-main">Advanced features</span>
                   </li>
                 </ul>
-                <Button className="w-full" variant="primary">
-                  Start Free Trial
-                </Button>
+                <Link href="/templates-library" className="block active:scale-[0.98] transition-transform duration-150">
+                  <Button className="w-full" variant="primary">
+                    Start Free Trial
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>

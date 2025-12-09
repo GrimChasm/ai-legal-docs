@@ -33,6 +33,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Verify the user exists in the database
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found. Please sign in again." },
+        { status: 404 }
+      )
+    }
+
     const { contractId, values, markdown } = await request.json()
 
     if (!contractId || !values) {
@@ -54,6 +66,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ draft }, { status: 201 })
   } catch (error: any) {
     console.error("Error creating draft:", error)
+    
+    // Provide more specific error messages
+    if (error.code === "P2003") {
+      return NextResponse.json(
+        { error: "User not found. Please sign in again." },
+        { status: 404 }
+      )
+    }
+    
     return NextResponse.json(
       { error: error.message || "Internal server error" },
       { status: 500 }

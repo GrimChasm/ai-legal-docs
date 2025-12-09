@@ -370,7 +370,11 @@ export default function TemplatesLibraryPage() {
                     Use This Template
                   </Button>
                 </Link>
-                <Button variant="outline" onClick={closePreview}>
+                <Button 
+                  variant="outline" 
+                  onClick={closePreview}
+                  className="hover:bg-gray-50 hover:border-accent hover:shadow-md active:scale-[0.98] active:bg-gray-100 active:shadow-sm transition-all duration-150"
+                >
                   Close
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import { prisma } from "./prisma"
+import { prisma } from "@/lib/prisma"
 
 export const authOptions: NextAuthConfig = {
   providers: [
@@ -17,6 +17,7 @@ export const authOptions: NextAuthConfig = {
         }
 
         try {
+          // Ensure Prisma is available and database is connected
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string },
           })
@@ -39,8 +40,14 @@ export const authOptions: NextAuthConfig = {
             email: user.email,
             name: user.name || user.email,
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Auth error:", error)
+          // Log the specific error for debugging
+          if (error?.message) {
+            console.error("Auth error details:", error.message)
+          }
+          // Return null to indicate authentication failed
+          // This prevents the error from bubbling up and causing HTML responses
           return null
         }
       },

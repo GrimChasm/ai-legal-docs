@@ -45,16 +45,43 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, description, formSchema, templateCode, category, documentType, industry, isPublic } = body
 
+    // Validate required fields
+    if (!title || !title.trim()) {
+      return NextResponse.json({ error: "Title is required" }, { status: 400 })
+    }
+
+    // Description is optional in the database, but we'll still validate it's provided
+    if (!description || !description.trim()) {
+      return NextResponse.json({ error: "Description is required" }, { status: 400 })
+    }
+
+    if (!formSchema || Object.keys(formSchema).length === 0) {
+      return NextResponse.json({ error: "At least one form field is required" }, { status: 400 })
+    }
+
+    if (!templateCode || !templateCode.trim()) {
+      return NextResponse.json({ error: "Template code is required. Please generate the template code first." }, { status: 400 })
+    }
+
+    // Verify user exists
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found. Please sign in again." }, { status: 404 })
+    }
+
     const template = await prisma.template.create({
       data: {
         userId: session.user.id,
-        title,
-        description,
+        title: title.trim(),
+        description: description.trim(),
         formSchema: JSON.stringify(formSchema),
-        templateCode,
-        category,
-        documentType,
-        industry,
+        templateCode: templateCode.trim(),
+        category: category?.trim() || null,
+        documentType: documentType?.trim() || null,
+        industry: industry?.trim() || null,
         isPublic: isPublic || false,
       },
     })
@@ -62,8 +89,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ template })
   } catch (error: any) {
     console.error("Error creating template:", error)
+    
+    // Return more specific error messages
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "A template with this title already exists. Please choose a different title." },
+        { status: 400 }
+      )
+    }
+    
+    if (error.code === "P2003") {
+      return NextResponse.json(
+        { error: "User not found. Please sign in again." },
+        { status: 404 }
+      )
+    }
+
+    // Return the actual error message if available
     return NextResponse.json(
-      { error: "Failed to create template" },
+      { error: error.message || "Failed to create template. Please check all fields are filled correctly." },
       { status: 500 }
     )
   }

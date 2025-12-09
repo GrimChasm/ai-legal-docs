@@ -286,7 +286,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing values" }, { status: 400 })
     }
 
-    let prompt = ""
+    let templateOutput = ""
 
     // Handle custom templates
     if (contractId.startsWith("custom-") && templateCode) {
@@ -297,7 +297,7 @@ export async function POST(req: Request) {
           ${templateCode}
           return template(values);
         `)
-        prompt = templateFunction(values)
+        templateOutput = templateFunction(values)
       } catch (error: any) {
         return NextResponse.json(
           { error: `Template execution error: ${error.message}` },
@@ -312,12 +312,32 @@ export async function POST(req: Request) {
       }
 
       // Call template function with proper typing
-      prompt = (contract.template as (values: Record<string, string | number>) => string)(values)
+      templateOutput = (contract.template as (values: Record<string, string | number>) => string)(values)
     }
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Failed to generate prompt" }, { status: 500 })
+    if (!templateOutput) {
+      return NextResponse.json({ error: "Failed to generate template output" }, { status: 500 })
     }
+
+    // Check if template output is a direct document or an AI prompt
+    // Direct documents typically start with markdown headers (#) or contain structured legal content
+    // AI prompts typically contain instructions like "Generate a..." or "Create a..."
+    const isDirectDocument = 
+      templateOutput.trim().startsWith("#") || 
+      templateOutput.includes("##") ||
+      templateOutput.includes("**") ||
+      (!templateOutput.toLowerCase().includes("generate") && 
+       !templateOutput.toLowerCase().includes("create") &&
+       !templateOutput.toLowerCase().includes("requirements:") &&
+       !templateOutput.toLowerCase().includes("include sections:"))
+
+    // If it's a direct document, return it immediately without AI
+    if (isDirectDocument) {
+      return NextResponse.json({ markdown: templateOutput })
+    }
+
+    // Otherwise, treat it as a prompt and use AI
+    const prompt = templateOutput
 
     // Select model
     const contract = contractId.startsWith("custom-") ? undefined : contractRegistry[contractId]

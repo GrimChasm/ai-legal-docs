@@ -17,7 +17,7 @@ export default function StyleSelector({
       {documentStyles.map((style) => (
         <Button
           key={style.id}
-          variant={selectedStyle.id === style.id ? "default" : "outline"}
+          variant={selectedStyle.id === style.id ? "primary" : "outline"}
           onClick={() => onStyleChange(style)}
           className="text-sm"
         >

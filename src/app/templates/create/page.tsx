@@ -333,7 +333,6 @@ export default function CreateTemplatePage() {
                         value={newFieldName}
                         onChange={(e) => setNewFieldName(e.target.value)}
                         placeholder="e.g., clientName"
-                        className="text-sm"
                       />
                     </div>
                     <div>
@@ -345,7 +344,6 @@ export default function CreateTemplatePage() {
                         value={newFieldLabel}
                         onChange={(e) => setNewFieldLabel(e.target.value)}
                         placeholder="e.g., Client Name"
-                        className="text-sm"
                       />
                     </div>
                     <div>
@@ -356,13 +354,14 @@ export default function CreateTemplatePage() {
                         id="fieldType"
                         value={newFieldType}
                         onChange={(e) => setNewFieldType(e.target.value as FieldType)}
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none text-sm bg-bg text-text-main"
+                        className="flex h-12 w-full rounded-lg border border-border bg-bg px-4 py-3 text-base text-text-main transition-all duration-200 hover:border-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent disabled:cursor-not-allowed disabled:text-text-muted disabled:bg-bg-muted"
+                        style={{ fontSize: '1rem' }}
                       >
-                        <option value="text">Text</option>
-                        <option value="textarea">Textarea</option>
+                        <option value="text">Short Text (Single Line)</option>
+                        <option value="textarea">Long Text (Multiple Lines)</option>
                         <option value="date">Date</option>
                         <option value="number">Number</option>
-                        <option value="country/state">Country/State</option>
+                        <option value="country/state">Location (State/Country)</option>
                       </select>
                     </div>
                   </div>
@@ -387,7 +386,7 @@ export default function CreateTemplatePage() {
                         <div>
                           <span className="font-medium text-text-main">{config.label}</span>
                           <span className="text-sm text-text-muted ml-2">
-                            ({name}) - {config.type}
+                            ({name}) - {config.type === "text" ? "Short Text" : config.type === "textarea" ? "Long Text" : config.type === "date" ? "Date" : config.type === "number" ? "Number" : config.type === "country/state" ? "Location" : config.type}
                           </span>
                         </div>
                         <button

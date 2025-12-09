@@ -1,6 +1,7 @@
 import jsPDF from "jspdf"
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx"
 import { saveAs } from "file-saver"
+import { DocumentStyle, getFontFamilyName, getFontSizePt, getLineSpacingValue } from "./document-styles"
 
 /**
  * Convert markdown text to plain text (basic conversion)
@@ -16,9 +17,9 @@ function markdownToText(markdown: string): string {
 }
 
 /**
- * Parse markdown into paragraphs for DOCX
+ * Parse markdown into paragraphs for DOCX with document styling
  */
-function parseMarkdownToParagraphs(markdown: string): Paragraph[] {
+function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Paragraph[] {
   const lines = markdown.split("\n")
   const paragraphs: Paragraph[] = []
 
@@ -33,27 +34,48 @@ function parseMarkdownToParagraphs(markdown: string): Paragraph[] {
 
     // Handle headers
     if (line.startsWith("# ")) {
-      const text = parseInlineFormatting(line.substring(2))
+      let headingText = line.substring(2)
+      if (style?.headingCase === "uppercase") {
+        headingText = headingText.toUpperCase()
+      }
+      const text = parseInlineFormatting(headingText)
       paragraphs.push(
         new Paragraph({
           children: text,
           heading: HeadingLevel.HEADING_1,
+          spacing: {
+            after: style?.paragraphSpacing === "compact" ? 120 : style?.paragraphSpacing === "roomy" ? 360 : 240,
+          },
         })
       )
     } else if (line.startsWith("## ")) {
-      const text = parseInlineFormatting(line.substring(3))
+      let headingText = line.substring(3)
+      if (style?.headingCase === "uppercase") {
+        headingText = headingText.toUpperCase()
+      }
+      const text = parseInlineFormatting(headingText)
       paragraphs.push(
         new Paragraph({
           children: text,
           heading: HeadingLevel.HEADING_2,
+          spacing: {
+            after: style?.paragraphSpacing === "compact" ? 120 : style?.paragraphSpacing === "roomy" ? 360 : 240,
+          },
         })
       )
     } else if (line.startsWith("### ")) {
-      const text = parseInlineFormatting(line.substring(4))
+      let headingText = line.substring(4)
+      if (style?.headingCase === "uppercase") {
+        headingText = headingText.toUpperCase()
+      }
+      const text = parseInlineFormatting(headingText)
       paragraphs.push(
         new Paragraph({
           children: text,
           heading: HeadingLevel.HEADING_3,
+          spacing: {
+            after: style?.paragraphSpacing === "compact" ? 120 : style?.paragraphSpacing === "roomy" ? 360 : 240,
+          },
         })
       )
     } else if (line.match(/^[-*]\s/)) {
@@ -68,7 +90,14 @@ function parseMarkdownToParagraphs(markdown: string): Paragraph[] {
     } else {
       // Regular paragraph
       const text = parseInlineFormatting(line)
-      paragraphs.push(new Paragraph({ children: text }))
+      paragraphs.push(
+        new Paragraph({
+          children: text,
+          spacing: {
+            after: style?.paragraphSpacing === "compact" ? 120 : style?.paragraphSpacing === "roomy" ? 360 : 240,
+          },
+        })
+      )
     }
   }
 
@@ -153,31 +182,89 @@ function parseInlineFormatting(text: string): TextRun[] {
 }
 
 /**
- * Export markdown content as PDF
+ * Export markdown content as PDF with document styling
+ * 
+ * Applies the DocumentStyle settings to the PDF export:
+ * - Font family and size
+ * - Line spacing
+ * - Margins (based on layout)
+ * - Heading styles (bold/uppercase)
  */
-export async function exportToPDF(content: string, filename: string = "document.pdf") {
+export async function exportToPDF(
+  content: string,
+  filename: string = "document.pdf",
+  style?: DocumentStyle
+) {
   try {
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
-    const margin = 20
+    
+    // Apply layout margins
+    const margin = style?.layout === "wide" ? 30 : 20
     const maxWidth = pageWidth - margin * 2
     let yPosition = margin
+
+    // Apply font settings
+    const fontSize = style ? getFontSizePt(style) : 12
+    const lineSpacing = style ? getLineSpacingValue(style) * fontSize : fontSize * 1.15
+    
+    // Set font (jsPDF has limited font support, so we'll use standard fonts)
+    // Modern -> Helvetica, Classic -> Times, Mono -> Courier
+    if (style) {
+      switch (style.fontFamily) {
+        case "modern":
+          doc.setFont("helvetica")
+          break
+        case "classic":
+          doc.setFont("times")
+          break
+        case "mono":
+          doc.setFont("courier")
+          break
+      }
+    } else {
+      doc.setFont("helvetica")
+    }
+
+    doc.setFontSize(fontSize)
+    doc.setTextColor(0, 0, 0)
 
     // Convert markdown to plain text and split into lines
     const text = markdownToText(content)
     const lines = doc.splitTextToSize(text, maxWidth)
-
-    doc.setFontSize(12)
-    doc.setTextColor(0, 0, 0)
 
     for (let i = 0; i < lines.length; i++) {
       if (yPosition > pageHeight - margin) {
         doc.addPage()
         yPosition = margin
       }
-      doc.text(lines[i], margin, yPosition)
-      yPosition += 7
+      
+      // Check if this line is a heading (starts with #)
+      const originalLine = text.split('\n').find(l => l.trim() && lines[i].includes(l.trim().substring(0, 20)))
+      const isHeading = originalLine?.trim().startsWith('#')
+      
+      if (isHeading && style) {
+        // Apply heading styles
+        const headingSize = fontSize + 2
+        doc.setFontSize(headingSize)
+        if (style.headingStyle === "bold") {
+          doc.setFont("helvetica", "bold")
+        }
+        
+        let headingText = lines[i]
+        if (style.headingCase === "uppercase") {
+          headingText = headingText.toUpperCase()
+        }
+        
+        doc.text(headingText, style.headingIndent === "indented" ? margin + 10 : margin, yPosition)
+        doc.setFontSize(fontSize)
+        doc.setFont("helvetica", "normal")
+      } else {
+        doc.text(lines[i], margin, yPosition)
+      }
+      
+      yPosition += lineSpacing
     }
 
     doc.save(filename)
@@ -188,16 +275,39 @@ export async function exportToPDF(content: string, filename: string = "document.
 }
 
 /**
- * Export markdown content as DOCX
+ * Export markdown content as DOCX with document styling
+ * 
+ * Applies the DocumentStyle settings to the DOCX export:
+ * - Font family and size
+ * - Line spacing
+ * - Paragraph spacing
+ * - Heading styles (bold/uppercase)
+ * - Margins (based on layout)
  */
-export async function exportToDOCX(content: string, filename: string = "document.docx") {
+export async function exportToDOCX(
+  content: string,
+  filename: string = "document.docx",
+  style?: DocumentStyle
+) {
   try {
-    const paragraphs = parseMarkdownToParagraphs(content)
+    const paragraphs = parseMarkdownToParagraphs(content, style)
+
+    // Calculate margins based on layout
+    const margin = style?.layout === "wide" ? 1440 : 720 // 1 inch = 1440 twips, 0.5 inch = 720 twips
 
     const doc = new Document({
       sections: [
         {
-          properties: {},
+          properties: {
+            page: {
+              margin: {
+                top: margin,
+                right: margin,
+                bottom: margin,
+                left: margin,
+              },
+            },
+          },
           children: paragraphs,
         },
       ],
