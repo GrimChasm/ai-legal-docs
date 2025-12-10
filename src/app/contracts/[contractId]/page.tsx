@@ -21,7 +21,7 @@ export default async function ContractPage({
 
   return (
     <div className="min-h-screen bg-bg-muted">
-      <div className="container mx-auto px-4 md:px-6 max-w-4xl py-12 md:py-16">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl py-12 md:py-16">
         <div className="text-center mb-12 md:mb-16 space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-text-main">
             {contract.title}
@@ -39,7 +39,7 @@ export default async function ContractPage({
           </div>
         </div>
 
-        <div className="bg-bg rounded-card shadow-card border border-border p-6 md:p-10 lg:p-12 max-w-3xl mx-auto">
+        <div className="bg-bg rounded-card shadow-card border border-border p-6 md:p-10 lg:p-12 max-w-6xl mx-auto">
           <ContractForm 
             contractId={contractId} 
             formSchema={contract.formSchema}

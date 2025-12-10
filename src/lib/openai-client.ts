@@ -37,6 +37,22 @@ export async function generateWithGPT4(
   temperature: number = OPENAI_SETTINGS.temperature
 ): Promise<string> {
   try {
+    // Log what we're sending to GPT-4 (only in development)
+    if (process.env.NODE_ENV === "development") {
+      console.log("\n" + "=".repeat(80))
+      console.log("📤 SENDING TO GPT-4:")
+      console.log("=".repeat(80))
+      console.log("\n🔧 SYSTEM MESSAGE (Instructions):")
+      console.log("-".repeat(80))
+      console.log(systemMessage.substring(0, 500) + (systemMessage.length > 500 ? "..." : ""))
+      console.log(`\n📝 USER PROMPT (Length: ${prompt.length} characters):`)
+      console.log("-".repeat(80))
+      console.log(prompt.substring(0, 1000) + (prompt.length > 1000 ? "\n... [truncated]" : ""))
+      console.log("\n⚙️  MODEL:", OPENAI_MODEL)
+      console.log("🌡️  TEMPERATURE:", temperature)
+      console.log("=".repeat(80) + "\n")
+    }
+
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       messages: [
@@ -52,6 +68,17 @@ export async function generateWithGPT4(
       temperature,
       max_tokens: OPENAI_SETTINGS.max_tokens,
     })
+
+    // Log response info (only in development)
+    if (process.env.NODE_ENV === "development") {
+      const responseLength = completion.choices[0]?.message?.content?.length || 0
+      console.log("\n" + "=".repeat(80))
+      console.log("📥 RESPONSE FROM GPT-4:")
+      console.log("=".repeat(80))
+      console.log(`✅ Generated ${responseLength} characters`)
+      console.log(`📊 Tokens used: ${completion.usage?.total_tokens || "N/A"}`)
+      console.log("=".repeat(80) + "\n")
+    }
 
     const content = completion.choices[0]?.message?.content
 

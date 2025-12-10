@@ -48,6 +48,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${satisfy.variable} ${kalam.variable} antialiased`}
+        suppressHydrationWarning
       >
         <Providers>
           <Header />

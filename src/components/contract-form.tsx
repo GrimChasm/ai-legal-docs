@@ -394,7 +394,7 @@ export default function ContractForm({
         <DocumentStylePanel style={documentStyle} onChange={setDocumentStyle} />
 
         {/* Document Preview - Full Width */}
-        <Card id="generated-document" className="overflow-hidden">
+        <Card id="generated-document" className="overflow-y-auto overflow-x-hidden">
               <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-b border-border">
                 <div className="flex items-center justify-between">
                   <div>
@@ -425,6 +425,10 @@ export default function ContractForm({
                 style={{
                   minHeight: "600px",
                   padding: documentStyle.layout === "wide" ? "2.5rem" : "1.5rem",
+                  wordWrap: "break-word",
+                  overflowWrap: "break-word",
+                  maxWidth: "100%",
+                  boxSizing: "border-box",
                 }}
               >
                 <div 
@@ -433,6 +437,11 @@ export default function ContractForm({
                     fontFamily: getFontFamilyName(documentStyle),
                     lineHeight: getLineSpacingValue(documentStyle),
                     fontSize: getFontSizePt(documentStyle) + "pt",
+                    wordWrap: "break-word",
+                    overflowWrap: "break-word",
+                    wordBreak: "break-word",
+                    maxWidth: "100%",
+                    width: "100%",
                   }}
                 >
                   <ReactMarkdown
@@ -508,9 +517,51 @@ export default function ContractForm({
                         </ol>
                       ),
                       li: ({ children }) => (
-                        <li style={{ color: "#101623" }}>{children}</li>
+                        <li style={{ color: "#101623", wordWrap: "break-word", overflowWrap: "break-word" }}>{children}</li>
                       ),
                       strong: ({ children }) => <strong style={{ color: "#101623" }}>{children}</strong>,
+                      table: ({ children }) => (
+                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "100%" }}>
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      code: ({ children, className }) => {
+                        const isInline = !className
+                        return isInline ? (
+                          <code style={{ 
+                            wordBreak: "break-word", 
+                            overflowWrap: "break-word",
+                            whiteSpace: "pre-wrap"
+                          }}>
+                            {children}
+                          </code>
+                        ) : (
+                          <div style={{ overflowX: "auto", width: "100%" }}>
+                            <code style={{ 
+                              display: "block",
+                              whiteSpace: "pre",
+                              wordBreak: "break-word",
+                              overflowWrap: "break-word"
+                            }}>
+                              {children}
+                            </code>
+                          </div>
+                        )
+                      },
+                      pre: ({ children }) => (
+                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <pre style={{ 
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            overflowWrap: "break-word",
+                            width: "100%"
+                          }}>
+                            {children}
+                          </pre>
+                        </div>
+                      ),
                     }}
                   >
                     {result}

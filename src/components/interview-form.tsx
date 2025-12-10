@@ -274,8 +274,18 @@ export default function InterviewForm({
         </div>
 
         {/* Current Question Card */}
-        <Card className="border-2 border-accent/30 shadow-lg">
-          <CardContent className="p-8 md:p-10">
+        <Card className="border-2 border-accent shadow-xl relative overflow-visible">
+          {/* Current step indicator badge */}
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-accent text-white rounded-full shadow-lg font-semibold text-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Step {currentStep + 1} of {stepFields.length}</span>
+            </div>
+          </div>
+          
+          <CardContent className="p-8 md:p-10 pt-12">
             {/* Group indicator */}
             {currentGroupName && (
               <div className="mb-4">
@@ -309,7 +319,7 @@ export default function InterviewForm({
           </Button>
 
           {/* Step indicators */}
-          <div className="flex items-center gap-2 flex-1 justify-center max-w-md overflow-x-auto">
+          <div className="flex items-center gap-3 flex-1 justify-center max-w-md overflow-x-auto py-2">
             {stepFields.map((_, index) => {
               const fieldKey = stepFields[index]?.field[0]
               const hasValue = fieldKey && values[fieldKey] && 
@@ -317,6 +327,8 @@ export default function InterviewForm({
                 values[fieldKey].trim() !== "" && 
                 values[fieldKey].trim() !== "undefined" && 
                 values[fieldKey].trim() !== "null"
+              
+              const isCurrentStep = index === currentStep
               
               return (
                 <button
@@ -327,15 +339,40 @@ export default function InterviewForm({
                     e.stopPropagation()
                     goToStep(index)
                   }}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentStep
-                      ? "bg-accent scale-125"
-                      : hasValue
-                      ? "bg-green-500"
-                      : "bg-gray-300"
+                  className={`relative flex items-center justify-center transition-all duration-300 ${
+                    isCurrentStep
+                      ? "w-10 h-10"
+                      : "w-8 h-8"
                   }`}
                   aria-label={`Go to question ${index + 1}`}
-                />
+                >
+                  {/* Current step - large with ring and number */}
+                  {isCurrentStep ? (
+                    <>
+                      {/* Outer ring with pulse animation */}
+                      <div className="absolute inset-0 rounded-full bg-accent/20 animate-pulse" />
+                      <div className="absolute inset-0 rounded-full border-2 border-accent ring-2 ring-accent/30" />
+                      {/* Step number */}
+                      <div className="relative z-10 flex items-center justify-center w-full h-full rounded-full bg-accent text-white font-bold text-sm shadow-lg">
+                        {index + 1}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Completed step - green with checkmark */}
+                      {hasValue ? (
+                        <div className="relative w-full h-full rounded-full bg-green-500 flex items-center justify-center shadow-md">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        /* Incomplete step - gray circle */
+                        <div className="w-full h-full rounded-full bg-gray-300 border-2 border-gray-400" />
+                      )}
+                    </>
+                  )}
+                </button>
               )
             })}
           </div>

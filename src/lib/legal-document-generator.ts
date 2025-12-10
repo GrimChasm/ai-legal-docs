@@ -53,6 +53,18 @@ export async function generateLegalDocumentWithGPT4(
     additionalContext,
   })
 
+  // Log prompt construction in development
+  if (process.env.NODE_ENV === "development") {
+    console.log("\n" + "🔨 PROMPT CONSTRUCTION:")
+    console.log("-".repeat(80))
+    console.log(`📄 Document Type: ${templateName}`)
+    console.log(`📋 User Inputs: ${Object.keys(userInputs).length} fields`)
+    console.log(`📝 Template Structure: ${templateStructure ? "Yes" : "No"}`)
+    console.log(`🎯 Document-Specific Enhancement: ${buildDocumentTypePromptEnhancement(templateName) ? "Yes" : "No"}`)
+    console.log(`📏 Final Prompt Length: ${userPrompt.length} characters`)
+    console.log("-".repeat(80) + "\n")
+  }
+
   // Generate document using GPT-4
   const document = await generateWithGPT4(userPrompt, SYSTEM_INSTRUCTIONS)
 
@@ -120,7 +132,7 @@ ${customizations.map((c, i) => `${i + 1}. ${c}`).join("\n")}
 - Use consistent numbering for sections (1., 2., 3.) and subsections (a., b., c.)
 - Include clear section headers using markdown ## for main sections and ### for subsections
 - Use proper paragraph breaks for readability
-- Include signature lines for all parties at the end
+- DO NOT include signature lines or signature sections - signatures are handled separately via the signature feature
 - Add date fields where appropriate (effective date, execution date, etc.)
 
 ### Language and Tone
@@ -165,6 +177,7 @@ Generate the complete, final legal document in markdown format. The output shoul
 3. Includes all required sections and standard clauses
 4. Is properly formatted and ready for use
 5. Represents the final, complete document (not a draft or template)
+6. DOES NOT include signature lines or signature sections - signatures are handled separately via the signature feature
 
 Begin generating the document now.`
 
