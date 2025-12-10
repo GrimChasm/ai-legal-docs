@@ -12,18 +12,10 @@ DATABASE_URL="file:./dev.db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 
-# OpenAI (Optional but recommended)
+# OpenAI (Required)
+# This application exclusively uses OpenAI GPT-4 for all AI functionality
 OPENAI_API_KEY=sk-...
-
-# Anthropic / Claude (Optional, for premium quality)
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Google Gemini (Optional, free tier available)
-GEMINI_API_KEY=...
-
-# HuggingFace (Optional, free tier available)
-HUGGINGFACE_API_KEY=hf_...
-HUGGINGFACE_MODEL=meta-llama/Llama-2-7b-chat-hf
+OPENAI_MODEL=gpt-4  # Optional, defaults to gpt-4
 
 # DocuSign (Optional, for e-signatures)
 DOCUSIGN_INTEGRATION_KEY=...
@@ -38,26 +30,11 @@ HELLOSIGN_API_KEY=...
 
 ## Getting API Keys
 
-### OpenAI
+### OpenAI (Required)
 1. Visit https://platform.openai.com/api-keys
 2. Create a new secret key
 3. Copy to `OPENAI_API_KEY`
-
-### Anthropic (Claude)
-1. Visit https://console.anthropic.com/
-2. Create an API key
-3. Copy to `ANTHROPIC_API_KEY`
-
-### Google Gemini
-1. Visit https://makersuite.google.com/app/apikey
-2. Create an API key
-3. Copy to `GEMINI_API_KEY`
-
-### HuggingFace
-1. Visit https://huggingface.co/settings/tokens
-2. Create a "read" or "write" access token
-3. Copy to `HUGGINGFACE_API_KEY`
-4. Set `HUGGINGFACE_MODEL=meta-llama/Llama-2-7b-chat-hf`
+4. Optionally set `OPENAI_MODEL=gpt-4` (this is the default)
 
 ### NextAuth Secret
 Generate a random string:
@@ -65,14 +42,9 @@ Generate a random string:
 openssl rand -base64 32
 ```
 
-## Minimum Required
+## Required Configuration
 
-At minimum, you need one AI API key:
-- `OPENAI_API_KEY` OR
-- `GEMINI_API_KEY` OR
-- `HUGGINGFACE_API_KEY`
-
-The system will automatically use the best available option.
+**You must configure `OPENAI_API_KEY`** for the application to function. This application exclusively uses OpenAI GPT-4 for all AI-related functionality.
 
 ## Testing
 
@@ -80,4 +52,3 @@ After setting up, test your configuration:
 1. Start the dev server: `npm run dev`
 2. Try generating a document
 3. Check the console for any API key errors
-

@@ -12,9 +12,9 @@ export default function TermsPage() {
     <div className="min-h-screen bg-bg">
       <div className="container mx-auto px-4 md:px-6 max-w-4xl py-12 md:py-16">
         <div className="mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <Logo size="md" showText={true} />
-          </Link>
+          <div className="inline-block mb-6">
+            <Logo size="md" showText={true} href="/" />
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-border p-8 md:p-12">

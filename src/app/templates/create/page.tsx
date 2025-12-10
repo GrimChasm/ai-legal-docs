@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import AIModelSelector from "@/components/ai-model-selector"
 
 type FieldType = "text" | "textarea" | "date" | "number" | "country/state"
 
@@ -39,7 +38,6 @@ export default function CreateTemplatePage() {
 
   // Step 3: Template Code
   const [codeGenerated, setCodeGenerated] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("auto")
   const [templateCode, setTemplateCode] = useState("")
   const [generatingCode, setGeneratingCode] = useState(false)
 
@@ -89,7 +87,6 @@ export default function CreateTemplatePage() {
           title,
           description,
           formSchema,
-          model: selectedModel,
         }),
       })
 
@@ -435,7 +432,11 @@ export default function CreateTemplatePage() {
                   </p>
                 </div>
 
-                <AIModelSelector value={selectedModel} onChange={setSelectedModel} />
+                <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                  <p className="text-sm text-text-muted">
+                    <strong className="text-text-main">Powered by ChatGPT-4:</strong> Your template code will be generated using OpenAI's GPT-4 for high-quality, legally sound document generation.
+                  </p>
+                </div>
 
                 {!codeGenerated ? (
                   <div className="text-center py-8">

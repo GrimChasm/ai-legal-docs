@@ -12,7 +12,6 @@ import { exportToPDF, exportToDOCX } from "@/lib/export-utils"
 import { contractRegistry } from "@/lib/contracts"
 import DatePicker from "@/components/date-picker"
 import JurisdictionSelector from "@/components/jurisdiction-selector"
-import AIModelSelector from "@/components/ai-model-selector"
 import InterviewForm from "@/components/interview-form"
 import DocumentStylePanel from "@/components/document-style-panel"
 import { DocumentStyle, defaultStyle, getDocumentStyleClasses, getDocumentStyleStyles, getFontFamilyName, getFontSizePt, getLineSpacingValue, presets } from "@/lib/document-styles"
@@ -45,7 +44,6 @@ export default function ContractForm({
   const [focusedField, setFocusedField] = useState<string | null>(null)
   const [exportingPDF, setExportingPDF] = useState(false)
   const [exportingDOCX, setExportingDOCX] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("auto")
   const [interviewMode, setInterviewMode] = useState<"step-by-step" | "grouped">("step-by-step")
   const [savingDraft, setSavingDraft] = useState(false)
   const [draftSaved, setDraftSaved] = useState(false)
@@ -267,7 +265,6 @@ export default function ContractForm({
           contractId,
           values,
           templateCode: templateCode || undefined,
-          requestedModel: selectedModel
         })
       })
 
@@ -399,8 +396,18 @@ export default function ContractForm({
         {/* Document Preview - Full Width */}
         <Card id="generated-document" className="overflow-hidden">
               <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-b border-border">
-                <h3 className="text-xl font-semibold text-text-main">Document Preview</h3>
-                <p className="text-sm text-text-muted mt-1">Your professional legal document</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold text-text-main">Final Document</h3>
+                    <p className="text-sm text-text-muted mt-1">Your complete, ready-to-use legal document</p>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs font-medium text-green-700">Complete</span>
+                  </div>
+                </div>
               </div>
               
               {/* Legal Disclaimer */}
@@ -548,174 +555,196 @@ export default function ContractForm({
                 )}
               </CardContent>
 
-              <div className="bg-bg-muted px-6 md:px-8 lg:px-10 py-5 md:py-6 border-t border-border flex flex-col sm:flex-row gap-4">
-            {session && (
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={handleSaveDocument}
-                disabled={savingDocument || !result}
-                className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
-              >
-                {savingDocument ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </>
-                ) : documentSaved ? (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Document Saved!
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                    </svg>
-                    Save Document
-                  </>
-                )}
-              </Button>
-            )}
-            <Button 
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={exportingPDF || !result}
-              onClick={async () => {
-                if (!result) return
-                
-                // Check if user can export
-                if (canExport === false) {
-                  setPaywallAction("export")
-                  setShowPaywallModal(true)
-                  return
-                }
+              <div className="bg-gradient-to-br from-bg-muted via-bg-muted to-gray-50 px-6 md:px-8 lg:px-10 py-6 md:py-7 border-t border-border/50">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+                  {session && (
+                    <Button
+                      type="button"
+                      variant={documentSaved ? "primary" : "outline"}
+                      size="lg"
+                      onClick={handleSaveDocument}
+                      disabled={savingDocument || !result}
+                      className="group relative flex-1 min-w-[140px] overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      <span className="relative z-10 flex items-center justify-center">
+                        {savingDocument ? (
+                          <>
+                            <svg className="animate-spin mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="font-medium">Saving...</span>
+                          </>
+                        ) : documentSaved ? (
+                          <>
+                            <svg className="w-5 h-5 mr-2 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span className="font-semibold">Saved!</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5 mr-2 transition-all duration-300 group-hover:translate-y-[-2px] group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            <span className="font-medium">Save Document</span>
+                          </>
+                        )}
+                      </span>
+                      {documentSaved && (
+                        <div className="absolute inset-0 bg-gradient-to-r from-accent/10 to-accent-soft/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      )}
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    disabled={exportingPDF || !result}
+                    onClick={async () => {
+                      if (!result) return
+                      
+                      // Check if user can export
+                      if (canExport === false) {
+                        setPaywallAction("export")
+                        setShowPaywallModal(true)
+                        return
+                      }
 
-                // If permission check is still loading, wait a moment
-                if (canExport === null) {
-                  // Wait for permission check
-                  await new Promise(resolve => setTimeout(resolve, 500))
-                  if (canExport === false) {
-                    setPaywallAction("export")
-                    setShowPaywallModal(true)
-                    return
-                  }
-                }
+                      // If permission check is still loading, wait a moment
+                      if (canExport === null) {
+                        // Wait for permission check
+                        await new Promise(resolve => setTimeout(resolve, 500))
+                        if (canExport === false) {
+                          setPaywallAction("export")
+                          setShowPaywallModal(true)
+                          return
+                        }
+                      }
 
-                setExportingPDF(true)
-                try {
-                  const contract = contractRegistry[contractId]
-                  const stylePreset = Object.keys(presets).find(
-                    key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
-                  ) || "custom"
-                  const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
-                  const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
-                  await exportToPDF(result, filename, documentStyle, signatures)
-                } catch (err: any) {
-                  setError(err.message || "Failed to export PDF")
-                } finally {
-                  setExportingPDF(false)
-                }
-              }}
-              className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
-            >
-              {exportingPDF ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  Export PDF
-                </>
-              )}
-            </Button>
-            <Button 
-              type="button"
-              variant="outline"
-              size="lg"
-              disabled={exportingDOCX || !result}
-              onClick={async () => {
-                if (!result) return
-                
-                // Check if user can export
-                if (canExport === false) {
-                  setPaywallAction("download")
-                  setShowPaywallModal(true)
-                  return
-                }
+                      setExportingPDF(true)
+                      try {
+                        const contract = contractRegistry[contractId]
+                        const stylePreset = Object.keys(presets).find(
+                          key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                        ) || "custom"
+                        const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                        const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
+                        await exportToPDF(result, filename, documentStyle, signatures)
+                      } catch (err: any) {
+                        setError(err.message || "Failed to export PDF")
+                      } finally {
+                        setExportingPDF(false)
+                      }
+                    }}
+                    className="group relative flex-1 min-w-[140px] overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] hover:border-accent hover:bg-accent/5 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    <span className="relative z-10 flex items-center justify-center">
+                      {exportingPDF ? (
+                        <>
+                          <svg className="animate-spin mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span className="font-medium">Exporting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2 transition-all duration-300 group-hover:translate-y-[-2px] group-hover:rotate-[-5deg] group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <span className="font-semibold">Export PDF</span>
+                        </>
+                      )}
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/5 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </Button>
+                  
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    disabled={exportingDOCX || !result}
+                    onClick={async () => {
+                      if (!result) return
+                      
+                      // Check if user can export
+                      if (canExport === false) {
+                        setPaywallAction("download")
+                        setShowPaywallModal(true)
+                        return
+                      }
 
-                // If permission check is still loading, wait a moment
-                if (canExport === null) {
-                  // Wait for permission check
-                  await new Promise(resolve => setTimeout(resolve, 500))
-                  if (canExport === false) {
-                    setPaywallAction("download")
-                    setShowPaywallModal(true)
-                    return
-                  }
-                }
+                      // If permission check is still loading, wait a moment
+                      if (canExport === null) {
+                        // Wait for permission check
+                        await new Promise(resolve => setTimeout(resolve, 500))
+                        if (canExport === false) {
+                          setPaywallAction("download")
+                          setShowPaywallModal(true)
+                          return
+                        }
+                      }
 
-                setExportingDOCX(true)
-                try {
-                  const contract = contractRegistry[contractId]
-                  const stylePreset = Object.keys(presets).find(
-                    key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
-                  ) || "custom"
-                  const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
-                  const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
-                  await exportToDOCX(result, filename, documentStyle, signatures)
-                } catch (err: any) {
-                  setError(err.message || "Failed to export DOCX")
-                } finally {
-                  setExportingDOCX(false)
-                }
-              }}
-              className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
-            >
-              {exportingDOCX ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Export DOCX
-                </>
-              )}
-            </Button>
-            <Button 
-              type="button"
-              variant="primary"
-              size="lg"
-              onClick={() => {
-                setResult(null)
-                setValues({})
-                window.scrollTo({ top: 0, behavior: "smooth" })
-              }}
-              className="flex-1"
-            >
-              Create Another
-            </Button>
+                      setExportingDOCX(true)
+                      try {
+                        const contract = contractRegistry[contractId]
+                        const stylePreset = Object.keys(presets).find(
+                          key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                        ) || "custom"
+                        const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                        const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
+                        await exportToDOCX(result, filename, documentStyle, signatures)
+                      } catch (err: any) {
+                        setError(err.message || "Failed to export DOCX")
+                      } finally {
+                        setExportingDOCX(false)
+                      }
+                    }}
+                    className="group relative flex-1 min-w-[140px] overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02] hover:border-accent hover:bg-accent/5 hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    <span className="relative z-10 flex items-center justify-center">
+                      {exportingDOCX ? (
+                        <>
+                          <svg className="animate-spin mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span className="font-medium">Exporting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2 transition-all duration-300 group-hover:translate-y-[-2px] group-hover:rotate-[5deg] group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="font-semibold">Export DOCX</span>
+                        </>
+                      )}
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </Button>
+                  
+                  <Button 
+                    type="button"
+                    variant="primary"
+                    size="lg"
+                    onClick={() => {
+                      setResult(null)
+                      setValues({})
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }}
+                    className="group relative flex-1 min-w-[140px] overflow-hidden bg-gradient-to-r from-accent to-accent-soft hover:from-accent-hover hover:to-accent transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+                  >
+                    <span className="relative z-10 flex items-center justify-center font-semibold">
+                      <svg className="w-5 h-5 mr-2 transition-all duration-300 group-hover:rotate-180 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Create Another
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12 group-hover:translate-x-full"></div>
+                  </Button>
+                </div>
               </div>
             </Card>
 
@@ -899,9 +928,11 @@ export default function ContractForm({
           </div>
         </div>
 
-        {/* AI Model Selector */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 md:p-8">
-          <AIModelSelector value={selectedModel} onChange={setSelectedModel} />
+        {/* AI Information */}
+        <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+          <p className="text-sm text-text-muted">
+            <strong className="text-text-main">Powered by ChatGPT-4:</strong> All documents are generated using OpenAI's GPT-4 for professional, legally sound content.
+          </p>
         </div>
 
         {/* Interview Form */}
