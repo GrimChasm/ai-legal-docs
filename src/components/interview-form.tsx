@@ -258,7 +258,7 @@ export default function InterviewForm({
     const currentGroupName = currentFieldData.group
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Progress Bar */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
@@ -274,18 +274,8 @@ export default function InterviewForm({
         </div>
 
         {/* Current Question Card */}
-        <Card className="border-2 border-accent shadow-xl relative overflow-visible">
-          {/* Current step indicator badge */}
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-            <div className="flex items-center gap-2 px-4 py-1.5 bg-accent text-white rounded-full shadow-lg font-semibold text-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>Step {currentStep + 1} of {stepFields.length}</span>
-            </div>
-          </div>
-          
-          <CardContent className="p-8 md:p-10 pt-12">
+        <Card className="border-2 border-accent shadow-xl relative">
+          <CardContent className="p-6 md:p-8">
             {/* Group indicator */}
             {currentGroupName && (
               <div className="mb-4">
