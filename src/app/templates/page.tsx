@@ -131,7 +131,7 @@ export default function TemplatesPage() {
                       )}
                     </div>
                     <div className="mt-auto active:scale-[0.98] transition-transform duration-150">
-                      <Button variant="outline" className="w-full">
+                      <Button variant="outline" className="w-full whitespace-nowrap min-w-[140px]">
                         Use Template
                       </Button>
                     </div>

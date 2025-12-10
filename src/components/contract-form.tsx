@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -20,6 +21,7 @@ import remarkGfm from "remark-gfm"
 import SignDocumentModal from "@/components/sign-document-modal"
 import SendForSignatureModal from "@/components/send-for-signature-modal"
 import SignaturePositioning from "@/components/signature-positioning"
+import PaywallModal from "@/components/paywall-modal"
 
 export default function ContractForm({
   contractId,
@@ -55,6 +57,9 @@ export default function ContractForm({
   const [showSendForSignatureModal, setShowSendForSignatureModal] = useState(false)
   const [signatures, setSignatures] = useState<Array<{ id: string; signerName: string; signerEmail: string; signatureData: string; createdAt: string; position?: "bottom" | "custom"; customY?: number }>>([])
   const [signatureInvites, setSignatureInvites] = useState<Array<{ id: string; recipientName: string; recipientEmail: string; status: string; signedAt: string | null }>>([])
+  const [showPaywallModal, setShowPaywallModal] = useState(false)
+  const [paywallAction, setPaywallAction] = useState<"export" | "download" | "copy" | "save">("export")
+  const [canExport, setCanExport] = useState<boolean | null>(null)
   const { data: session } = useSession()
 
   // Load user's preferred document style on mount
@@ -77,6 +82,36 @@ export default function ContractForm({
       loadUserPreferences()
     }
   }, [session?.user?.id])
+
+  // Check export permissions when draft is loaded or user changes
+  useEffect(() => {
+    const checkExportPermission = async () => {
+      if (!session?.user?.id || !currentDraftId) {
+        // If user has Pro status from session, they can export
+        if (session?.user?.isPro) {
+          setCanExport(true)
+          return
+        }
+        setCanExport(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/drafts/${currentDraftId}/export-permission`)
+        if (response.ok) {
+          const data = await response.json()
+          setCanExport(data.canExport)
+        } else {
+          setCanExport(false)
+        }
+      } catch (error) {
+        console.error("Error checking export permission:", error)
+        setCanExport(false)
+      }
+    }
+
+    checkExportPermission()
+  }, [session?.user?.id, session?.user?.isPro, currentDraftId])
 
   // Save user's document style preference when it changes (debounced)
   useEffect(() => {
@@ -555,6 +590,25 @@ export default function ContractForm({
               disabled={exportingPDF || !result}
               onClick={async () => {
                 if (!result) return
+                
+                // Check if user can export
+                if (canExport === false) {
+                  setPaywallAction("export")
+                  setShowPaywallModal(true)
+                  return
+                }
+
+                // If permission check is still loading, wait a moment
+                if (canExport === null) {
+                  // Wait for permission check
+                  await new Promise(resolve => setTimeout(resolve, 500))
+                  if (canExport === false) {
+                    setPaywallAction("export")
+                    setShowPaywallModal(true)
+                    return
+                  }
+                }
+
                 setExportingPDF(true)
                 try {
                   const contract = contractRegistry[contractId]
@@ -596,6 +650,25 @@ export default function ContractForm({
               disabled={exportingDOCX || !result}
               onClick={async () => {
                 if (!result) return
+                
+                // Check if user can export
+                if (canExport === false) {
+                  setPaywallAction("download")
+                  setShowPaywallModal(true)
+                  return
+                }
+
+                // If permission check is still loading, wait a moment
+                if (canExport === null) {
+                  // Wait for permission check
+                  await new Promise(resolve => setTimeout(resolve, 500))
+                  if (canExport === false) {
+                    setPaywallAction("download")
+                    setShowPaywallModal(true)
+                    return
+                  }
+                }
+
                 setExportingDOCX(true)
                 try {
                   const contract = contractRegistry[contractId]
@@ -752,6 +825,12 @@ export default function ContractForm({
                 onClose={() => setShowSendForSignatureModal(false)}
               />
             )}
+            <PaywallModal
+              isOpen={showPaywallModal}
+              onClose={() => setShowPaywallModal(false)}
+              draftId={currentDraftId || undefined}
+              action={paywallAction}
+            />
       </div>
     )
   }

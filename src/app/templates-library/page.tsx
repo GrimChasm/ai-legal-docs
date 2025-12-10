@@ -444,12 +444,12 @@ function TemplateCard({ template, onPreview }: TemplateCardProps) {
                 e.preventDefault()
                 onPreview(template)
               }}
-              className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:scale-[0.98] active:bg-gray-100 active:shadow-sm transition-all duration-150"
+              className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:scale-[0.98] active:bg-gray-100 active:shadow-sm transition-all duration-150 whitespace-nowrap min-w-[100px]"
             >
               Preview
             </Button>
-            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150">
-              <Button variant="primary" size="md" className="w-full">
+            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150 min-w-[140px]">
+              <Button variant="primary" size="md" className="w-full whitespace-nowrap">
                 Use Template
               </Button>
             </Link>

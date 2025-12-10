@@ -71,6 +71,18 @@ export const authOptions: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string
+        
+        // Fetch user's Pro status from database
+        // Note: This adds a DB query to every session, but ensures fresh subscription status
+        // For better performance, you could cache this in the JWT token and refresh periodically
+        try {
+          const { getUserProStatus } = await import("@/lib/subscription")
+          const isPro = await getUserProStatus(token.id as string)
+          session.user.isPro = isPro
+        } catch (error) {
+          console.error("Error fetching Pro status in session callback:", error)
+          session.user.isPro = false
+        }
       }
       return session
     },

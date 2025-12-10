@@ -204,8 +204,8 @@ function TemplateCard({ template }: TemplateCardProps) {
 
           {/* Action Buttons */}
           <div className="flex gap-3">
-            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150">
-              <Button variant="primary" size="md" className="w-full">
+            <Link href={`/contracts/${template.id}`} className="flex-1 inline-block active:scale-[0.98] transition-transform duration-150 min-w-[140px]">
+              <Button variant="primary" size="md" className="w-full whitespace-nowrap">
                 Use Template
               </Button>
             </Link>

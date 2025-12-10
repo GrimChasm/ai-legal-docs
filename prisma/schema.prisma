@@ -23,6 +23,14 @@ model User {
   Template      Template[]
   SignatureRequests SignatureRequest[] @relation("SignatureRequests")
   SentSignatureInvites SignatureInvite[] @relation("SentSignatureInvites")
+  
+  // Stripe subscription fields
+  stripeCustomerId    String?  @unique // Stripe customer ID
+  stripeSubscriptionId String? @unique // Stripe subscription ID
+  stripePriceId       String?  // Current price ID (e.g., price_xxx)
+  stripeCurrentPeriodEnd DateTime? // When the current billing period ends
+  isPro               Boolean  @default(false) // Pro subscription status
+  subscriptionStatus  String?  // active, canceled, past_due, trialing, etc.
 }
 
 model Account {
@@ -75,6 +83,7 @@ model Draft {
   signatureInvites  SignatureInvite[] @relation("SignatureInvites")
   signatures        Signature[]
   versions          Version[]
+  hasPaidExport     Boolean            @default(false) // Whether this document has been unlocked via one-time payment
 
   @@index([userId])
   @@index([contractId])

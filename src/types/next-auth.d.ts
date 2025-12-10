@@ -8,6 +8,7 @@ declare module "next-auth" {
       name?: string | null
       email?: string | null
       image?: string | null
+      isPro?: boolean // Pro subscription status
     }
   }
 
@@ -16,6 +17,7 @@ declare module "next-auth" {
     name?: string | null
     email?: string | null
     image?: string | null
+    isPro?: boolean // Pro subscription status
   }
 }
 
