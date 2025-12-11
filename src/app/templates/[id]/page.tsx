@@ -72,7 +72,7 @@ export default function TemplatePage() {
               <p className="text-[#6C7783] mb-6">{error || "The template you're looking for doesn't exist."}</p>
               <Button
                 onClick={() => router.push("/templates")}
-                className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white active:scale-[0.98]"
+                variant="primary"
               >
                 Back to Templates
               </Button>

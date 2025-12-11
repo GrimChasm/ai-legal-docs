@@ -8,7 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "primary", size = "md", disabled, ...props }, ref) => {
     // Base styles - consistent across all variants with enhanced feedback
-    const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed active:scale-[0.98] active:transition-transform active:duration-75"
+    const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed"
     
     // Size variants - with proper padding
     const sizeStyles = {
@@ -17,30 +17,20 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       lg: "h-14 px-6 text-lg rounded-button",
     }
     
-    // Color variants using design tokens - light backgrounds for dark text with enhanced feedback
+    // Color variants - Modern SaaS style with dark text on light backgrounds
+    // ALL buttons use dark text for visibility with dynamic hover effects
     const variantStyles = {
-      primary: "bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border-2 border-accent shadow-sm hover:shadow-md active:shadow-sm font-semibold disabled:bg-gray-200 disabled:border-gray-300",
-      secondary: "bg-bg-muted hover:bg-border active:bg-gray-300 border border-border font-medium disabled:bg-gray-200",
-      outline: "bg-white border-2 border-primary hover:bg-primary hover:text-white active:bg-primary-hover active:text-white font-semibold disabled:border-gray-400",
-      ghost: "bg-transparent hover:bg-bg-muted active:bg-gray-200 font-medium",
-      danger: "bg-red-50 hover:bg-red-100 active:bg-red-200 border-2 border-red-300 shadow-sm hover:shadow-md active:shadow-sm font-semibold disabled:bg-gray-200 disabled:border-gray-300",
-    }
-    
-    // Determine text color based on variant and disabled state
-    const getTextColor = () => {
-      if (disabled) {
-        return "#6B7280" // Medium gray text for disabled state
-      } else {
-        // All enabled buttons use dark text by default
-        return "#101623" // Dark text for all variants
-      }
+      primary: "bg-accent-light text-accent hover:bg-accent/20 active:bg-accent/30 border-2 border-accent shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] font-semibold disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-300 disabled:shadow-none disabled:hover:scale-100 transition-all duration-200",
+      secondary: "bg-secondary-light text-secondary hover:bg-secondary/20 active:bg-secondary/30 border-2 border-secondary shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] font-semibold disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-300 disabled:shadow-none disabled:hover:scale-100 transition-all duration-200",
+      outline: "bg-transparent border-2 border-accent text-accent hover:bg-accent-light hover:border-accent-hover hover:shadow-md hover:scale-[1.02] active:bg-accent/20 active:scale-[0.98] font-semibold disabled:border-gray-300 disabled:text-gray-400 disabled:hover:scale-100 transition-all duration-200",
+      ghost: "bg-transparent text-text-main hover:bg-bg-muted hover:scale-[1.02] active:bg-border active:scale-[0.98] font-medium disabled:text-gray-400 disabled:hover:scale-100 transition-all duration-200",
+      danger: "bg-red-50 text-danger border-2 border-red-200 hover:bg-red-100 hover:border-red-300 active:bg-red-200 shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] font-semibold disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-300 disabled:shadow-none disabled:hover:scale-100 transition-all duration-200",
     }
     
     return (
       <button
         ref={ref}
         className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
-        style={{ color: getTextColor() }}
         disabled={disabled}
         {...props}
       />

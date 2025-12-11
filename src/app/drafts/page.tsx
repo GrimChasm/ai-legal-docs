@@ -84,9 +84,9 @@ export default function DraftsPage() {
           <div className="text-center py-20 text-text-muted">Loading drafts...</div>
         ) : drafts.length === 0 ? (
           <Card>
-            <CardContent className="p-12 text-center">
-              <h3 className="text-2xl font-semibold text-text-main mb-2">No drafts yet</h3>
-              <p className="text-base text-text-muted mb-6">
+            <CardContent className="p-8 md:p-10 pt-12 text-center">
+              <h3 className="text-2xl font-semibold text-text-main mb-3">No drafts yet</h3>
+              <p className="text-base text-text-muted mb-8">
                 Start creating a document to save your first draft.
               </p>
               <Link href="/contracts">

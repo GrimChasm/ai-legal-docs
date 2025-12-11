@@ -76,7 +76,7 @@ export default function CommentsPanel({ draftId }: CommentsPanelProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold text-[#101623]">Comments</h3>
+      <h3 className="font-semibold text-text-main">Comments</h3>
       
       <form onSubmit={handlePostComment} className="space-y-3">
         <Textarea
@@ -88,7 +88,7 @@ export default function CommentsPanel({ draftId }: CommentsPanelProps) {
         <Button
           type="submit"
           disabled={loading || !newComment.trim()}
-          className="bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
+          variant="primary"
         >
           {loading ? "Posting..." : "Post Comment"}
         </Button>
@@ -96,16 +96,16 @@ export default function CommentsPanel({ draftId }: CommentsPanelProps) {
 
       <div className="space-y-3 mt-6">
         {comments.length === 0 ? (
-          <p className="text-[#6C7783] text-sm">No comments yet</p>
+          <p className="text-text-muted text-sm">No comments yet</p>
         ) : (
           comments.map((comment) => (
             <Card key={comment.id} className="border border-[#E0E5EC] p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <p className="font-medium text-[#101623] text-sm">
+                  <p className="font-medium text-text-main text-sm">
                     {comment.userName || "Anonymous"}
                   </p>
-                  <p className="text-xs text-[#6C7783]">{formatDate(comment.createdAt)}</p>
+                  <p className="text-xs text-text-muted">{formatDate(comment.createdAt)}</p>
                 </div>
                 {comment.resolved && (
                   <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
@@ -113,7 +113,7 @@ export default function CommentsPanel({ draftId }: CommentsPanelProps) {
                   </span>
                 )}
               </div>
-              <p className="text-[#101623] text-sm">{comment.content}</p>
+              <p className="text-text-main text-sm">{comment.content}</p>
             </Card>
           ))
         )}

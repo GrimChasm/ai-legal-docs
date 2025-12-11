@@ -380,13 +380,13 @@ export default function ContractForm({
       <div className="space-y-6">
         <Card className="border-2 border-accent bg-blue-50">
           <CardContent className="p-8 md:p-10 text-center">
-            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-accent-light border-2 border-accent rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-[#101623] mb-3">Your Document is Ready!</h2>
-            <p className="text-base text-[#4A5568] font-medium">Review and customize your generated legal document below</p>
+            <h2 className="text-2xl font-bold text-text-main mb-3">Your Document is Ready!</h2>
+            <p className="text-base text-text-muted font-medium">Review and customize your generated legal document below</p>
           </CardContent>
         </Card>
 
@@ -517,9 +517,9 @@ export default function ContractForm({
                         </ol>
                       ),
                       li: ({ children }) => (
-                        <li style={{ color: "#101623", wordWrap: "break-word", overflowWrap: "break-word" }}>{children}</li>
+                        <li className="text-text-main" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>{children}</li>
                       ),
-                      strong: ({ children }) => <strong style={{ color: "#101623" }}>{children}</strong>,
+                      strong: ({ children }) => <strong className="text-text-main">{children}</strong>,
                       table: ({ children }) => (
                         <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
                           <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "100%" }}>

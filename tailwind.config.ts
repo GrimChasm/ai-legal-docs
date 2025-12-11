@@ -8,42 +8,61 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Design System Colors
+      // Modern SaaS Design System Colors - Inspired by Pipely
       colors: {
-        primary: {
-          DEFAULT: "#0A1B2A", // Deep Navy
-          hover: "#0f2538",
-        },
-        accent: {
-          DEFAULT: "#1A73E8", // Electric Blue
-          hover: "#1557b8",
-          soft: "#5CC8C1", // Soft Teal
-        },
+        // Backgrounds - Warm, neutral tones
         bg: {
-          DEFAULT: "#FFFFFF", // White
-          muted: "#F3F5F7", // Light Gray
+          DEFAULT: "#FAFAF9", // Warm off-white
+          muted: "#F5F5F4", // Slightly darker for sections
+          card: "#FFFFFF", // Pure white for cards
         },
+        // Primary Accent - Soft but confident blue
+        accent: {
+          DEFAULT: "#3B82F6", // Modern blue
+          hover: "#2563EB", // Darker for hover
+          light: "#DBEAFE", // Light blue for backgrounds
+          soft: "#60A5FA", // Softer blue variant
+        },
+        // Secondary Accent - Warm tone
+        secondary: {
+          DEFAULT: "#F59E0B", // Warm amber/orange
+          hover: "#D97706", // Darker for hover
+          light: "#FEF3C7", // Light amber for backgrounds
+        },
+        // Text Colors
         text: {
-          main: "#101623", // Near-Black
-          muted: "#6C7783", // Slate Gray
+          main: "#1F2937", // Near-black, warm gray
+          muted: "#6B7280", // Medium gray
+          light: "#9CA3AF", // Light gray for hints
+          inverse: "#FFFFFF", // White text
         },
+        // Borders
         border: {
-          DEFAULT: "#E0E5EC", // Neutral Border
+          DEFAULT: "#E5E7EB", // Soft gray
+          light: "#F3F4F6", // Very light
+          accent: "#3B82F6", // Accent color
         },
-        danger: {
-          DEFAULT: "#DC2626",
-          hover: "#B91C1C",
+        // Status Colors
+        success: "#10B981",
+        warning: "#F59E0B",
+        danger: "#EF4444",
+        info: "#3B82F6",
+        // Legacy compatibility
+        primary: {
+          DEFAULT: "#1F2937",
+          hover: "#111827",
         },
       },
-      // Typography
+      // Typography - Modern SaaS with Inter
       fontFamily: {
         sans: [
+          "var(--font-inter)",
           "system-ui",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "Roboto",
-          "Helvetica",
+          "Helvetica Neue",
           "Arial",
           "sans-serif",
         ],
@@ -72,22 +91,24 @@ const config: Config = {
         "page-lg": "1024px",
         "page-xl": "1280px",
       },
-      // Border Radius
+      // Border Radius - Soft, rounded corners
       borderRadius: {
-        sm: "0.375rem", // 6px
-        DEFAULT: "0.5rem", // 8px
-        md: "0.625rem", // 10px
-        lg: "0.75rem", // 12px
-        xl: "1rem", // 16px
-        card: "0.75rem", // 12px
-        button: "0.5rem", // 8px
+        sm: "0.5rem", // 8px
+        DEFAULT: "0.75rem", // 12px
+        md: "1rem", // 16px
+        lg: "1.5rem", // 24px
+        xl: "2rem", // 32px
+        card: "1rem", // 16px
+        button: "0.75rem", // 12px
+        full: "9999px",
       },
-      // Shadows
+      // Shadows - Soft, subtle shadows
       boxShadow: {
         sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         DEFAULT: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
         md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
         lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
         card: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
         "card-hover": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
       },

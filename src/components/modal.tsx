@@ -48,10 +48,10 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-[#E0E5EC]">
-          <h2 className="text-xl font-semibold text-[#101623]">{title}</h2>
+          <h2 className="text-xl font-semibold text-text-main">{title}</h2>
           <button
             onClick={onClose}
-            className="text-[#6C7783] hover:text-[#101623] transition-colors"
+            className="text-text-muted hover:text-text-main transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

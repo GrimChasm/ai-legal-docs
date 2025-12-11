@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Satisfy, Kalam } from "next/font/google";
+import { Inter, Geist_Mono, Caveat, Satisfy, Kalam } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Modern SaaS typography - Inter for clean, professional feel
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -15,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Cursive fonts for signature pad
+// Cursive fonts for signature pad (keep for signature functionality)
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
@@ -47,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${satisfy.variable} ${kalam.variable} antialiased`}
+        className={`${inter.variable} ${geistMono.variable} ${caveat.variable} ${satisfy.variable} ${kalam.variable} antialiased`}
         suppressHydrationWarning
       >
         <Providers>

@@ -22,14 +22,14 @@ export default function UserMenu() {
         aria-label="User menu"
         aria-expanded={isOpen}
       >
-        <div className="w-8 h-8 rounded-full bg-[#1A73E8] flex items-center justify-center text-white font-semibold text-sm">
+        <div className="w-8 h-8 rounded-full bg-accent-light border-2 border-accent flex items-center justify-center text-accent font-semibold text-sm">
           {userInitial}
         </div>
-        <span className="text-[#101623] font-medium hidden sm:block">
+        <span className="text-text-main font-medium hidden sm:block">
           {session.user?.name || session.user?.email}
         </span>
         <svg
-          className={`w-4 h-4 text-[#6C7783] transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-text-muted transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -44,29 +44,29 @@ export default function UserMenu() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E0E5EC] rounded-lg shadow-lg z-20">
+          <div className="absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg z-20">
             <div className="py-1">
               <Link
                 href="/dashboard"
-                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
+                className="block px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
                 onClick={() => setIsOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 href="/drafts"
-                className="block px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
+                className="block px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
                 onClick={() => setIsOpen(false)}
               >
                 My Drafts
               </Link>
-              <div className="border-t border-[#E0E5EC] my-1" />
+              <div className="border-t border-border my-1" />
               <button
                 onClick={() => {
                   setIsOpen(false)
                   signOut()
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-[#101623] hover:bg-[#F3F5F7] active:bg-gray-200 transition-all duration-150 focus:outline-none focus:bg-[#F3F5F7]"
+                className="w-full text-left px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
               >
                 Sign out
               </button>

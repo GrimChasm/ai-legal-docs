@@ -225,7 +225,7 @@ export default function DatePicker({
                 onKeyDown={(e) => handleKeyDown(e, day)}
                 className={`aspect-square rounded transition-all duration-150 text-xs focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1 active:scale-90 ${
                   isSelected
-                    ? "bg-accent/10 border-2 border-accent text-[#101623] font-bold hover:bg-accent/20 active:bg-accent/30"
+                    ? "bg-accent/10 border-2 border-accent text-text-main font-bold hover:bg-accent/20 active:bg-accent/30"
                     : isToday
                     ? "bg-bg-muted font-semibold text-text-main hover:bg-border active:bg-gray-300"
                     : "text-text-main hover:bg-bg-muted font-medium active:bg-gray-200"

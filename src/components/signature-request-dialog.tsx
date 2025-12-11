@@ -113,7 +113,8 @@ export default function SignatureRequestDialog({
           </Button>
           <Button
             type="submit"
-            className="flex-1 bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
+            variant="primary"
+            className="flex-1"
             disabled={loading}
           >
             {loading ? "Sending..." : "Send for Signature"}

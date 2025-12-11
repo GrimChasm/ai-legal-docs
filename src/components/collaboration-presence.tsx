@@ -43,12 +43,12 @@ export default function CollaborationPresence({ draftId }: CollaborationPresence
 
   return (
     <div className="flex items-center gap-2 px-3 py-2 bg-[#F3F5F7] rounded-lg">
-      <span className="text-sm text-[#6C7783]">Active collaborators:</span>
+      <span className="text-sm text-text-muted">Active collaborators:</span>
       <div className="flex items-center gap-2">
         {collaborators.map((collab) => (
           <div
             key={collab.id}
-            className="w-8 h-8 rounded-full bg-[#1A73E8] flex items-center justify-center text-white text-xs font-semibold"
+            className="w-8 h-8 rounded-full bg-accent-light border-2 border-accent flex items-center justify-center text-accent text-xs font-semibold"
             title={`${collab.name} (${collab.role})`}
           >
             {collab.name[0]?.toUpperCase() || collab.email[0]?.toUpperCase()}

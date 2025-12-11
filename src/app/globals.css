@@ -1,38 +1,107 @@
 @import "tailwindcss";
 
+/**
+ * Modern SaaS Design System
+ * 
+ * This design system is inspired by the Pipely Webflow template aesthetic:
+ * - Clean, modern, and professional
+ * - Warm, neutral, approachable (consulting + SaaS feel)
+ * - Generous white/neutral space, no clutter
+ * 
+ * Design Tokens:
+ * - Colors: Light neutral backgrounds, soft blue accent, warm secondary
+ * - Typography: Inter font family with clear hierarchy
+ * - Spacing: Generous padding and margins for breathing room
+ * - Borders: Soft, rounded corners (12px-16px radius)
+ * - Shadows: Subtle, soft shadows for depth
+ * 
+ * To adjust the design:
+ * - Colors: Update CSS variables in :root below
+ * - Typography: Modify font sizes and line-heights in h1-h6, p, .lead
+ * - Spacing: Adjust --spacing-* and --padding-* variables
+ * - Components: See component files in src/components/ui/
+ */
+
 :root {
-  /* ContractVault Brand Colors - All solid, no transparency */
-  --color-primary: #0A1B2A; /* Deep Navy */
-  --color-primary-hover: #0D2333; /* Slightly lighter for hover */
-  --color-accent: #1A73E8; /* Electric Blue */
-  --color-accent-hover: #1557B8; /* Darker for hover */
-  --color-accent-soft: #5CC8C1; /* Soft Teal */
-  --color-bg: #FFFFFF; /* White */
-  --color-bg-muted: #F3F5F7; /* Light Gray */
-  --color-text-main: #101623; /* Near-Black - 100% opaque */
-  --color-text-muted: #4A5568; /* Darker gray for better contrast - 100% opaque */
-  --color-border: #E0E5EC; /* Neutral Border */
-  --color-danger: #DC2626; /* Red for errors */
-  --color-danger-hover: #B91C1C; /* Darker red for hover */
-  --color-white: #FFFFFF; /* Pure white */
+  /* Modern SaaS Design System - Inspired by Pipely */
+  /* Warm, neutral, approachable color palette */
   
-  /* Spacing Tokens - Consistent across all components */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-2xl: 48px;
+  /* Background Colors - Light neutral, off-white/beige tones */
+  --color-bg: #FAFAF9; /* Warm off-white background */
+  --color-bg-muted: #F5F5F4; /* Slightly darker for sections */
+  --color-bg-card: #FFFFFF; /* Pure white for cards */
+  --color-bg-overlay: rgba(255, 255, 255, 0.8); /* For overlays */
   
-  /* Component Padding */
-  --padding-card: 24px; /* Desktop card padding */
-  --padding-card-mobile: 16px; /* Mobile card padding */
-  --padding-button-vertical: 12px;
-  --padding-button-horizontal: 20px;
-  --padding-input-vertical: 12px;
-  --padding-input-horizontal: 16px;
-  --padding-section: 32px; /* Section vertical padding */
-  --padding-section-mobile: 24px; /* Mobile section padding */
+  /* Primary Accent - Soft but confident blue/teal */
+  --color-accent: #3B82F6; /* Modern blue - confident but approachable */
+  --color-accent-hover: #2563EB; /* Darker for hover states */
+  --color-accent-light: #DBEAFE; /* Light blue for backgrounds */
+  --color-accent-soft: #60A5FA; /* Softer blue variant */
+  
+  /* Secondary Accent - Warm tone for highlights */
+  --color-secondary: #F59E0B; /* Warm amber/orange */
+  --color-secondary-hover: #D97706; /* Darker for hover */
+  --color-secondary-light: #FEF3C7; /* Light amber for backgrounds */
+  
+  /* Text Colors - Dark gray/near-black for readability */
+  --color-text-main: #1F2937; /* Near-black, warm gray */
+  --color-text-muted: #6B7280; /* Medium gray for secondary text */
+  --color-text-light: #9CA3AF; /* Light gray for hints/placeholders */
+  --color-text-inverse: #FFFFFF; /* White text on dark backgrounds */
+  
+  /* Border Colors - Subtle, soft borders */
+  --color-border: #E5E7EB; /* Soft gray border */
+  --color-border-light: #F3F4F6; /* Very light border */
+  --color-border-accent: #3B82F6; /* Accent color for active borders */
+  
+  /* Status Colors */
+  --color-success: #10B981; /* Green for success */
+  --color-warning: #F59E0B; /* Amber for warnings */
+  --color-danger: #EF4444; /* Red for errors */
+  --color-info: #3B82F6; /* Blue for info */
+  
+  /* Legacy compatibility */
+  --color-primary: var(--color-text-main);
+  --color-primary-hover: var(--color-text-main);
+  --color-white: #FFFFFF;
+  
+  /* Spacing Scale - Generous breathing room for modern SaaS feel */
+  --spacing-xs: 0.5rem; /* 8px */
+  --spacing-sm: 1rem; /* 16px */
+  --spacing-md: 1.5rem; /* 24px */
+  --spacing-lg: 2rem; /* 32px */
+  --spacing-xl: 3rem; /* 48px */
+  --spacing-2xl: 4rem; /* 64px */
+  --spacing-3xl: 6rem; /* 96px */
+  --spacing-4xl: 8rem; /* 128px */
+  
+  /* Component Padding - Generous padding, nothing hugging edges */
+  --padding-card: 2rem; /* 32px - Desktop card padding */
+  --padding-card-mobile: 1.5rem; /* 24px - Mobile card padding */
+  --padding-button-vertical: 0.875rem; /* 14px */
+  --padding-button-horizontal: 1.5rem; /* 24px */
+  --padding-input-vertical: 0.875rem; /* 14px */
+  --padding-input-horizontal: 1rem; /* 16px */
+  --padding-section: 5rem; /* 80px - Generous section vertical padding */
+  --padding-section-mobile: 3rem; /* 48px - Mobile section padding */
+  
+  /* Border Radius - Soft, rounded corners */
+  --radius-sm: 0.5rem; /* 8px */
+  --radius-md: 0.75rem; /* 12px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.5rem; /* 24px */
+  --radius-full: 9999px; /* Full rounded */
+  
+  /* Shadows - Soft, subtle shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Max Widths - Content containers */
+  --max-width-container: 1200px;
+  --max-width-content: 1100px;
+  --max-width-narrow: 800px;
 
   /* Legacy variables for compatibility */
   --background: var(--color-bg);
@@ -42,67 +111,110 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-text-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em; /* Slightly tighter letter spacing for modern feel */
 }
 
-/* Typography Hierarchy - Consistent across all pages */
+/* Ensure all text defaults to dark for visibility on light backgrounds */
+/* Buttons are explicitly excluded - they have their own text colors */
+p:not(button):not(button *),
+span:not(button):not(button *),
+div:not(button):not([class*="bg-accent"]):not([class*="bg-secondary"]):not([class*="bg-danger"]):not([class*="bg-text-main"]),
+a:not(button):not([class*="text-white"]):not([class*="text-accent"]),
+li:not(button):not(button *),
+td:not(button):not(button *),
+th:not(button):not(button *),
+label:not(button):not(button *) {
+  color: var(--color-text-main);
+}
+
+/* Inputs and form elements use dark text */
+input:not([class*="text-white"]),
+textarea:not([class*="text-white"]),
+select:not([class*="text-white"]) {
+  color: var(--color-text-main);
+}
+
+/* Buttons - text colors are set via inline styles in the Button component */
+/* This ensures buttons always have visible text regardless of global CSS */
+button {
+  /* Button text colors are explicitly set via inline styles in Button component */
+  /* This prevents global CSS from overriding button text colors */
+}
+
+/* Typography Hierarchy - Modern SaaS with clear hierarchy and comfortable spacing */
 h1 {
-  font-size: 2.25rem; /* 36px - text-4xl */
+  font-size: 3.5rem; /* 56px - Larger, more impactful */
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-text-main);
+  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 2.5rem; /* 40px */
   font-weight: 700;
   line-height: 1.2;
   color: var(--color-text-main);
   letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
 }
 
-h2 {
-  font-size: 1.875rem; /* 30px - text-3xl */
+h3 {
+  font-size: 1.875rem; /* 30px */
   font-weight: 600;
   line-height: 1.3;
   color: var(--color-text-main);
   letter-spacing: -0.01em;
-}
-
-h3 {
-  font-size: 1.5rem; /* 24px - text-2xl */
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--color-text-main);
+  margin-bottom: 1rem;
 }
 
 h4 {
-  font-size: 1.25rem; /* 20px - text-xl */
+  font-size: 1.5rem; /* 24px */
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.4;
   color: var(--color-text-main);
+  margin-bottom: 0.875rem;
 }
 
 h5 {
-  font-size: 1.125rem; /* 18px - text-lg */
+  font-size: 1.25rem; /* 20px */
   font-weight: 600;
   line-height: 1.5;
   color: var(--color-text-main);
+  margin-bottom: 0.75rem;
 }
 
 h6 {
-  font-size: 1rem; /* 16px - text-base */
+  font-size: 1.125rem; /* 18px */
   font-weight: 600;
   line-height: 1.5;
   color: var(--color-text-main);
+  margin-bottom: 0.5rem;
 }
 
 p {
-  font-size: 1rem; /* 16px */
-  line-height: 1.6;
+  font-size: 1.125rem; /* 18px - Slightly larger for readability */
+  line-height: 1.7; /* More comfortable line height */
   color: var(--color-text-main);
+  margin-bottom: 1rem;
+}
+
+/* Lead text for hero sections */
+.lead {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.6;
+  color: var(--color-text-muted);
 }
 
 /* Smooth animations */

@@ -317,7 +317,7 @@ export default function PaywallModal({
             {proYearly && (
               <Card className="hover:shadow-lg hover:border-accent transition-all duration-300 border-2 border-accent/50 relative overflow-hidden group">
                 {proYearly.features.includes("Save 20%") && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-accent to-accent-soft text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-md z-10 animate-bounce">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent-light border-2 border-accent text-accent px-4 py-1.5 rounded-full text-xs font-semibold shadow-md z-10 animate-bounce">
                     ⭐ Best Value
                   </div>
                 )}

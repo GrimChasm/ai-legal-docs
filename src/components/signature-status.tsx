@@ -57,12 +57,12 @@ export default function SignatureStatus({ draftId }: SignatureStatusProps) {
   }
 
   if (loading) {
-    return <div className="text-[#6C7783]">Loading signature status...</div>
+    return <div className="text-text-muted">Loading signature status...</div>
   }
 
   if (requests.length === 0) {
     return (
-      <div className="text-center py-8 text-[#6C7783]">
+      <div className="text-center py-8 text-text-muted">
         <p>No signature requests</p>
       </div>
     )
@@ -70,15 +70,15 @@ export default function SignatureStatus({ draftId }: SignatureStatusProps) {
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-[#101623] mb-4">Signature Status</h3>
+      <h3 className="font-semibold text-text-main mb-4">Signature Status</h3>
       {requests.map((request) => (
         <Card key={request.id} className="border border-[#E0E5EC] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-[#101623]">
+              <p className="font-medium text-text-main">
                 {request.signerName || request.signerEmail}
               </p>
-              <p className="text-sm text-[#6C7783]">
+              <p className="text-sm text-text-muted">
                 {request.provider} • {new Date(request.createdAt).toLocaleDateString()}
               </p>
             </div>

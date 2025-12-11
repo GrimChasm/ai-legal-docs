@@ -10,7 +10,6 @@ import Logo from "./logo"
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
   const { data: session, status } = useSession()
 
@@ -23,47 +22,14 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      if (isMenuOpen && !target.closest('.menu-container')) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMenuOpen])
-
-  // Close menu on route change
-  useEffect(() => {
-    setIsMenuOpen(false)
-  }, [pathname])
-
-  const isHomePage = pathname === "/"
-
-  const navigationItems = [
-    { href: "/", label: "Home" },
-    { href: "/drafts", label: "My Drafts", requiresAuth: true },
-    { href: "/templates-library", label: "Templates Library" },
-    { href: "/templates/create", label: "Create Template", requiresAuth: true },
-    { href: "/bundles", label: "Bundles" },
-  ]
-
-  const visibleItems = navigationItems.filter(item => !item.requiresAuth || session)
-
   return (
     <header
-      className={`sticky top-0 z-50 bg-bg border-b border-border shadow-sm transition-all duration-300 ${
-        isScrolled ? "py-2" : "py-4"
+      className={`sticky top-0 z-50 bg-bg-card border-b border-border-light backdrop-blur-sm transition-all duration-300 ${
+        isScrolled ? "py-3 shadow-md" : "py-4 shadow-sm"
       }`}
-      style={{ backgroundColor: '#FFFFFF' }}
     >
-      <div className="container mx-auto px-4 md:px-6 max-w-container">
-        <div className="flex items-center justify-between gap-4 min-h-[60px]">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8" style={{ maxWidth: '1200px' }}>
+        <div className="flex items-center justify-between gap-4 min-h-[64px] relative">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
             <Logo 
@@ -73,122 +39,37 @@ export default function Header() {
             />
           </div>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center gap-2 md:gap-3 flex-shrink-0 overflow-visible relative menu-container">
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 absolute left-1/2 transform -translate-x-1/2">
+            <Link href="/templates-library" className="text-text-main hover:text-accent transition-colors font-medium text-sm">
+              Templates
+            </Link>
+            <Link href="/pricing" className="text-text-main hover:text-accent transition-colors font-medium text-sm">
+              Pricing
+            </Link>
+            <Link href="/#features" className="text-text-main hover:text-accent transition-colors font-medium text-sm">
+              Features
+            </Link>
+          </nav>
+
+          {/* Right Side Actions - Anchored to the right */}
+          <div className="flex items-center gap-3 md:gap-4 flex-shrink-0 overflow-visible relative ml-auto">
             {status === "loading" ? (
               <div className="w-20 h-8" /> // Placeholder to prevent layout shift
             ) : session ? (
-              <>
-                <UserMenu />
-                {/* Hamburger Menu Button */}
-                <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-2 rounded-lg hover:bg-bg-muted transition-colors active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-                  aria-label="Open navigation menu"
-                >
-                  <svg
-                    className="w-6 h-6 text-text-main"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    {isMenuOpen ? (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    ) : (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    )}
-                  </svg>
-                </button>
-
-                {/* Dropdown Menu */}
-                {isMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-border rounded-lg shadow-2xl z-50 overflow-hidden">
-                    <div className="py-1">
-                      {visibleItems.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="block px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
+              <UserMenu />
             ) : (
               <>
-                <Link href="/auth/signin" className="inline-block active:scale-[0.98] transition-transform duration-150">
-                  <Button variant="ghost" size="sm">
-                    Sign In
+                <Link href="/auth/signin" className="hidden md:inline-block">
+                  <Button variant="ghost" size="sm" className="text-text-main hover:text-accent">
+                    Log in
                   </Button>
                 </Link>
-                <Link href="/auth/signup" className="inline-block active:scale-[0.98] transition-transform duration-150">
+                <Link href="/templates-library" className="inline-block">
                   <Button variant="primary" size="sm">
-                    Sign Up
+                    Get started
                   </Button>
                 </Link>
-                {/* Hamburger Menu Button for non-authenticated users */}
-                <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-2 rounded-lg hover:bg-bg-muted transition-colors active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-                  aria-label="Open navigation menu"
-                >
-                  <svg
-                    className="w-6 h-6 text-text-main"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    {isMenuOpen ? (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    ) : (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    )}
-                  </svg>
-                </button>
-
-                {/* Dropdown Menu for non-authenticated users */}
-                {isMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-border rounded-lg shadow-2xl z-50 overflow-hidden">
-                    <div className="py-1">
-                      {navigationItems
-                        .filter(item => !item.requiresAuth)
-                        .map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className="block px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                    </div>
-                  </div>
-                )}
               </>
             )}
           </div>

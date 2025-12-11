@@ -124,10 +124,10 @@ export default function ContractsPage() {
       </div>
 
       {/* Footer CTA */}
-      <div className="bg-primary text-white py-12 mt-16">
+      <div className="bg-bg-muted border-t border-border py-12 mt-16">
         <div className="container mx-auto px-4 md:px-6 max-w-container text-center">
-          <h3 className="text-2xl font-bold mb-2">Need help choosing?</h3>
-          <p className="text-base text-white mb-6">All documents are professionally crafted and legally compliant</p>
+          <h3 className="text-2xl font-bold mb-2 text-text-main">Need help choosing?</h3>
+          <p className="text-base text-text-muted mb-6">All documents are professionally crafted and legally compliant</p>
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

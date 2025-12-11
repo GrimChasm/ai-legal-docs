@@ -99,7 +99,8 @@ export default function ShareDialog({ draftId, isOpen, onClose }: ShareDialogPro
           </Button>
           <Button
             type="submit"
-            className="flex-1 bg-[#0A1B2A] hover:bg-[#0f2538] text-white"
+            variant="primary"
+            className="flex-1"
             disabled={loading}
           >
             {loading ? "Sharing..." : "Share"}

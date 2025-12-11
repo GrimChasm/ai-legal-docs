@@ -1,13 +1,13 @@
 import * as React from "react"
 
+// Modern SaaS Card Component - Clean, spacious, with soft borders
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className = "", ...props }, ref) => (
   <div
     ref={ref}
-    className={`rounded-card border border-border bg-white text-[#101623] shadow-card ${className}`}
-    style={{ color: '#101623' }}
+    className={`rounded-xl border border-border bg-bg-card text-text-main shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}
     {...props}
   />
 ))
@@ -19,7 +19,7 @@ const CardHeader = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <div
     ref={ref}
-    className={`flex flex-col space-y-2 p-6 md:p-8 ${className}`}
+    className={`flex flex-col space-y-2 p-8 ${className}`}
     {...props}
   />
 ))
@@ -31,8 +31,7 @@ const CardTitle = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <h3
     ref={ref}
-    className={`text-xl font-semibold text-[#101623] leading-tight ${className}`}
-    style={{ color: '#101623' }}
+    className={`text-2xl font-semibold text-text-main leading-tight ${className}`}
     {...props}
   />
 ))
@@ -44,8 +43,7 @@ const CardDescription = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <p
     ref={ref}
-    className={`text-sm text-[#101623] leading-relaxed ${className}`}
-    style={{ color: '#101623' }}
+    className={`text-base text-text-muted leading-relaxed ${className}`}
     {...props}
   />
 ))
@@ -57,7 +55,7 @@ const CardContent = React.forwardRef<
 >(({ className = "", ...props }, ref) => (
   <div
     ref={ref}
-    className={`p-6 md:p-8 pt-0 ${className}`}
+    className={`p-8 pt-0 ${className}`}
     {...props}
   />
 ))

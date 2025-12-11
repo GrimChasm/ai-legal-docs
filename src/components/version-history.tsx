@@ -52,12 +52,12 @@ export default function VersionHistory({ draftId, onVersionSelect }: VersionHist
   }
 
   if (loading) {
-    return <div className="text-[#6C7783]">Loading versions...</div>
+    return <div className="text-text-muted">Loading versions...</div>
   }
 
   if (versions.length === 0) {
     return (
-      <div className="text-center py-8 text-[#6C7783]">
+      <div className="text-center py-8 text-text-muted">
         <p>No version history available</p>
       </div>
     )
@@ -65,7 +65,7 @@ export default function VersionHistory({ draftId, onVersionSelect }: VersionHist
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-[#101623] mb-4">Version History</h3>
+      <h3 className="font-semibold text-text-main mb-4">Version History</h3>
       {versions.map((version) => (
         <Card
           key={version.id}
@@ -74,8 +74,8 @@ export default function VersionHistory({ draftId, onVersionSelect }: VersionHist
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-[#101623]">{formatDate(version.createdAt)}</p>
-              <p className="text-sm text-[#6C7783]">
+              <p className="font-medium text-text-main">{formatDate(version.createdAt)}</p>
+              <p className="text-sm text-text-muted">
                 {version.markdown.substring(0, 100)}...
               </p>
             </div>

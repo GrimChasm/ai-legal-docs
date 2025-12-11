@@ -5,8 +5,8 @@ import Logo from "./logo"
 
 export default function Footer() {
   return (
-    <footer className="bg-bg-muted border-t border-border py-16 mt-20">
-      <div className="container mx-auto px-4 md:px-6 max-w-container">
+    <footer className="bg-bg-muted border-t border-border-light py-20 mt-20">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8" style={{ maxWidth: '1200px' }}>
         {/* Top Row: Navigation Sections */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
           {/* Product */}
@@ -16,11 +16,6 @@ export default function Footer() {
               <li>
                 <Link href="/templates-library" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
                   Templates Library
-                </Link>
-              </li>
-              <li>
-                <Link href="/bundles" className="text-text-muted hover:text-text-main transition-colors duration-150 inline-block">
-                  Bundles
                 </Link>
               </li>
               <li>

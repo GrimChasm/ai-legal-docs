@@ -70,11 +70,11 @@ export default function DashboardPage() {
 
         <div className="mt-8">
           <Card className="border border-[#E0E5EC]">
-            <CardContent className="p-6">
+            <CardContent className="p-6 pt-8">
               <h3 className="text-lg font-semibold text-[#101623] mb-4">Quick Actions</h3>
               <div className="flex flex-wrap gap-3">
                 <Link href="/templates-library" className="inline-block active:scale-[0.98] transition-transform duration-150">
-                  <Button className="bg-[#0A1B2A] hover:bg-[#0f2538] hover:shadow-md active:bg-[#0D1F2E] active:shadow-sm text-white transition-all duration-150">
+                  <Button variant="primary">
                     Create New Document
                   </Button>
                 </Link>
@@ -84,14 +84,6 @@ export default function DashboardPage() {
                     className="border-[#0A1B2A] text-[#0A1B2A] hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
                   >
                     Create Custom Template
-                  </Button>
-                </Link>
-                <Link href="/bundles" className="inline-block active:scale-[0.98] transition-transform duration-150">
-                  <Button 
-                    variant="outline" 
-                    className="border-[#0A1B2A] text-[#0A1B2A] hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
-                  >
-                    View Bundles
                   </Button>
                 </Link>
               </div>

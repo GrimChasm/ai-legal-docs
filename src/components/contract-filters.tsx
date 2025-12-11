@@ -38,12 +38,12 @@ export default function ContractFilters({ onFilterChange }: ContractFiltersProps
   return (
     <div className="bg-white border border-[#E0E5EC] rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-[#101623]">Filter & Sort</h3>
+        <h3 className="font-semibold text-text-main">Filter & Sort</h3>
         <Button
           variant="ghost"
           size="sm"
           onClick={clearFilters}
-          className="text-[#6C7783] hover:text-[#101623]"
+          className="text-text-muted hover:text-text-main"
         >
           Clear
         </Button>
@@ -51,7 +51,7 @@ export default function ContractFilters({ onFilterChange }: ContractFiltersProps
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#101623] mb-1">Category</label>
+          <label className="block text-sm font-medium text-text-main mb-1">Category</label>
           <select
             value={category}
             onChange={(e) => {
@@ -72,7 +72,7 @@ export default function ContractFilters({ onFilterChange }: ContractFiltersProps
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#101623] mb-1">Document Type</label>
+          <label className="block text-sm font-medium text-text-main mb-1">Document Type</label>
           <select
             value={documentType}
             onChange={(e) => {
@@ -91,7 +91,7 @@ export default function ContractFilters({ onFilterChange }: ContractFiltersProps
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#101623] mb-1">Industry</label>
+          <label className="block text-sm font-medium text-text-main mb-1">Industry</label>
           <select
             value={industry}
             onChange={(e) => {
@@ -110,7 +110,7 @@ export default function ContractFilters({ onFilterChange }: ContractFiltersProps
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#101623] mb-1">Sort By</label>
+          <label className="block text-sm font-medium text-text-main mb-1">Sort By</label>
           <select
             value={sortBy}
             onChange={(e) => {

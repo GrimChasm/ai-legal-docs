@@ -343,7 +343,7 @@ export default function InterviewForm({
                       <div className="absolute inset-0 rounded-full bg-accent/20 animate-pulse" />
                       <div className="absolute inset-0 rounded-full border-2 border-accent ring-2 ring-accent/30" />
                       {/* Step number */}
-                      <div className="relative z-10 flex items-center justify-center w-full h-full rounded-full bg-accent text-white font-bold text-sm shadow-lg">
+                      <div className="relative z-10 flex items-center justify-center w-full h-full rounded-full bg-accent-light border-2 border-accent text-accent font-bold text-sm shadow-lg">
                         {index + 1}
                       </div>
                     </>
@@ -351,8 +351,8 @@ export default function InterviewForm({
                     <>
                       {/* Completed step - green with checkmark */}
                       {hasValue ? (
-                        <div className="relative w-full h-full rounded-full bg-green-500 flex items-center justify-center shadow-md">
-                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="relative w-full h-full rounded-full bg-green-100 border-2 border-green-500 flex items-center justify-center shadow-md">
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>

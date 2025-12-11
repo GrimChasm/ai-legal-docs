@@ -29,7 +29,6 @@ export default function PricingPage() {
     setError(null)
 
     try {
-      // Determine mode and productId
       const isSubscription = productKey === "PRO_MONTHLY" || productKey === "PRO_YEARLY"
       const mode = isSubscription ? "subscription" : "payment"
       const productId = isSubscription ? productKey : "SINGLE_DOCUMENT"
@@ -42,7 +41,6 @@ export default function PricingPage() {
         body: JSON.stringify({
           mode,
           productId,
-          // Note: draftId is not available on pricing page, user will unlock from document page
         }),
       })
 
@@ -52,7 +50,6 @@ export default function PricingPage() {
         throw new Error(data.error || "Failed to create checkout session")
       }
 
-      // Redirect to Stripe Checkout
       if (data.url) {
         window.location.href = data.url
       } else {
@@ -67,27 +64,27 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="container mx-auto px-4 md:px-6 max-w-container py-16 md:py-24">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 md:py-28" style={{ maxWidth: '1200px' }}>
         {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-text-main mb-4">
-            Choose Your Plan
+        <div className="text-center mb-16">
+          <h1 className="text-5xl md:text-6xl font-bold text-text-main mb-6">
+            Simple, transparent pricing
           </h1>
-          <p className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto">
-            Unlock unlimited document generation, custom templates, and premium features
+          <p className="text-xl md:text-2xl text-text-muted max-w-3xl mx-auto leading-relaxed">
+            Choose the plan that works for you. No hidden fees, cancel anytime.
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+          <div className="max-w-2xl mx-auto mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-xl">
             <p className="text-red-700 font-medium">{error}</p>
           </div>
         )}
 
         {/* Canceled Message */}
         {canceled && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+          <div className="max-w-2xl mx-auto mb-8 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
             <p className="text-yellow-700 font-medium">
               Checkout was canceled. You can try again anytime.
             </p>
@@ -95,13 +92,13 @@ export default function PricingPage() {
         )}
 
         {/* Subscription Plans */}
-        {subscriptionPlans.length > 0 ? (
-          <div className="mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-text-main mb-8 text-center">
+        {subscriptionPlans.length > 0 && (
+          <div className="mb-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-text-main mb-12 text-center">
               Subscription Plans
             </h2>
-            <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
-              {subscriptionPlans.map((plan, index) => {
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {subscriptionPlans.map((plan) => {
                 const planKey = plan.interval === "month" ? "PRO_MONTHLY" : "PRO_YEARLY"
                 const isYearly = plan.interval === "year"
                 const isLoading = loading === planKey
@@ -109,97 +106,50 @@ export default function PricingPage() {
                 return (
                   <Card
                     key={planKey}
-                    className={`relative hover:shadow-lg transition-all duration-300 border-2 ${
-                      isYearly ? "border-accent/50" : "border-border"
-                    } group overflow-hidden`}
+                    className={`relative hover:shadow-xl transition-all duration-300 border-2 ${
+                      isYearly ? "border-accent shadow-lg" : "border-border"
+                    }`}
                   >
-                    {/* Background gradient effect */}
-                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 blur-2xl opacity-20 transition-opacity group-hover:opacity-30 ${
-                      isYearly ? "bg-accent" : "bg-accent-soft"
-                    }`}></div>
-                    
-                    {isYearly && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-accent to-accent-soft text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-md z-10">
-                        ⭐ Save 20%
-                      </div>
-                    )}
-                    <CardHeader className="relative">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          isYearly ? "bg-accent/20" : "bg-accent-soft/20"
-                        }`}>
-                          <svg
-                            className={`w-6 h-6 ${isYearly ? "text-accent" : "text-accent-soft"}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                            />
-                          </svg>
-                        </div>
-                        <CardTitle className="text-2xl">{plan.label}</CardTitle>
-                      </div>
-                      <CardDescription className="text-base mt-2">
-                        {isYearly ? "Billed annually" : "Billed monthly"}
+                    <CardHeader className="pb-6">
+                      <CardTitle className="text-3xl mb-2">{plan.label}</CardTitle>
+                      <CardDescription className="text-lg">
+                        {plan.description}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="relative">
-                      <ul className="space-y-3 mb-6">
+                    
+                    <CardContent>
+                      {/* Price - Extract from Stripe or show placeholder */}
+                      <div className="mb-8">
+                        <div className="text-5xl font-bold text-text-main mb-2">
+                          {isYearly ? "$29" : "$19"}
+                          <span className="text-2xl text-text-muted font-normal">/{plan.interval}</span>
+                        </div>
+                        {isYearly && (
+                          <p className="text-sm text-text-muted">Save 20% vs monthly</p>
+                        )}
+                      </div>
+
+                      {/* Features */}
+                      <ul className="space-y-4 mb-10">
                         {plan.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start group/item">
-                            <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 group-hover/item:bg-green-200 transition-colors">
-                              <svg
-                                className="w-4 h-4 text-green-600"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                            <span className="text-text-muted group-hover/item:text-text-main transition-colors">
-                              {feature}
-                            </span>
+                          <li key={idx} className="flex items-start gap-3">
+                            <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span className="text-text-main leading-relaxed">{feature}</span>
                           </li>
                         ))}
                       </ul>
+
+                      {/* CTA Button */}
                       <Button
-                        size="lg"
                         variant={isYearly ? "primary" : "outline"}
-                        className={`w-full font-semibold transition-all duration-200 ${
-                          isYearly
-                            ? "shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
-                            : "hover:border-accent hover:bg-accent/5"
-                        }`}
+                        size="lg"
+                        className="w-full"
                         onClick={() => handleCheckout(planKey)}
-                        disabled={isLoading || status === "loading"}
+                        disabled={isLoading}
                       >
-                        {isLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            Get {plan.label}
-                          </>
-                        )}
+                        {isLoading ? "Processing..." : `Get ${plan.label}`}
                       </Button>
                     </CardContent>
                   </Card>
@@ -207,205 +157,116 @@ export default function PricingPage() {
               })}
             </div>
           </div>
-        ) : (
-          <div className="mb-16 text-center py-12 bg-bg-muted rounded-lg border border-border">
-            <svg className="w-16 h-16 text-text-muted mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-text-muted text-lg mb-2">Subscription plans coming soon</p>
-            <p className="text-text-muted text-sm">
-              Please configure STRIPE_PRICE_PRO_MONTHLY and STRIPE_PRICE_PRO_YEARLY in your environment variables.
-            </p>
-          </div>
         )}
 
-        {/* One-Time Document Option */}
-        {oneTimeProducts.length > 0 ? (
-          <div className="mb-16">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <div className="h-px bg-border flex-1 max-w-24"></div>
-                <h2 className="text-2xl md:text-3xl font-bold text-text-main">
-                  Just Need One Document?
-                </h2>
-                <div className="h-px bg-border flex-1 max-w-24"></div>
-              </div>
-              <p className="text-center text-text-muted max-w-2xl mx-auto">
-                Pay once to unlock export for a single document. Perfect if you only need one document exported.
+        {/* One-Time Products */}
+        {oneTimeProducts.length > 0 && (
+          <div>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-text-main mb-4">
+                Just need one document?
+              </h2>
+              <p className="text-xl text-text-muted max-w-2xl mx-auto">
+                Pay per document when you need it. No subscription required.
               </p>
             </div>
-            <div className="max-w-md mx-auto">
+            
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {oneTimeProducts.map((product) => {
-                const isLoading = loading === "SINGLE_DOCUMENT"
+                const productKey = "SINGLE_DOCUMENT"
+                const isLoading = loading === productKey
 
                 return (
                   <Card
                     key={product.id}
-                    className="hover:shadow-lg transition-all duration-300 border-2 border-accent/30 bg-gradient-to-br from-white to-accent/5 relative overflow-hidden group"
+                    className="border-2 border-border hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-accent/20 transition-colors"></div>
-                    <CardHeader className="relative">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                          <svg
-                            className="w-6 h-6 text-accent"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </div>
-                        <CardTitle className="text-xl">{product.label}</CardTitle>
-                      </div>
-                      <CardDescription className="text-base mt-2">
+                    <CardHeader>
+                      <CardTitle className="text-2xl mb-2">{product.label}</CardTitle>
+                      <CardDescription className="text-base">
                         {product.description}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="relative">
-                      <ul className="space-y-3 mb-6">
-                        <li className="flex items-start group/item">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 group-hover/item:bg-green-200 transition-colors">
-                            <svg
-                              className="w-4 h-4 text-green-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </div>
-                          <span className="text-text-muted group-hover/item:text-text-main transition-colors">
-                            Download as PDF or DOCX
-                          </span>
+                    
+                    <CardContent>
+                      <div className="mb-8">
+                        <div className="text-4xl font-bold text-text-main mb-2">
+                          $9.99
+                        </div>
+                        <p className="text-text-muted">One-time payment</p>
+                      </div>
+
+                      <ul className="space-y-3 mb-10">
+                        <li className="flex items-start gap-3">
+                          <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-text-main">Unlock export for this document</span>
                         </li>
-                        <li className="flex items-start group/item">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 group-hover/item:bg-green-200 transition-colors">
-                            <svg
-                              className="w-4 h-4 text-green-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </div>
-                          <span className="text-text-muted group-hover/item:text-text-main transition-colors">
-                            Copy full document text
-                          </span>
+                        <li className="flex items-start gap-3">
+                          <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-text-main">PDF & DOCX download</span>
                         </li>
-                        <li className="flex items-start group/item">
-                          <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0 group-hover/item:bg-green-200 transition-colors">
-                            <svg
-                              className="w-4 h-4 text-green-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          </div>
-                          <span className="text-text-muted group-hover/item:text-text-main transition-colors">
-                            Save to your account
-                          </span>
+                        <li className="flex items-start gap-3">
+                          <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-text-main">E-signature support</span>
                         </li>
                       </ul>
+
                       <Button
+                        variant="outline"
                         size="lg"
-                        variant="primary"
-                        className="w-full font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
-                        onClick={() => handleCheckout("SINGLE_DOCUMENT")}
-                        disabled={isLoading || status === "loading"}
+                        className="w-full"
+                        onClick={() => handleCheckout(productKey)}
+                        disabled={isLoading}
                       >
-                        {isLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            Pay per Document
-                          </>
-                        )}
+                        {isLoading ? "Processing..." : "Pay per document"}
                       </Button>
-                      <p className="text-xs text-text-muted text-center mt-4 p-3 bg-bg-muted rounded-lg border border-border">
-                        <strong>Note:</strong> You'll need to generate a document first, then unlock it for export from the document page.
-                      </p>
                     </CardContent>
                   </Card>
                 )
               })}
             </div>
           </div>
-        ) : (
-          <div className="mb-16 text-center py-12 bg-bg-muted rounded-lg border border-border">
-            <svg className="w-16 h-16 text-text-muted mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-text-muted text-lg mb-2">One-time payment option coming soon</p>
-            <p className="text-text-muted text-sm">
-              Please configure STRIPE_PRICE_SINGLE_DOCUMENT in your environment variables.
-            </p>
-          </div>
         )}
 
-
         {/* FAQ Section */}
-        <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-text-main mb-8 text-center">
-            Frequently Asked Questions
+        <div className="mt-20 max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-text-main mb-12 text-center">
+            Frequently asked questions
           </h2>
           <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-2">Can I cancel anytime?</h3>
-                <p className="text-text-muted">
-                  Yes, you can cancel your subscription at any time. You'll continue to have
-                  access until the end of your billing period.
+            <Card className="border border-border">
+              <CardContent className="p-8">
+                <h3 className="text-xl font-semibold text-text-main mb-3">
+                  Can I cancel my subscription anytime?
+                </h3>
+                <p className="text-text-muted leading-relaxed">
+                  Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period.
                 </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-2">What payment methods do you accept?</h3>
-                <p className="text-text-muted">
-                  We accept all major credit cards, debit cards, and other payment methods
-                  supported by Stripe.
+            <Card className="border border-border">
+              <CardContent className="p-8">
+                <h3 className="text-xl font-semibold text-text-main mb-3">
+                  What payment methods do you accept?
+                </h3>
+                <p className="text-text-muted leading-relaxed">
+                  We accept all major credit cards, debit cards, and other payment methods through Stripe.
                 </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-2">Is there a free trial?</h3>
-                <p className="text-text-muted">
-                  Currently, we don't offer a free trial, but you can try our free templates
-                  to see the quality of our documents.
+            <Card className="border border-border">
+              <CardContent className="p-8">
+                <h3 className="text-xl font-semibold text-text-main mb-3">
+                  Do you offer refunds?
+                </h3>
+                <p className="text-text-muted leading-relaxed">
+                  We offer a 30-day money-back guarantee on all subscriptions. Contact support for assistance.
                 </p>
               </CardContent>
             </Card>
@@ -415,4 +276,3 @@ export default function PricingPage() {
     </div>
   )
 }
-
