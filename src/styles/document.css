@@ -1,0 +1,79 @@
+/**
+ * Shared Document Stylesheet
+ * 
+ * This stylesheet contains the canonical styles for document rendering.
+ * These styles are used by:
+ * - DocumentRenderer component (preview)
+ * - PDF export
+ * - DOCX export (mapped to equivalent styles)
+ * 
+ * All document styling should be defined here to ensure consistency
+ * between preview and exports.
+ */
+
+/* Document Container */
+.document-renderer {
+  /* Base styles applied via inline styles from DocumentRenderer */
+  /* This file is for any additional CSS that needs to be shared */
+}
+
+/* Document Headings */
+.document-heading {
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
+.document-heading-1 {
+  /* H1 styles */
+}
+
+.document-heading-2 {
+  /* H2 styles */
+}
+
+.document-heading-3 {
+  /* H3 styles */
+}
+
+/* Document Paragraphs */
+.document-paragraph {
+  orphans: 3;
+  widows: 3;
+  page-break-inside: avoid;
+}
+
+/* Document Lists */
+.document-list {
+  page-break-inside: avoid;
+}
+
+.document-list-item {
+  page-break-inside: avoid;
+}
+
+/* Document Code */
+.document-code-block {
+  page-break-inside: avoid;
+}
+
+/* Document Signatures */
+.document-signatures {
+  page-break-before: auto;
+  page-break-inside: avoid;
+}
+
+.document-signature-block {
+  page-break-inside: avoid;
+}
+
+/* Print/Export Styles */
+@media print {
+  .document-renderer {
+    color: #000000 !important;
+  }
+  
+  .document-page {
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+}

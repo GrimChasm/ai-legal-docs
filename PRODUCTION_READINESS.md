@@ -265,3 +265,6 @@ SMTP_PASS="..."
 - **Stripe Production Checklist**: https://stripe.com/docs/keys
 - **Sentry Setup**: https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
+
+
+

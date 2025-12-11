@@ -85,7 +85,7 @@ export default function SignaturePositioning({
                   <div className="flex gap-3">
                     <Button
                       type="button"
-                      variant={currentPosition === "bottom" ? "default" : "outline"}
+                      variant={currentPosition === "bottom" ? "primary" : "outline"}
                       size="sm"
                       onClick={() => onPositionChange(signature.id, "bottom")}
                       className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"
@@ -94,7 +94,7 @@ export default function SignaturePositioning({
                     </Button>
                     <Button
                       type="button"
-                      variant={currentPosition === "custom" ? "default" : "outline"}
+                      variant={currentPosition === "custom" ? "primary" : "outline"}
                       size="sm"
                       onClick={() => onPositionChange(signature.id, "custom", customY)}
                       className="flex-1 hover:bg-gray-50 hover:border-accent hover:shadow-md active:bg-gray-100 active:shadow-sm transition-all duration-150"

@@ -122,3 +122,6 @@ If you need to support additional models in the future:
 - UI now clearly indicates "Powered by ChatGPT-4"
 - Error messages are more specific and helpful
 
+
+
+

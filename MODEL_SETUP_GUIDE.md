@@ -106,3 +106,6 @@ If you continue to have issues:
 3. Try using `gpt-4o` or `gpt-4o-mini` first
 4. Check OpenAI's status page: https://status.openai.com/
 
+
+
+

@@ -53,8 +53,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate user ID and email
-    const userIdValidation = validateId(session.user.id, "User ID")
-    if (!userIdValidation.valid) {
+    // Validate user ID exists and is a non-empty string
+    // We trust NextAuth's session validation, so we just need basic checks
+    if (!session.user.id || typeof session.user.id !== "string" || session.user.id.trim().length === 0) {
       return NextResponse.json(
         { error: "Invalid user session. Please sign in again." },
         { status: 401 }

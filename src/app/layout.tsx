@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono, Caveat, Satisfy, Kalam } from "next/font/google";
 import "./globals.css";
+import "@/styles/document.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";

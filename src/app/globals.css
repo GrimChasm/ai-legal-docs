@@ -394,3 +394,9 @@ p {
   font-weight: 600;
   color: var(--color-text-main);
 }
+
+/* Next.js portal positioning override */
+nextjs-portal {
+  left: auto;
+  top: auto;
+}

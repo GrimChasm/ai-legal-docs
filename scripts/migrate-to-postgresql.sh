@@ -90,3 +90,6 @@ echo "2. Verify data: npx prisma studio"
 echo "3. Check the logs for any errors"
 echo ""
 
+
+
+

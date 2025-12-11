@@ -263,7 +263,7 @@ export default function JurisdictionSelector({
   // Using absolute positioning - dropdown is anchored to bottom of input automatically
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative w-full mb-8">
       <div className="relative">
         <Input
           ref={inputRef}
@@ -303,11 +303,12 @@ export default function JurisdictionSelector({
           id="jurisdiction-selector-dropdown"
           role="listbox"
           aria-label="Select jurisdiction"
-          className="absolute z-[100] w-full bg-white border-2 border-border rounded-lg shadow-2xl max-h-[400px] overflow-hidden flex flex-col mt-1"
+          className="absolute z-[9999] w-full bg-white border-2 border-border rounded-lg shadow-2xl max-h-[400px] overflow-hidden flex flex-col mt-1"
           style={{
             top: '100%',
             left: '0',
             backgroundColor: '#FFFFFF',
+            position: 'absolute',
           }}
         >
           {!selectedCountry || (includeState && selectedCountry && (!selectedCountry.states || selectedCountry.states.length === 0)) ? (

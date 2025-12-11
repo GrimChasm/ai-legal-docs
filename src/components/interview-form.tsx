@@ -456,7 +456,7 @@ export default function InterviewForm({
               </button>
 
               {isExpanded && (
-                <div className="px-6 md:px-8 pb-6 md:pb-8 space-y-6 border-t border-border pt-6">
+                <div className="px-6 md:px-8 pb-6 md:pb-8 space-y-6 border-t border-border pt-6 overflow-visible" style={{ height: '1600px' }}>
                   {groupFields.map(([fieldKey, config]) => renderField(fieldKey, config))}
                 </div>
               )}

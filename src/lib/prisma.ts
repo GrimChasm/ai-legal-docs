@@ -21,12 +21,39 @@ function getDatabaseUrl(): string {
   // Remove quotes if present (sometimes .env files have quotes)
   databaseUrl = String(databaseUrl).replace(/^["']|["']$/g, "").trim()
 
-  // Final validation
+  // Final validation - ensure it starts with postgresql:// or postgres://
   if (!databaseUrl || databaseUrl === "undefined" || databaseUrl.length === 0) {
     throw new Error("DATABASE_URL is empty or invalid. Please check your .env.local file.")
   }
 
+  if (!databaseUrl.startsWith("postgresql://") && !databaseUrl.startsWith("postgres://") && !databaseUrl.startsWith("file:")) {
+    throw new Error(
+      `DATABASE_URL must start with postgresql://, postgres://, or file://. Got: ${databaseUrl.substring(0, 50)}...`
+    )
+  }
+
   return databaseUrl
+}
+
+// CRITICAL: Set DATABASE_URL in process.env BEFORE PrismaClient is instantiated
+// Prisma validates the schema when PrismaClient is created, so the env var must be available
+if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "" || process.env.DATABASE_URL === "undefined") {
+  // Try to load from .env.local if not set (for development)
+  try {
+    const fs = require("fs")
+    const path = require("path")
+    const envPath = path.join(process.cwd(), ".env.local")
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf8")
+      const match = envContent.match(/^DATABASE_URL=(.+)$/m)
+      if (match) {
+        const url = match[1].trim().replace(/^["']|["']$/g, "")
+        process.env.DATABASE_URL = url
+      }
+    }
+  } catch (e) {
+    // Ignore errors - Next.js will load .env.local automatically
+  }
 }
 
 // Get validated database URL and ensure it's set in environment

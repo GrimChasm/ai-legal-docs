@@ -14,13 +14,14 @@ import DatePicker from "@/components/date-picker"
 import JurisdictionSelector from "@/components/jurisdiction-selector"
 import InterviewForm from "@/components/interview-form"
 import DocumentStylePanel from "@/components/document-style-panel"
-import { DocumentStyle, defaultStyle, getDocumentStyleClasses, getDocumentStyleStyles, getFontFamilyName, getFontSizePt, getLineSpacingValue, presets } from "@/lib/document-styles"
+import { DocumentStyle, defaultStyle, presets } from "@/lib/document-styles"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import SignDocumentModal from "@/components/sign-document-modal"
 import SendForSignatureModal from "@/components/send-for-signature-modal"
 import SignaturePositioning from "@/components/signature-positioning"
 import PaywallModal from "@/components/paywall-modal"
+import ExportPreview from "@/components/export-preview"
 
 export default function ContractForm({
   contractId,
@@ -298,16 +299,27 @@ export default function ContractForm({
           if (response.ok) {
             const data = await response.json()
             if (data.draft) {
-              const draftValues = JSON.parse(data.draft.values || "{}")
-              setValues(draftValues)
-              setCurrentDraftId(draftId)
-              if (data.draft.markdown) {
-                setResult(data.draft.markdown)
+              try {
+                const draftValues = JSON.parse(data.draft.values || "{}")
+                setValues(draftValues)
+                setCurrentDraftId(draftId)
+                if (data.draft.markdown) {
+                  setResult(data.draft.markdown)
+                }
+              } catch (parseError) {
+                console.error("Error parsing draft values:", parseError)
+                setError("Failed to load draft data. Please try again.")
               }
+            } else {
+              setError("Draft not found")
             }
+          } else {
+            const errorData = await response.json().catch(() => ({}))
+            setError(errorData.error || "Failed to load draft")
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error loading draft:", error)
+          setError(error.message || "Failed to load draft")
         } finally {
           setLoadingDraft(false)
         }
@@ -367,15 +379,6 @@ export default function ContractForm({
   }
 
   if (result) {
-    // Apply document styles to preview
-    const styleClasses = getDocumentStyleClasses(documentStyle)
-    const styleStyles = getDocumentStyleStyles(documentStyle)
-    
-    // Apply heading styles
-    const headingWeight = documentStyle.headingStyle === "bold" ? "font-bold" : "font-normal"
-    const headingCase = documentStyle.headingCase === "uppercase" ? "uppercase" : ""
-    const headingIndent = documentStyle.headingIndent === "indented" ? "ml-4" : ""
-
     return (
       <div className="space-y-6">
         <Card className="border-2 border-accent bg-blue-50">
@@ -420,190 +423,17 @@ export default function ContractForm({
                 </p>
               </div>
               
-              <CardContent 
-                className="p-8 md:p-10 lg:p-12"
-                style={{
-                  minHeight: "600px",
-                  padding: documentStyle.layout === "wide" ? "2.5rem" : "1.5rem",
-                  wordWrap: "break-word",
-                  overflowWrap: "break-word",
-                  maxWidth: "100%",
-                  boxSizing: "border-box",
-                }}
-              >
-                <div 
-                  className={`prose prose-sm max-w-none text-text-main ${styleClasses}`}
-                  style={{
-                    fontFamily: getFontFamilyName(documentStyle),
-                    lineHeight: getLineSpacingValue(documentStyle),
-                    fontSize: getFontSizePt(documentStyle) + "pt",
-                    wordWrap: "break-word",
-                    overflowWrap: "break-word",
-                    wordBreak: "break-word",
-                    maxWidth: "100%",
-                    width: "100%",
-                  }}
-                >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({ children }) => (
-                        <h1
-                          style={{
-                            fontWeight: documentStyle.headingStyle === "bold" ? 700 : 400,
-                            textTransform: documentStyle.headingCase === "uppercase" ? "uppercase" : "none",
-                            marginLeft: documentStyle.headingIndent === "indented" ? "1rem" : "0",
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </h1>
-                      ),
-                      h2: ({ children }) => (
-                        <h2
-                          style={{
-                            fontWeight: documentStyle.headingStyle === "bold" ? 700 : 400,
-                            textTransform: documentStyle.headingCase === "uppercase" ? "uppercase" : "none",
-                            marginLeft: documentStyle.headingIndent === "indented" ? "1rem" : "0",
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </h2>
-                      ),
-                      h3: ({ children }) => (
-                        <h3
-                          style={{
-                            fontWeight: documentStyle.headingStyle === "bold" ? 700 : 400,
-                            textTransform: documentStyle.headingCase === "uppercase" ? "uppercase" : "none",
-                            marginLeft: documentStyle.headingIndent === "indented" ? "1rem" : "0",
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </h3>
-                      ),
-                      p: ({ children }) => (
-                        <p
-                          style={{
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </p>
-                      ),
-                      ul: ({ children }) => (
-                        <ul
-                          style={{
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol
-                          style={{
-                            color: "#101623",
-                            marginBottom: documentStyle.paragraphSpacing === "compact" ? "0.5rem" : documentStyle.paragraphSpacing === "roomy" ? "1.5rem" : "1rem",
-                          }}
-                        >
-                          {children}
-                        </ol>
-                      ),
-                      li: ({ children }) => (
-                        <li className="text-text-main" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>{children}</li>
-                      ),
-                      strong: ({ children }) => <strong className="text-text-main">{children}</strong>,
-                      table: ({ children }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
-                          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "100%" }}>
-                            {children}
-                          </table>
-                        </div>
-                      ),
-                      code: ({ children, className }) => {
-                        const isInline = !className
-                        return isInline ? (
-                          <code style={{ 
-                            wordBreak: "break-word", 
-                            overflowWrap: "break-word",
-                            whiteSpace: "pre-wrap"
-                          }}>
-                            {children}
-                          </code>
-                        ) : (
-                          <div style={{ overflowX: "auto", width: "100%" }}>
-                            <code style={{ 
-                              display: "block",
-                              whiteSpace: "pre",
-                              wordBreak: "break-word",
-                              overflowWrap: "break-word"
-                            }}>
-                              {children}
-                            </code>
-                          </div>
-                        )
-                      },
-                      pre: ({ children }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
-                          <pre style={{ 
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                            overflowWrap: "break-word",
-                            width: "100%"
-                          }}>
-                            {children}
-                          </pre>
-                        </div>
-                      ),
-                    }}
-                  >
-                    {result}
-                  </ReactMarkdown>
-                </div>
-                
-                {/* Signature Blocks */}
-                {signatures.length > 0 && (
-                  <div className="mt-12 pt-8 border-t-2 border-border space-y-8 px-8 md:px-10 lg:px-12">
-                    <h3 className="text-lg font-semibold text-text-main mb-6">Signatures</h3>
-                    {signatures.map((signature) => (
-                      <div key={signature.id} className="space-y-4">
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1 border-b-2 border-text-main pb-2" style={{ minWidth: "200px" }}>
-                            <img
-                              src={signature.signatureData}
-                              alt={`Signature of ${signature.signerName}`}
-                              className="max-h-20 object-contain"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium text-text-main">
-                            {signature.signerName}
-                          </p>
-                          <p className="text-xs text-text-muted">
-                            {signature.signerEmail}
-                          </p>
-                          <p className="text-xs text-text-muted">
-                            Date: {new Date(signature.createdAt).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <CardContent className="p-8 md:p-10 lg:p-12">
+                <ExportPreview
+                  content={result}
+                  style={documentStyle}
+                  signatures={signatures.length > 0 ? signatures.map(sig => ({
+                    signerName: sig.signerName,
+                    signerEmail: sig.signerEmail,
+                    signatureData: sig.signatureData,
+                    createdAt: sig.createdAt,
+                  })) : undefined}
+                />
               </CardContent>
 
               <div className="bg-gradient-to-br from-bg-muted via-bg-muted to-gray-50 px-6 md:px-8 lg:px-10 py-6 md:py-7 border-t border-border/50">

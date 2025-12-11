@@ -27,9 +27,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Validate user ID
-    const userIdValidation = validateId(session.user.id, "User ID")
-    if (!userIdValidation.valid) {
+    // Validate user ID exists and is a non-empty string
+    // We trust NextAuth's session validation, so we just need basic checks
+    if (!session.user.id || typeof session.user.id !== "string" || session.user.id.trim().length === 0) {
       return NextResponse.json(
         { error: "Invalid user session. Please sign in again." },
         { status: 401 }
@@ -72,6 +72,14 @@ export async function POST(request: NextRequest) {
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Validate user ID exists and is a non-empty string
+    if (typeof session.user.id !== "string" || session.user.id.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Invalid user session. Please sign in again." },
+        { status: 401 }
+      )
     }
 
     // Verify the user exists in the database
@@ -125,8 +133,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate markdown if provided
-    if (markdown !== undefined && typeof markdown !== "string") {
+    // Validate markdown if provided (allow null, undefined, or string)
+    if (markdown !== undefined && markdown !== null && typeof markdown !== "string") {
       return NextResponse.json(
         { error: "markdown must be a string" },
         { status: 400 }

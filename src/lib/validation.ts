@@ -48,6 +48,9 @@ export function validateEmail(value: any, fieldName: string = "Email"): Validati
 
 /**
  * Validates that a value is a valid UUID or CUID
+ * 
+ * CUIDs from Prisma can vary in length (typically 20-30 characters after 'c')
+ * UUIDs follow the standard 8-4-4-4-12 hex format
  */
 export function validateId(value: any, fieldName: string = "ID"): ValidationResult {
   const stringResult = validateString(value, fieldName, 200)
@@ -55,9 +58,9 @@ export function validateId(value: any, fieldName: string = "ID"): ValidationResu
     return stringResult
   }
   
-  // CUID format: c + 25 alphanumeric characters
+  // CUID format: c + 20-30 alphanumeric characters (Prisma generates variable length)
   // UUID format: 8-4-4-4-12 hex characters
-  const cuidRegex = /^c[a-z0-9]{25}$/
+  const cuidRegex = /^c[a-z0-9]{20,30}$/
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   
   if (!cuidRegex.test(value) && !uuidRegex.test(value)) {
@@ -203,4 +206,7 @@ export function validateValues(values: any): ValidationResult {
   
   return { valid: true }
 }
+
+
+
 

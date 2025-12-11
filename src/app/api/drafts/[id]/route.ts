@@ -42,31 +42,96 @@ export async function PUT(
   try {
     const session = await auth()
     const { id } = await params
-    const { values, markdown } = await request.json()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const draft = await prisma.draft.updateMany({
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      )
+    }
+
+    const { contractId, values, markdown } = body
+
+    // Validate required fields
+    if (!contractId || !values) {
+      return NextResponse.json(
+        { error: "contractId and values are required" },
+        { status: 400 }
+      )
+    }
+
+    // Validate contractId format
+    const { validateContractId, validateValues } = await import("@/lib/validation")
+    const contractIdValidation = validateContractId(contractId)
+    if (!contractIdValidation.valid) {
+      return NextResponse.json(
+        { error: contractIdValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate values object
+    const valuesValidation = validateValues(values)
+    if (!valuesValidation.valid) {
+      return NextResponse.json(
+        { error: valuesValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate markdown if provided (allow null, undefined, or string)
+    if (markdown !== undefined && markdown !== null && typeof markdown !== "string") {
+      return NextResponse.json(
+        { error: "markdown must be a string" },
+        { status: 400 }
+      )
+    }
+
+    // Check if draft exists and belongs to user
+    const existingDraft = await prisma.draft.findFirst({
       where: {
         id,
         userId: session.user.id,
       },
+    })
+
+    if (!existingDraft) {
+      return NextResponse.json({ error: "Draft not found" }, { status: 404 })
+    }
+
+    // Update the draft and return the updated draft
+    const updatedDraft = await prisma.draft.update({
+      where: {
+        id,
+      },
       data: {
-        values: values ? JSON.stringify(values) : undefined,
-        markdown: markdown || undefined,
+        contractId,
+        values: JSON.stringify(values),
+        markdown: markdown !== undefined ? (markdown || "") : undefined,
         updatedAt: new Date(),
       },
     })
 
-    if (draft.count === 0) {
-      return NextResponse.json({ error: "Draft not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: "Draft updated" })
+    return NextResponse.json({ draft: updatedDraft })
   } catch (error: any) {
     console.error("Error updating draft:", error)
+    
+    // Provide more specific error messages
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "Draft not found" },
+        { status: 404 }
+      )
+    }
+    
     return NextResponse.json(
       { error: error.message || "Internal server error" },
       { status: 500 }

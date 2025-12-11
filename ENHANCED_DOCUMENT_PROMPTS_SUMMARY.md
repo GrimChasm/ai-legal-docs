@@ -234,3 +234,6 @@ To add more document types or enhance existing ones:
 
 The system is now ready to generate attorney-level legal documents with comprehensive, detailed instructions for GPT-4.
 
+
+
+

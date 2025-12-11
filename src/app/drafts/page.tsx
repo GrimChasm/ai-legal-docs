@@ -30,6 +30,9 @@ export default function DraftsPage() {
       if (response.ok) {
         const data = await response.json()
         setDrafts(data.drafts || [])
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Error loading drafts:", errorData.error || "Failed to load drafts")
       }
     } catch (error) {
       console.error("Error loading drafts:", error)
@@ -100,7 +103,13 @@ export default function DraftsPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {drafts.map((draft) => {
               const contract = contractRegistry[draft.contractId]
-              const values = JSON.parse(draft.values || "{}")
+              let values = {}
+              try {
+                values = JSON.parse(draft.values || "{}")
+              } catch (e) {
+                console.error("Error parsing draft values:", e)
+                values = {}
+              }
 
               return (
                 <Card

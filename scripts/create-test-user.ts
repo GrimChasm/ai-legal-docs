@@ -13,27 +13,52 @@ async function main() {
     where: { email },
   })
 
-  if (existingUser) {
-    console.log("User already exists:", email)
-    return
-  }
-
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  // Create user
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name,
-      password: hashedPassword,
-    },
-  })
+  // Set subscription expiration to 1 year from now
+  const oneYearFromNow = new Date()
+  oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
 
-  console.log("Test user created successfully!")
-  console.log("Email:", email)
-  console.log("Password:", password)
-  console.log("User ID:", user.id)
+  if (existingUser) {
+    // Update existing user to have Pro access
+    const user = await prisma.user.update({
+      where: { email },
+      data: {
+        isPro: true,
+        subscriptionStatus: "active",
+        stripeCurrentPeriodEnd: oneYearFromNow,
+        // Update password in case it changed
+        password: hashedPassword,
+      },
+    })
+
+    console.log("✅ Test user updated with Pro access!")
+    console.log("Email:", email)
+    console.log("Password:", password)
+    console.log("User ID:", user.id)
+    console.log("Pro Status:", user.isPro)
+    console.log("Subscription Status:", user.subscriptionStatus)
+  } else {
+    // Create new user with Pro access
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        password: hashedPassword,
+        isPro: true,
+        subscriptionStatus: "active",
+        stripeCurrentPeriodEnd: oneYearFromNow,
+      },
+    })
+
+    console.log("✅ Test user created with Pro access!")
+    console.log("Email:", email)
+    console.log("Password:", password)
+    console.log("User ID:", user.id)
+    console.log("Pro Status:", user.isPro)
+    console.log("Subscription Status:", user.subscriptionStatus)
+  }
 }
 
 main()

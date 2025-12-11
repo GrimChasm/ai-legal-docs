@@ -174,3 +174,6 @@ Or create a test endpoint that returns the prompt structure without calling GPT-
 
 The instructions are comprehensive and detailed, ensuring GPT-4 has all the context it needs to generate high-quality legal documents.
 
+
+
+
