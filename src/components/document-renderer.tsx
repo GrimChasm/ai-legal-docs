@@ -133,7 +133,7 @@ export default function DocumentRenderer({
                 marginLeft: style.headingIndent === "indented" ? "1rem" : "0",
                 color: textColor,
                 marginBottom: getParagraphSpacing(),
-                marginTop: "1.5rem",
+                marginTop: "0.75rem", // Reduced from 1.5rem for more condensed spacing
                 fontSize: `${fontSize + 4}pt`,
                 fontFamily: fontFamily,
                 lineHeight: lineSpacing,
@@ -158,7 +158,7 @@ export default function DocumentRenderer({
                 marginLeft: style.headingIndent === "indented" ? "1rem" : "0",
                 color: textColor,
                 marginBottom: getParagraphSpacing(),
-                marginTop: "1.5rem",
+                marginTop: "0.75rem", // Reduced from 1.5rem for more condensed spacing
                 fontSize: `${fontSize + 2}pt`,
                 fontFamily: fontFamily,
                 lineHeight: lineSpacing,
@@ -183,7 +183,7 @@ export default function DocumentRenderer({
                 marginLeft: style.headingIndent === "indented" ? "1rem" : "0",
                 color: textColor,
                 marginBottom: getParagraphSpacing(),
-                marginTop: "1.25rem",
+                marginTop: "0.625rem", // Reduced from 1.25rem for more condensed spacing
                 fontSize: `${fontSize + 1}pt`,
                 fontFamily: fontFamily,
                 lineHeight: lineSpacing,

@@ -27,6 +27,14 @@
   /* H1 styles */
 }
 
+/* First heading should have no top margin for more condensed spacing */
+.document-renderer > *:first-child.document-heading,
+.document-renderer > h1:first-child,
+.document-renderer > h2:first-child,
+.document-renderer > h3:first-child {
+  margin-top: 0 !important;
+}
+
 .document-heading-2 {
   /* H2 styles */
 }
