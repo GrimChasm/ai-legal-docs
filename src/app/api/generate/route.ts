@@ -14,18 +14,80 @@
 import { NextResponse } from "next/server"
 import { contractRegistry } from "@/lib/contracts"
 import { generateLegalDocumentWithGPT4, getTemplateName } from "@/lib/legal-document-generator"
+import {
+  validateRequestBody,
+  validateContractId,
+  validateValues,
+  validateString,
+} from "@/lib/validation"
+import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json()
-    const { contractId, values, templateCode } = body
+  // Rate limiting
+  const rateLimitResult = checkRateLimit(req, RATE_LIMITS.GENERATE)
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter,
+      },
+      {
+        status: 429,
+        headers: getRateLimitHeaders(rateLimitResult),
+      }
+    )
+  }
 
-    if (!contractId) {
-      return NextResponse.json({ error: "Missing contractId" }, { status: 400 })
+  try {
+    // Parse and validate request body
+    let body
+    try {
+      body = await req.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      )
     }
 
-    if (!values) {
-      return NextResponse.json({ error: "Missing values" }, { status: 400 })
+    // Validate required fields
+    const bodyValidation = validateRequestBody(body, ["contractId", "values"])
+    if (!bodyValidation.valid) {
+      return NextResponse.json(
+        { error: bodyValidation.error },
+        { status: 400 }
+      )
+    }
+
+    const { contractId, values, templateCode } = body
+
+    // Validate contractId format
+    const contractIdValidation = validateContractId(contractId)
+    if (!contractIdValidation.valid) {
+      return NextResponse.json(
+        { error: contractIdValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate values object
+    const valuesValidation = validateValues(values)
+    if (!valuesValidation.valid) {
+      return NextResponse.json(
+        { error: valuesValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate templateCode if provided
+    if (templateCode !== undefined) {
+      const templateCodeValidation = validateString(templateCode, "templateCode", 50000)
+      if (!templateCodeValidation.valid) {
+        return NextResponse.json(
+          { error: templateCodeValidation.error },
+          { status: 400 }
+        )
+      }
     }
 
     // Get template name

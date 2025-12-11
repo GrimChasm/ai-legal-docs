@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 // Modern SaaS typography - Inter for clean, professional feel
 const inter = Inter({
@@ -54,9 +55,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <ErrorBoundary>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </ErrorBoundary>
         </Providers>
       </body>
     </html>

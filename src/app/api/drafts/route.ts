@@ -1,13 +1,39 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { validateId, validateContractId, validateValues } from "@/lib/validation"
+import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from "@/lib/rate-limit"
 
 export async function GET(request: NextRequest) {
+  // Rate limiting
+  const rateLimitResult = checkRateLimit(request, RATE_LIMITS.DRAFTS)
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter,
+      },
+      {
+        status: 429,
+        headers: getRateLimitHeaders(rateLimitResult),
+      }
+    )
+  }
+
   try {
     const session = await auth()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    // Validate user ID
+    const userIdValidation = validateId(session.user.id, "User ID")
+    if (!userIdValidation.valid) {
+      return NextResponse.json(
+        { error: "Invalid user session. Please sign in again." },
+        { status: 401 }
+      )
     }
 
     const drafts = await prisma.draft.findMany({
@@ -26,6 +52,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting
+  const rateLimitResult = checkRateLimit(request, RATE_LIMITS.DRAFTS)
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter,
+      },
+      {
+        status: 429,
+        headers: getRateLimitHeaders(rateLimitResult),
+      }
+    )
+  }
+
   try {
     const session = await auth()
 
@@ -45,11 +86,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { contractId, values, markdown } = await request.json()
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      )
+    }
 
+    const { contractId, values, markdown } = body
+
+    // Validate required fields
     if (!contractId || !values) {
       return NextResponse.json(
         { error: "contractId and values are required" },
+        { status: 400 }
+      )
+    }
+
+    // Validate contractId format
+    const contractIdValidation = validateContractId(contractId)
+    if (!contractIdValidation.valid) {
+      return NextResponse.json(
+        { error: contractIdValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate values object
+    const valuesValidation = validateValues(values)
+    if (!valuesValidation.valid) {
+      return NextResponse.json(
+        { error: valuesValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate markdown if provided
+    if (markdown !== undefined && typeof markdown !== "string") {
+      return NextResponse.json(
+        { error: "markdown must be a string" },
         { status: 400 }
       )
     }

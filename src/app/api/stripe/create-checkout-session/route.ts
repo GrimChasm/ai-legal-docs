@@ -18,8 +18,30 @@ import { auth } from "@/lib/auth-helper"
 import { stripe } from "@/lib/stripe"
 import { getPlan, getOneTimeProduct } from "@/lib/pricing"
 import { prisma } from "@/lib/prisma"
+import {
+  validateRequestBody,
+  validateEnum,
+  validateId,
+  validateEmail,
+} from "@/lib/validation"
+import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from "@/lib/rate-limit"
 
 export async function POST(request: NextRequest) {
+  // Rate limiting (strict for payment endpoints)
+  const rateLimitResult = checkRateLimit(request, RATE_LIMITS.CHECKOUT)
+  if (!rateLimitResult.success) {
+    return NextResponse.json(
+      {
+        error: "Too many requests. Please try again later.",
+        retryAfter: rateLimitResult.retryAfter,
+      },
+      {
+        status: 429,
+        headers: getRateLimitHeaders(rateLimitResult),
+      }
+    )
+  }
+
   try {
     // Get authenticated user
     const session = await auth()
@@ -30,23 +52,72 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get request body
-    const body = await request.json()
+    // Validate user ID and email
+    const userIdValidation = validateId(session.user.id, "User ID")
+    if (!userIdValidation.valid) {
+      return NextResponse.json(
+        { error: "Invalid user session. Please sign in again." },
+        { status: 401 }
+      )
+    }
+
+    const emailValidation = validateEmail(session.user.email, "Email")
+    if (!emailValidation.valid) {
+      return NextResponse.json(
+        { error: "Invalid email address. Please sign in again." },
+        { status: 401 }
+      )
+    }
+
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      )
+    }
+
     const { mode, productId, draftId } = body
 
-    if (!mode || !productId) {
+    // Validate required fields
+    const bodyValidation = validateRequestBody(body, ["mode", "productId"])
+    if (!bodyValidation.valid) {
       return NextResponse.json(
-        { error: "mode and productId are required" },
+        { error: bodyValidation.error },
         { status: 400 }
       )
     }
 
     // Validate mode
-    if (mode !== "subscription" && mode !== "payment") {
+    const modeValidation = validateEnum(mode, ["subscription", "payment"] as const, "mode")
+    if (!modeValidation.valid) {
       return NextResponse.json(
-        { error: "mode must be 'subscription' or 'payment'" },
+        { error: modeValidation.error },
         { status: 400 }
       )
+    }
+
+    // Validate productId
+    const productIdValidation = validateString(productId, "productId", 100)
+    if (!productIdValidation.valid) {
+      return NextResponse.json(
+        { error: productIdValidation.error },
+        { status: 400 }
+      )
+    }
+
+    // Validate draftId if provided
+    if (draftId !== undefined) {
+      const draftIdValidation = validateId(draftId, "draftId")
+      if (!draftIdValidation.valid) {
+        return NextResponse.json(
+          { error: draftIdValidation.error },
+          { status: 400 }
+        )
+      }
     }
 
     let priceId: string

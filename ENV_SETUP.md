@@ -6,7 +6,10 @@ Copy `.env.example` to `.env.local` and fill in your API keys:
 
 ```env
 # Database
-DATABASE_URL="file:./dev.db"
+# For development with SQLite (not recommended for production):
+# DATABASE_URL="file:./dev.db"
+# For production with PostgreSQL (recommended):
+DATABASE_URL="postgresql://user:password@localhost:5432/contractvault?schema=public"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -46,9 +49,35 @@ openssl rand -base64 32
 
 **You must configure `OPENAI_API_KEY`** for the application to function. This application exclusively uses OpenAI GPT-4 for all AI-related functionality.
 
+## Database Setup
+
+### Development (SQLite - Quick Start)
+For quick local development, you can use SQLite:
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+### Production (PostgreSQL - Required)
+For production, you **must** use PostgreSQL. See `POSTGRESQL_MIGRATION.md` for detailed instructions.
+
+Quick setup:
+1. Install PostgreSQL locally or use a cloud service
+2. Create a database: `CREATE DATABASE contractvault;`
+3. Update DATABASE_URL:
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/contractvault?schema=public"
+```
+
+**Recommended PostgreSQL Services:**
+- **Vercel Postgres** (if deploying to Vercel)
+- **Supabase** (free tier available)
+- **Neon** (serverless PostgreSQL)
+- **AWS RDS** (enterprise-grade)
+
 ## Testing
 
 After setting up, test your configuration:
 1. Start the dev server: `npm run dev`
 2. Try generating a document
 3. Check the console for any API key errors
+4. Verify database connection: `npx prisma studio`

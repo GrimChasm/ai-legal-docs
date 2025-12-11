@@ -8,18 +8,22 @@ const globalForPrisma = globalThis as unknown as {
 function getDatabaseUrl(): string {
   let databaseUrl = process.env.DATABASE_URL
 
-  // If DATABASE_URL is not set, is "undefined" string, or empty, use default
+  // If DATABASE_URL is not set, throw an error (required for production)
   if (!databaseUrl || databaseUrl === "undefined" || String(databaseUrl).trim() === "") {
-    // Default to dev.db in the project root (where it currently exists)
-    return "file:./dev.db"
+    throw new Error(
+      "DATABASE_URL environment variable is required.\n" +
+      "For PostgreSQL: DATABASE_URL=\"postgresql://user:password@localhost:5432/contractvault?schema=public\"\n" +
+      "For SQLite (dev only): DATABASE_URL=\"file:./dev.db\"\n" +
+      "See POSTGRESQL_MIGRATION.md for setup instructions."
+    )
   }
 
   // Remove quotes if present (sometimes .env files have quotes)
   databaseUrl = String(databaseUrl).replace(/^["']|["']$/g, "").trim()
 
-  // Final validation - ensure we have a valid URL
+  // Final validation
   if (!databaseUrl || databaseUrl === "undefined" || databaseUrl.length === 0) {
-    return "file:./dev.db"
+    throw new Error("DATABASE_URL is empty or invalid. Please check your .env.local file.")
   }
 
   return databaseUrl
@@ -29,8 +33,8 @@ function getDatabaseUrl(): string {
 const databaseUrl = getDatabaseUrl()
 process.env.DATABASE_URL = databaseUrl
 
-// Create Prisma client with standard SQLite (Prisma 5 supports this natively)
-// No adapter needed - Prisma 5 handles SQLite directly
+// Create Prisma client
+// Supports both PostgreSQL (production) and SQLite (development)
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
