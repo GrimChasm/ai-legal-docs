@@ -28,12 +28,12 @@ export default function Logo({
 }: LogoProps) {
   const sizeClasses = {
     sm: {
-      icon: "w-6 h-6",
+      icon: "w-10 h-10",
       text: "text-lg",
       gap: "gap-2"
     },
     md: {
-      icon: "w-8 h-8",
+      icon: "w-12 h-12",
       text: "text-xl md:text-2xl",
       gap: "gap-3"
     },
@@ -48,7 +48,7 @@ export default function Logo({
 
   const logoContent = (
     <div className={`flex items-center ${currentSize.gap} ${className}`}>
-      {/* Icon - Vault/Lock - Simple but iconic with dark colors */}
+      {/* Icon - Vault/Lock - Branding icon with consistent styling */}
       <div className={`${currentSize.icon} rounded-lg bg-accent/10 border-2 border-accent flex items-center justify-center flex-shrink-0 shadow-sm`}>
         {/* Main Vault/Lock Icon */}
         <svg 

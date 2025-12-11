@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { getSubscriptionPlans, getOneTimeProducts, type Plan, type OneTimeProduct } from "@/lib/pricing"
@@ -91,6 +92,111 @@ export default function PricingPage() {
           </div>
         )}
 
+        {/* Pricing Preview Cards */}
+        <div className="mb-20">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Pay Per Document */}
+            <Card className="bg-bg-card border-2 border-border hover:shadow-lg transition-all duration-300">
+              <CardContent className="p-8 md:p-10 flex flex-col h-full">
+                <h3 className="text-2xl font-bold text-text-main mb-2">Pay per document</h3>
+                <div className="text-5xl font-bold text-text-main mb-2">
+                  $3.99
+                </div>
+                <p className="text-text-muted mb-8">One-time payment per document</p>
+                <ul className="space-y-4 mb-8 flex-grow">
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">PDF & DOCX export</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">Unlimited edits</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">E-signature support</span>
+                  </li>
+                </ul>
+                <Link href="/templates-library" className="block mt-auto">
+                  <Button variant="outline" className="w-full" size="lg">
+                    Get started
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Pro Subscription */}
+            <Card className="bg-bg-card border-2 border-accent hover:shadow-xl transition-all duration-300 relative">
+              <CardContent className="p-8 md:p-10 flex flex-col h-full">
+                <h3 className="text-2xl font-bold text-text-main mb-2">Pro Subscription</h3>
+                <div className="mb-4">
+                  <div className="text-5xl font-bold text-text-main mb-1">
+                    $12.99<span className="text-xl text-text-muted font-normal">/month</span>
+                  </div>
+                  <div className="text-lg text-text-muted mb-2">or</div>
+                  <div className="text-4xl font-bold text-text-main mb-1">
+                    $99.99<span className="text-lg text-text-muted font-normal">/year</span>
+                  </div>
+                  <p className="text-sm text-accent font-medium">Save 36% with annual billing</p>
+                </div>
+                <p className="text-text-muted mb-8">Unlimited documents and features</p>
+                <ul className="space-y-4 mb-8 flex-grow">
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">Unlimited document generation</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">Priority support</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">Advanced features</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <svg className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-text-main">Custom templates</span>
+                  </li>
+                </ul>
+                <div className="block mt-auto space-y-3">
+                  <Button 
+                    variant="primary" 
+                    className="w-full" 
+                    size="lg"
+                    onClick={() => handleCheckout("PRO_MONTHLY")}
+                    disabled={loading === "PRO_MONTHLY"}
+                  >
+                    {loading === "PRO_MONTHLY" ? "Processing..." : "Start monthly"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    size="lg"
+                    onClick={() => handleCheckout("PRO_YEARLY")}
+                    disabled={loading === "PRO_YEARLY"}
+                  >
+                    {loading === "PRO_YEARLY" ? "Processing..." : "Start yearly ($99.99/year)"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
         {/* Subscription Plans */}
         {subscriptionPlans.length > 0 && (
           <div className="mb-20">
@@ -121,11 +227,11 @@ export default function PricingPage() {
                       {/* Price - Extract from Stripe or show placeholder */}
                       <div className="mb-8">
                         <div className="text-5xl font-bold text-text-main mb-2">
-                          {isYearly ? "$29" : "$19"}
-                          <span className="text-2xl text-text-muted font-normal">/{plan.interval}</span>
+                          {isYearly ? "$99.99" : "$12.99"}
+                          <span className="text-2xl text-text-muted font-normal">/{plan.interval === "year" ? "year" : "month"}</span>
                         </div>
                         {isYearly && (
-                          <p className="text-sm text-text-muted">Save 20% vs monthly</p>
+                          <p className="text-sm text-accent font-medium">Save 36% vs monthly</p>
                         )}
                       </div>
 
@@ -191,7 +297,7 @@ export default function PricingPage() {
                     <CardContent>
                       <div className="mb-8">
                         <div className="text-4xl font-bold text-text-main mb-2">
-                          $9.99
+                          $3.99
                         </div>
                         <p className="text-text-muted">One-time payment</p>
                       </div>
@@ -241,7 +347,7 @@ export default function PricingPage() {
           </h2>
           <div className="space-y-6">
             <Card className="border border-border">
-              <CardContent className="p-8">
+              <CardContent className="p-8 pt-10">
                 <h3 className="text-xl font-semibold text-text-main mb-3">
                   Can I cancel my subscription anytime?
                 </h3>
@@ -251,7 +357,7 @@ export default function PricingPage() {
               </CardContent>
             </Card>
             <Card className="border border-border">
-              <CardContent className="p-8">
+              <CardContent className="p-8 pt-10">
                 <h3 className="text-xl font-semibold text-text-main mb-3">
                   What payment methods do you accept?
                 </h3>
@@ -261,7 +367,7 @@ export default function PricingPage() {
               </CardContent>
             </Card>
             <Card className="border border-border">
-              <CardContent className="p-8">
+              <CardContent className="p-8 pt-10">
                 <h3 className="text-xl font-semibold text-text-main mb-3">
                   Do you offer refunds?
                 </h3>

@@ -33,7 +33,7 @@ export default function Header() {
           {/* Logo & Brand */}
           <div className="flex items-center gap-3 md:gap-4 flex-shrink-0">
             <Logo 
-              size={isScrolled ? "sm" : "md"} 
+              size="md" 
               showText={true}
               href="/"
             />

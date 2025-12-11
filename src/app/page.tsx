@@ -67,40 +67,350 @@ export default function Home() {
             </div>
 
             {/* Right Column - Visual/Mockup */}
-            <div className="relative">
-              <div className="relative bg-bg-card rounded-2xl shadow-2xl border border-border p-8 md:p-10">
-                {/* Mockup Preview */}
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="h-3 bg-text-main/10 rounded w-3/4"></div>
-                    <div className="h-3 bg-text-main/10 rounded w-1/2"></div>
-                  </div>
-                  <div className="pt-4 space-y-3">
-                    <div className="h-12 bg-accent-light rounded-lg border-2 border-accent/30 flex items-center px-4">
-                      <span className="text-sm font-medium text-accent">Document Type: NDA</span>
-                    </div>
-                    <div className="h-12 bg-bg-muted rounded-lg border border-border flex items-center px-4">
-                      <span className="text-sm text-text-muted">Fill out the form...</span>
-                    </div>
-                    <div className="h-12 bg-bg-muted rounded-lg border border-border flex items-center px-4">
-                      <span className="text-sm text-text-muted">AI generates document</span>
-                    </div>
-                  </div>
-                  <div className="pt-6">
-                    <div className="h-32 bg-gradient-to-br from-accent-light to-secondary-light rounded-lg border-2 border-accent/20 flex items-center justify-center">
-                      <div className="text-center">
-                        <svg className="w-12 h-12 text-accent mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-xs font-medium text-text-main">Your Legal Document</p>
-                        <p className="text-xs text-text-muted mt-1">Ready in minutes</p>
-                      </div>
-                    </div>
-                  </div>
+            <div className="relative group">
+              <div className="relative bg-bg-card rounded-2xl shadow-2xl border border-border p-8 md:p-10 overflow-hidden transition-all duration-500 hover:shadow-3xl hover:border-accent/30">
+                {/* Legal Document Illustration */}
+                <div className="relative w-full h-full min-h-[400px] flex items-center justify-center">
+                  <svg
+                    viewBox="0 0 400 400"
+                    className="w-full h-full max-w-full max-h-full"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <style>{`
+                      @keyframes float {
+                        0%, 100% { transform: translateY(0px) rotate(0deg); }
+                        50% { transform: translateY(-10px) rotate(2deg); }
+                      }
+                      @keyframes floatReverse {
+                        0%, 100% { transform: translateY(0px) rotate(0deg); }
+                        50% { transform: translateY(10px) rotate(-2deg); }
+                      }
+                      @keyframes pulse {
+                        0%, 100% { opacity: 0.6; transform: scale(1); }
+                        50% { opacity: 1; transform: scale(1.05); }
+                      }
+                      @keyframes sparkle {
+                        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+                        50% { opacity: 1; transform: scale(1.2); }
+                      }
+                      @keyframes drawLine {
+                        0% { stroke-dashoffset: 100; }
+                        100% { stroke-dashoffset: 0; }
+                      }
+                      @keyframes checkmark {
+                        0% { stroke-dashoffset: 20; opacity: 0; }
+                        50% { opacity: 1; }
+                        100% { stroke-dashoffset: 0; }
+                      }
+                      .float { animation: float 3s ease-in-out infinite; }
+                      .floatReverse { animation: floatReverse 4s ease-in-out infinite; }
+                      .pulse { animation: pulse 2s ease-in-out infinite; }
+                      .sparkle { animation: sparkle 2s ease-in-out infinite; }
+                      .sparkle-delay-1 { animation: sparkle 2s ease-in-out infinite 0.3s; }
+                      .sparkle-delay-2 { animation: sparkle 2s ease-in-out infinite 0.6s; }
+                      .drawLine { 
+                        stroke-dasharray: 100;
+                        animation: drawLine 2s ease-out forwards;
+                      }
+                      .checkmark {
+                        stroke-dasharray: 20;
+                        animation: checkmark 1s ease-out 0.5s forwards;
+                        opacity: 0;
+                      }
+                      .mainDoc {
+                        transition: transform 0.3s ease;
+                      }
+                      .group:hover .mainDoc {
+                        transform: translateY(-5px) scale(1.02);
+                      }
+                    `}</style>
+                    
+                    {/* Background gradient */}
+                    <defs>
+                      <linearGradient id="docGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="var(--color-accent-light)" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="var(--color-secondary-light)" stopOpacity="0.2" />
+                      </linearGradient>
+                      <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="var(--color-accent)" />
+                        <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0.8" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                    </defs>
+
+                    {/* Main document */}
+                    <g transform="translate(50, 50)" className="mainDoc">
+                      {/* Document paper with subtle shadow animation */}
+                      <rect
+                        x="0"
+                        y="0"
+                        width="300"
+                        height="350"
+                        rx="8"
+                        fill="white"
+                        stroke="var(--color-border)"
+                        strokeWidth="2"
+                        className="drop-shadow-lg transition-all duration-300 group-hover:stroke-accent/50"
+                      />
+                      
+                      {/* Animated document header lines */}
+                      <line 
+                        x1="30" 
+                        y1="40" 
+                        x2="270" 
+                        y2="40" 
+                        stroke="var(--color-text-main)" 
+                        strokeWidth="2" 
+                        opacity="0.3"
+                        className="drawLine"
+                      />
+                      <line 
+                        x1="30" 
+                        y1="60" 
+                        x2="200" 
+                        y2="60" 
+                        stroke="var(--color-text-main)" 
+                        strokeWidth="1.5" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '0.2s' }}
+                      />
+                      
+                      {/* Document title with pulse effect */}
+                      <rect 
+                        x="30" 
+                        y="90" 
+                        width="180" 
+                        height="8" 
+                        rx="4" 
+                        fill="var(--color-accent)" 
+                        opacity="0.6"
+                        className="pulse"
+                      />
+                      <rect 
+                        x="30" 
+                        y="110" 
+                        width="240" 
+                        height="6" 
+                        rx="3" 
+                        fill="var(--color-text-muted)" 
+                        opacity="0.3"
+                        className="transition-all duration-300 group-hover:opacity-50"
+                      />
+                      <rect 
+                        x="30" 
+                        y="125" 
+                        width="200" 
+                        height="6" 
+                        rx="3" 
+                        fill="var(--color-text-muted)" 
+                        opacity="0.3"
+                        className="transition-all duration-300 group-hover:opacity-50"
+                      />
+                      
+                      {/* Animated document body lines */}
+                      <line 
+                        x1="30" 
+                        y1="160" 
+                        x2="270" 
+                        y2="160" 
+                        stroke="var(--color-text-muted)" 
+                        strokeWidth="1" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '0.4s' }}
+                      />
+                      <line 
+                        x1="30" 
+                        y1="185" 
+                        x2="270" 
+                        y2="185" 
+                        stroke="var(--color-text-muted)" 
+                        strokeWidth="1" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '0.6s' }}
+                      />
+                      <line 
+                        x1="30" 
+                        y1="210" 
+                        x2="250" 
+                        y2="210" 
+                        stroke="var(--color-text-muted)" 
+                        strokeWidth="1" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '0.8s' }}
+                      />
+                      <line 
+                        x1="30" 
+                        y1="235" 
+                        x2="270" 
+                        y2="235" 
+                        stroke="var(--color-text-muted)" 
+                        strokeWidth="1" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '1s' }}
+                      />
+                      <line 
+                        x1="30" 
+                        y1="260" 
+                        x2="220" 
+                        y2="260" 
+                        stroke="var(--color-text-muted)" 
+                        strokeWidth="1" 
+                        opacity="0.2"
+                        className="drawLine"
+                        style={{ animationDelay: '1.2s' }}
+                      />
+                      
+                      {/* Animated signature line */}
+                      <line 
+                        x1="30" 
+                        y1="300" 
+                        x2="150" 
+                        y2="300" 
+                        stroke="var(--color-accent)" 
+                        strokeWidth="2" 
+                        opacity="0.4"
+                        className="drawLine transition-all duration-300 group-hover:opacity-70 group-hover:stroke-width-3"
+                        style={{ animationDelay: '1.4s' }}
+                      />
+                      
+                      {/* Animated checkmark badge */}
+                      <g transform="translate(200, 280)" className="pulse">
+                        <circle 
+                          cx="0" 
+                          cy="0" 
+                          r="25" 
+                          fill="url(#checkGradient)" 
+                          opacity="0.9"
+                          className="transition-all duration-300 group-hover:opacity-100 group-hover:r-28"
+                          filter="url(#glow)"
+                        />
+                        <path
+                          d="M-8 -2 L-2 4 L8 -6"
+                          stroke="white"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          fill="none"
+                          className="checkmark"
+                        />
+                      </g>
+                    </g>
+
+                    {/* Floating document elements with animations */}
+                    <g opacity="0.4" className="float">
+                      {/* Small document 1 */}
+                      <rect
+                        x="20"
+                        y="20"
+                        width="60"
+                        height="80"
+                        rx="4"
+                        fill="var(--color-accent-light)"
+                        stroke="var(--color-accent)"
+                        strokeWidth="1.5"
+                        transform="rotate(-15 50 60)"
+                        className="transition-all duration-300 group-hover:opacity-60 group-hover:stroke-width-2"
+                      />
+                      <line 
+                        x1="30" 
+                        y1="40" 
+                        x2="70" 
+                        y2="40" 
+                        stroke="var(--color-accent)" 
+                        strokeWidth="1.5" 
+                        opacity="0.6" 
+                        transform="rotate(-15 50 60)"
+                        className="transition-all duration-300 group-hover:opacity-80"
+                      />
+                    </g>
+                    
+                    <g opacity="0.4" className="floatReverse">
+                      {/* Small document 2 */}
+                      <rect
+                        x="320"
+                        y="80"
+                        width="60"
+                        height="80"
+                        rx="4"
+                        fill="var(--color-secondary-light)"
+                        stroke="var(--color-secondary)"
+                        strokeWidth="1.5"
+                        transform="rotate(12 350 120)"
+                        className="transition-all duration-300 group-hover:opacity-60 group-hover:stroke-width-2"
+                      />
+                      <line 
+                        x1="330" 
+                        y1="100" 
+                        x2="370" 
+                        y2="100" 
+                        stroke="var(--color-secondary)" 
+                        strokeWidth="1.5" 
+                        opacity="0.6" 
+                        transform="rotate(12 350 120)"
+                        className="transition-all duration-300 group-hover:opacity-80"
+                      />
+                    </g>
+
+                    {/* Animated sparkle/shine effects */}
+                    <circle 
+                      cx="100" 
+                      cy="120" 
+                      r="3" 
+                      fill="var(--color-accent)" 
+                      className="sparkle"
+                      filter="url(#glow)"
+                    />
+                    <circle 
+                      cx="280" 
+                      cy="200" 
+                      r="2.5" 
+                      fill="var(--color-accent)" 
+                      className="sparkle-delay-1"
+                      filter="url(#glow)"
+                    />
+                    <circle 
+                      cx="150" 
+                      cy="320" 
+                      r="2" 
+                      fill="var(--color-secondary)" 
+                      className="sparkle-delay-2"
+                      filter="url(#glow)"
+                    />
+                    
+                    {/* Additional sparkles */}
+                    <circle 
+                      cx="50" 
+                      cy="250" 
+                      r="2" 
+                      fill="var(--color-accent)" 
+                      className="sparkle"
+                      opacity="0.5"
+                    />
+                    <circle 
+                      cx="350" 
+                      cy="150" 
+                      r="2.5" 
+                      fill="var(--color-secondary)" 
+                      className="sparkle-delay-1"
+                      opacity="0.5"
+                    />
+                  </svg>
                 </div>
               </div>
-              {/* Decorative element */}
-              <div className="absolute -z-10 -bottom-4 -right-4 w-full h-full bg-accent-light rounded-2xl opacity-20"></div>
+              {/* Decorative element with animation */}
+              <div className="absolute -z-10 -bottom-4 -right-4 w-full h-full bg-accent-light rounded-2xl opacity-20 transition-all duration-500 group-hover:opacity-30 group-hover:scale-105"></div>
             </div>
           </div>
         </div>
@@ -375,7 +685,7 @@ export default function Home() {
               <CardContent className="p-8 md:p-10 flex flex-col h-full">
                 <h3 className="text-2xl font-bold text-text-main mb-2">Pay per document</h3>
                 <div className="text-5xl font-bold text-text-main mb-2">
-                  $9.99
+                  $3.99
                 </div>
                 <p className="text-text-muted mb-8">One-time payment per document</p>
                 <ul className="space-y-4 mb-8 flex-grow">
@@ -410,8 +720,15 @@ export default function Home() {
             <Card className="bg-bg-card border-2 border-accent hover:shadow-xl transition-all duration-300 relative">
               <CardContent className="p-8 md:p-10 flex flex-col h-full">
                 <h3 className="text-2xl font-bold text-text-main mb-2">Pro Subscription</h3>
-                <div className="text-5xl font-bold text-text-main mb-2">
-                  $29.99<span className="text-xl text-text-muted font-normal">/month</span>
+                <div className="mb-4">
+                  <div className="text-5xl font-bold text-text-main mb-1">
+                    $12.99<span className="text-xl text-text-muted font-normal">/month</span>
+                  </div>
+                  <div className="text-lg text-text-muted mb-2">or</div>
+                  <div className="text-4xl font-bold text-text-main mb-1">
+                    $99.99<span className="text-lg text-text-muted font-normal">/year</span>
+                  </div>
+                  <p className="text-sm text-accent font-medium">Save 36% with annual billing</p>
                 </div>
                 <p className="text-text-muted mb-8">Unlimited documents and features</p>
                 <ul className="space-y-4 mb-8 flex-grow">
@@ -442,7 +759,7 @@ export default function Home() {
                 </ul>
                 <Link href="/pricing" className="block mt-auto">
                   <Button variant="primary" className="w-full" size="lg">
-                    Start free trial
+                    View pricing
                   </Button>
                 </Link>
               </CardContent>
