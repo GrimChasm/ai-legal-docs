@@ -32,6 +32,13 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   // Try Resend first (recommended)
   if (process.env.RESEND_API_KEY) {
     try {
+      const emailFrom = from || process.env.EMAIL_FROM || "ContractVault <noreply@contractvault.com>"
+      
+      console.log("Attempting to send email via Resend...")
+      console.log("From:", emailFrom)
+      console.log("To:", to)
+      console.log("Subject:", subject)
+      
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -39,7 +46,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
           Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: from || process.env.EMAIL_FROM || "ContractVault <noreply@contractvault.com>",
+          from: emailFrom,
           to: [to],
           subject,
           html,
@@ -47,14 +54,34 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       })
 
       if (response.ok) {
-        console.log("Email sent successfully via Resend")
+        const data = await response.json()
+        console.log("✅ Email sent successfully via Resend")
+        console.log("   Email ID:", data.id)
         return true
       } else {
-        const error = await response.json()
-        console.error("Resend API error:", error)
+        const error = await response.json().catch(() => ({ message: "Unknown error" }))
+        console.error("❌ Resend API error:")
+        console.error("   Status:", response.status)
+        console.error("   Error:", JSON.stringify(error, null, 2))
+        
+        // Provide helpful error messages
+        if (error.message?.includes("Invalid API key") || response.status === 401) {
+          console.error("   💡 Fix: Check your RESEND_API_KEY is correct")
+        } else if (error.message?.includes("domain") || error.message?.includes("not verified")) {
+          console.error("   💡 Fix: Verify your domain in Resend or use onboarding@resend.dev for testing")
+        } else if (error.message?.includes("rate limit")) {
+          console.error("   💡 Fix: You've hit Resend's rate limit. Wait a bit and try again.")
+        }
+        
+        return false
       }
     } catch (error) {
-      console.error("Error sending email via Resend:", error)
+      console.error("❌ Error sending email via Resend:")
+      console.error("   Error:", error instanceof Error ? error.message : String(error))
+      if (error instanceof Error && error.stack) {
+        console.error("   Stack:", error.stack)
+      }
+      return false
     }
   }
 
@@ -79,17 +106,29 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
         },
       })
 
+      const emailFrom = from || process.env.EMAIL_FROM || process.env.SMTP_USER
+      
+      console.log("Attempting to send email via SMTP...")
+      console.log("From:", emailFrom)
+      console.log("To:", to)
+      console.log("Subject:", subject)
+      
       await transporter.sendMail({
-        from: from || process.env.EMAIL_FROM || process.env.SMTP_USER,
+        from: emailFrom,
         to,
         subject,
         html,
       })
 
-      console.log("Email sent successfully via SMTP")
+      console.log("✅ Email sent successfully via SMTP")
       return true
     } catch (error) {
-      console.error("Error sending email via SMTP:", error)
+      console.error("❌ Error sending email via SMTP:")
+      console.error("   Error:", error instanceof Error ? error.message : String(error))
+      if (error instanceof Error && error.stack) {
+        console.error("   Stack:", error.stack)
+      }
+      return false
     }
   }
 

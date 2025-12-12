@@ -18,6 +18,7 @@ interface Draft {
 export default function DraftsPage() {
   const [drafts, setDrafts] = useState<Draft[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadDrafts()
@@ -25,17 +26,35 @@ export default function DraftsPage() {
 
   const loadDrafts = async () => {
     setLoading(true)
+    setError(null)
     try {
       const response = await fetch("/api/drafts")
       if (response.ok) {
         const data = await response.json()
         setDrafts(data.drafts || [])
+        setError(null)
       } else {
-        const errorData = await response.json().catch(() => ({}))
-        console.error("Error loading drafts:", errorData.error || "Failed to load drafts")
+        // Try to parse error message, but handle non-JSON responses
+        let errorMessage = "Failed to load drafts"
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        console.error("Error loading drafts:", errorMessage, `(Status: ${response.status})`)
+        setError(errorMessage)
+        
+        // If unauthorized, suggest logging in
+        if (response.status === 401) {
+          setError("Please sign in to view your drafts")
+        }
       }
     } catch (error) {
-      console.error("Error loading drafts:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      console.error("Error loading drafts:", errorMessage)
+      setError("Failed to load drafts. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -85,6 +104,23 @@ export default function DraftsPage() {
 
         {loading ? (
           <div className="text-center py-20 text-text-muted">Loading drafts...</div>
+        ) : error ? (
+          <Card>
+            <CardContent className="p-8 md:p-10 pt-12 text-center">
+              <h3 className="text-2xl font-semibold text-text-main mb-3">Error Loading Drafts</h3>
+              <p className="text-base text-text-muted mb-8">{error}</p>
+              <div className="flex gap-4 justify-center">
+                <Button variant="primary" onClick={loadDrafts}>
+                  Try Again
+                </Button>
+                {error.includes("sign in") && (
+                  <Link href="/auth/signin">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         ) : drafts.length === 0 ? (
           <Card>
             <CardContent className="p-8 md:p-10 pt-12 text-center">
