@@ -23,7 +23,8 @@ export default function TemplatePage() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const templateId = params.id as string
+  // useParams() returns params synchronously in client components
+  const templateId = (params?.id as string) || ""
   const draftId = searchParams.get("draftId")
   const [template, setTemplate] = useState<Template | null>(null)
   const [loading, setLoading] = useState(true)

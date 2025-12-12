@@ -275,7 +275,42 @@ export default function ContractForm({
         throw new Error(data.error || "Something went wrong")
       }
 
-      setResult(data.markdown)
+      const generatedMarkdown = data.markdown
+      setResult(generatedMarkdown)
+      
+      // Automatically save the draft with generated markdown if user is logged in
+      if (session?.user?.id && generatedMarkdown) {
+        try {
+          // If we have an existing draft, update it; otherwise create a new one
+          const url = currentDraftId ? `/api/drafts/${currentDraftId}` : "/api/drafts"
+          const method = currentDraftId ? "PUT" : "POST"
+          
+          const saveResponse = await fetch(url, {
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contractId,
+              values,
+              markdown: generatedMarkdown, // Save the generated document
+            }),
+          })
+
+          if (saveResponse.ok) {
+            const saveData = await saveResponse.json()
+            // If this was a new draft, save the draft ID
+            if (!currentDraftId && saveData.draft?.id) {
+              setCurrentDraftId(saveData.draft.id)
+            }
+            console.log("✅ Draft automatically saved with generated markdown")
+          } else {
+            console.warn("⚠️ Failed to auto-save draft, but document is generated")
+          }
+        } catch (saveError) {
+          // Don't fail the generation if save fails - document is still generated
+          console.warn("⚠️ Error auto-saving draft:", saveError)
+        }
+      }
+      
       setTimeout(() => {
         document.getElementById("generated-document")?.scrollIntoView({ 
           behavior: "smooth",
@@ -294,6 +329,7 @@ export default function ContractForm({
     if (draftId) {
       const loadDraft = async () => {
         setLoadingDraft(true)
+        setError(null)
         try {
           const response = await fetch(`/api/drafts/${draftId}`)
           if (response.ok) {
@@ -303,8 +339,20 @@ export default function ContractForm({
                 const draftValues = JSON.parse(data.draft.values || "{}")
                 setValues(draftValues)
                 setCurrentDraftId(draftId)
-                if (data.draft.markdown) {
-                  setResult(data.draft.markdown)
+                
+                // If draft has markdown (generated content), set result to skip interview
+                // Check for markdown that's not null, undefined, or empty string
+                const markdown = data.draft.markdown
+                
+                if (markdown && typeof markdown === 'string' && markdown.trim().length > 0) {
+                  // Draft has generated content - go directly to preview page
+                  console.log("✅ Draft has generated content, loading preview page")
+                  setResult(markdown)
+                  setLoadingDraft(false)
+                  return // Exit early - don't show interview form
+                } else {
+                  // Draft has no generated content - show interview form to complete it
+                  console.log("📝 Draft has no generated content, showing interview form")
                 }
               } catch (parseError) {
                 console.error("Error parsing draft values:", parseError)
@@ -378,7 +426,10 @@ export default function ContractForm({
     loadSignatureInvites()
   }
 
-  if (result) {
+  // Show result/review page if document is generated (skip interview)
+  // Check result first, even if loadingDraft is true (for drafts with markdown)
+  // This allows drafts with generated content to skip the interview form
+  if (result && typeof result === 'string' && result.trim().length > 0) {
     return (
       <div className="space-y-6">
         <Card className="border-2 border-accent bg-blue-50">
@@ -688,11 +739,33 @@ export default function ContractForm({
               />
             )}
 
-            {/* Signature Status */}
+            {/* Modals */}
+            {showSignModal && currentDraftId && (
+              <SignDocumentModal
+                draftId={currentDraftId}
+                onSigned={handleSigned}
+                onClose={() => setShowSignModal(false)}
+              />
+            )}
+            {showSendForSignatureModal && currentDraftId && (
+              <SendForSignatureModal
+                draftId={currentDraftId}
+                onSent={handleInvitesSent}
+                onClose={() => setShowSendForSignatureModal(false)}
+              />
+            )}
+            <PaywallModal
+              isOpen={showPaywallModal}
+              onClose={() => setShowPaywallModal(false)}
+              draftId={currentDraftId || undefined}
+              action={paywallAction}
+            />
+
+            {/* Signature Status - Moved to bottom */}
             {signatureInvites.length > 0 && (
               <Card className="border border-border">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-text-main mb-4">Signature Status</h3>
+                  <h3 className="text-lg font-semibold text-text-main mb-2 mt-2">Signature Status</h3>
                   <div className="space-y-3">
                     {signatureInvites.map((invite) => (
                       <div key={invite.id} className="flex items-center justify-between p-3 bg-bg-muted rounded-lg">
@@ -719,28 +792,6 @@ export default function ContractForm({
                 </CardContent>
               </Card>
             )}
-
-            {/* Modals */}
-            {showSignModal && currentDraftId && (
-              <SignDocumentModal
-                draftId={currentDraftId}
-                onSigned={handleSigned}
-                onClose={() => setShowSignModal(false)}
-              />
-            )}
-            {showSendForSignatureModal && currentDraftId && (
-              <SendForSignatureModal
-                draftId={currentDraftId}
-                onSent={handleInvitesSent}
-                onClose={() => setShowSendForSignatureModal(false)}
-              />
-            )}
-            <PaywallModal
-              isOpen={showPaywallModal}
-              onClose={() => setShowPaywallModal(false)}
-              draftId={currentDraftId || undefined}
-              action={paywallAction}
-            />
       </div>
     )
   }

@@ -43,7 +43,43 @@ This will:
    ```
 5. **Restart your server** (important!)
 
-### Issue 2: "Domain not verified" Error
+### Issue 2: "You can only send testing emails to your own email address" (403 Error)
+
+**Symptoms:**
+- Error: `You can only send testing emails to your own email address`
+- Status: 403
+- Email not sending to recipients
+
+**This means:** Resend is in test mode. You can only send to your account email (`juveellis@gmail.com`).
+
+**Fix Options:**
+
+**Option A: Test with your own email (Quick)**
+- Send signature invites to `juveellis@gmail.com` for testing
+- This works immediately, no setup needed
+
+**Option B: Verify a domain (Production)**
+1. Go to https://resend.com/domains
+2. Click "Add Domain"
+3. Enter your domain (e.g., `yourdomain.com`)
+4. Add the DNS records Resend provides
+5. Wait for verification (usually a few minutes)
+6. Update `.env.local`:
+   ```env
+   EMAIL_FROM=ContractVault <noreply@yourdomain.com>
+   ```
+7. Restart server
+8. Now you can send to any email address!
+
+**Option C: Use onboarding@resend.dev (Limited)**
+- Change `.env.local`:
+  ```env
+  EMAIL_FROM=ContractVault <onboarding@resend.dev>
+  ```
+- **Note:** Still has limitations - can only send to verified/test emails
+- Better to verify your own domain for production
+
+### Issue 3: "Domain not verified" Error
 
 **Symptoms:**
 - Error mentions "domain" or "not verified"

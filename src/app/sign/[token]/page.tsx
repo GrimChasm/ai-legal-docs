@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import DocumentRenderer from "@/components/document-renderer"
+import { defaultStyle } from "@/lib/document-styles"
 
 /**
  * Public Signing Page
@@ -21,7 +21,8 @@ import remarkGfm from "remark-gfm"
 export default function SignPage() {
   const params = useParams()
   const router = useRouter()
-  const token = params.token as string
+  // useParams() returns params synchronously in client components
+  const token = (params?.token as string) || ""
 
   const [invite, setInvite] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -82,7 +83,7 @@ export default function SignPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           signerName: signerName.trim(),
-          signerEmail: signerEmail.trim(),
+          signerEmail: signerEmail.trim().toLowerCase(), // Normalize email to lowercase
           signatureData,
           signatureType,
         }),
@@ -172,11 +173,14 @@ export default function SignPage() {
         {/* Document Preview */}
         {invite?.draft?.markdown && (
           <Card className="mb-6 border-2 border-border">
-            <CardContent className="p-8">
-              <div className="prose prose-sm max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {invite.draft.markdown}
-                </ReactMarkdown>
+            <CardContent className="p-8 pt-8">
+              <div className="w-full overflow-x-hidden">
+                <div className="min-w-0 max-w-full pt-4" style={{ wordWrap: "break-word", overflowWrap: "break-word" }}>
+                  <DocumentRenderer 
+                    content={invite.draft.markdown}
+                    style={defaultStyle}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

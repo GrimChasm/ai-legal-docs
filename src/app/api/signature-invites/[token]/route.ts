@@ -75,6 +75,9 @@ export async function POST(
       )
     }
 
+    // Normalize email to lowercase (emails are case-insensitive)
+    const normalizedSignerEmail = signerEmail.trim().toLowerCase()
+
     // Get invite
     const invite = await prisma.signatureInvite.findUnique({
       where: { token },
@@ -102,7 +105,7 @@ export async function POST(
       data: {
         draftId: invite.draftId,
         signerName,
-        signerEmail,
+        signerEmail: normalizedSignerEmail, // Store normalized (lowercase) email
         signatureData,
         signatureType,
         role: "counterparty",

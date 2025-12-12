@@ -73,13 +73,16 @@ export default function SendForSignatureModal({
       return
     }
 
-    // Validate email format
+    // Validate email format and normalize to lowercase (emails are case-insensitive)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     for (const recipient of validRecipients) {
-      if (!emailRegex.test(recipient.email)) {
+      const normalizedEmail = recipient.email.trim().toLowerCase()
+      if (!emailRegex.test(normalizedEmail)) {
         setError(`Invalid email format: ${recipient.email}`)
         return
       }
+      // Update recipient email to normalized version
+      recipient.email = normalizedEmail
     }
 
     setSending(true)

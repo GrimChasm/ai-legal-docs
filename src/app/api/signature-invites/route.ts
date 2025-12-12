@@ -51,9 +51,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalize email to lowercase (emails are case-insensitive)
+    const normalizedEmail = recipientEmail.trim().toLowerCase()
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(recipientEmail)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 }
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
         draftId,
         senderUserId: session.user.id,
         recipientName,
-        recipientEmail,
+        recipientEmail: normalizedEmail, // Store normalized (lowercase) email
         token,
         status: "pending",
       },
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
     try {
       const email = await getEmailModule()
       emailSent = await email.sendEmail({
-        to: recipientEmail,
+        to: normalizedEmail, // Use normalized (lowercase) email
         subject: `Signature Request: ${documentTitle}`,
         html: email.generateSignatureInviteEmail(
           recipientName,

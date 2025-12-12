@@ -67,6 +67,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
         // Provide helpful error messages
         if (error.message?.includes("Invalid API key") || response.status === 401) {
           console.error("   💡 Fix: Check your RESEND_API_KEY is correct")
+        } else if (error.message?.includes("testing emails") || error.message?.includes("verify a domain")) {
+          console.error("   💡 Fix: Resend test mode only allows sending to your account email")
+          console.error("      Option 1: Send test emails to juveellis@gmail.com")
+          console.error("      Option 2: Verify a domain at https://resend.com/domains")
+          console.error("      Option 3: Use onboarding@resend.dev (still limited to verified emails)")
         } else if (error.message?.includes("domain") || error.message?.includes("not verified")) {
           console.error("   💡 Fix: Verify your domain in Resend or use onboarding@resend.dev for testing")
         } else if (error.message?.includes("rate limit")) {
