@@ -338,13 +338,26 @@ export default function DraftsPage() {
                         ? `/templates/${templateId}?draftId=${draft.id}`
                         : `/contracts/${draft.contractId}?draftId=${draft.id}`
                       
-                      // Check if draft has generated content (markdown)
-                      const hasGeneratedContent = draft.markdown && draft.markdown.trim().length > 0
+                      // Check if draft has generated content (markdown) - more robust check
+                      const hasGeneratedContent = !!(
+                        draft.markdown && 
+                        typeof draft.markdown === "string" && 
+                        draft.markdown.trim().length > 0
+                      )
                       
                       return (
                         <div className="mt-auto space-y-2">
+                          {/* Always show View Preview button if markdown exists */}
                           {hasGeneratedContent && (
-                            <Link href={href} className="block active:scale-[0.98] transition-transform duration-150">
+                            <Link 
+                              href={href} 
+                              className="block active:scale-[0.98] transition-transform duration-150"
+                              onClick={(e) => {
+                                // Ensure we go to preview by adding a hash or query param
+                                // The contract form will detect markdown and show preview
+                                e.stopPropagation()
+                              }}
+                            >
                               <Button variant="primary" className="w-full">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -354,7 +367,14 @@ export default function DraftsPage() {
                               </Button>
                             </Link>
                           )}
-                          <Link href={href} className="block active:scale-[0.98] transition-transform duration-150">
+                          <Link 
+                            href={href} 
+                            className="block active:scale-[0.98] transition-transform duration-150"
+                            onClick={(e) => {
+                              // If there's generated content, we might want to edit instead of preview
+                              e.stopPropagation()
+                            }}
+                          >
                             <Button 
                               variant={hasGeneratedContent ? "outline" : "primary"} 
                               className="w-full"

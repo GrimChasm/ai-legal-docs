@@ -22,6 +22,7 @@ import SendForSignatureModal from "@/components/send-for-signature-modal"
 import SignaturePositioning from "@/components/signature-positioning"
 import PaywallModal from "@/components/paywall-modal"
 import ExportPreview from "@/components/export-preview"
+import LegalDisclaimer from "@/components/legal-disclaimer"
 
 export default function ContractForm({
   contractId,
@@ -275,11 +276,12 @@ export default function ContractForm({
         throw new Error(data.error || "Something went wrong")
       }
 
-      const generatedMarkdown = data.markdown
-      setResult(generatedMarkdown)
+      // Prefer HTML if available, fallback to markdown for backward compatibility
+      const generatedContent = data.html || data.markdown
+      setResult(generatedContent)
       
-      // Automatically save the draft with generated markdown if user is logged in
-      if (session?.user?.id && generatedMarkdown) {
+      // Automatically save the draft with generated HTML if user is logged in
+      if (session?.user?.id && generatedContent) {
         try {
           // If we have an existing draft, update it; otherwise create a new one
           const url = currentDraftId ? `/api/drafts/${currentDraftId}` : "/api/drafts"
@@ -291,7 +293,8 @@ export default function ContractForm({
             body: JSON.stringify({
               contractId,
               values,
-              markdown: generatedMarkdown, // Save the generated document
+              html: data.html || null, // Save HTML (preferred)
+              markdown: data.markdown || null, // Keep markdown for backward compatibility
             }),
           })
 

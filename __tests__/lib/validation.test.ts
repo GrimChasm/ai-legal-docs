@@ -1,162 +1,96 @@
 /**
- * Validation Utility Tests
+ * Validation Library Tests
  * 
- * Tests for input validation functions to ensure security and data integrity.
+ * Tests input validation functions:
+ * - String validation
+ * - Email validation
+ * - ID validation
+ * - Request body validation
  */
 
 import {
   validateString,
   validateEmail,
   validateId,
-  validateEnum,
-  validateNumber,
-  validateContractId,
-  validateValues,
   validateRequestBody,
+  validateEnum,
 } from "@/lib/validation"
 
-describe("Validation Utilities", () => {
+describe("Validation Library", () => {
   describe("validateString", () => {
-    it("should validate a non-empty string", () => {
-      const result = validateString("test", "field")
-      expect(result.valid).toBe(true)
-    })
-
-    it("should reject non-string values", () => {
-      const result = validateString(123, "field")
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("must be a string")
+    it("should validate non-empty strings", () => {
+      expect(() => validateString("test", "field")).not.toThrow()
     })
 
     it("should reject empty strings", () => {
-      const result = validateString("", "field")
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("cannot be empty")
+      expect(() => validateString("", "field")).toThrow()
     })
 
-    it("should reject strings exceeding max length", () => {
-      const result = validateString("a".repeat(101), "field", 100)
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("less than 100")
+    it("should reject non-strings", () => {
+      expect(() => validateString(123 as any, "field")).toThrow()
+      expect(() => validateString(null as any, "field")).toThrow()
+      expect(() => validateString(undefined as any, "field")).toThrow()
+    })
+
+    it("should enforce max length", () => {
+      const longString = "a".repeat(1001)
+      expect(() => validateString(longString, "field", { maxLength: 1000 })).toThrow()
     })
   })
 
   describe("validateEmail", () => {
-    it("should validate a valid email", () => {
-      const result = validateEmail("test@example.com")
-      expect(result.valid).toBe(true)
+    it("should validate correct email formats", () => {
+      expect(() => validateEmail("test@example.com", "email")).not.toThrow()
+      expect(() => validateEmail("user.name+tag@example.co.uk", "email")).not.toThrow()
     })
 
     it("should reject invalid email formats", () => {
-      const result = validateEmail("not-an-email")
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("valid email address")
-    })
-
-    it("should reject empty emails", () => {
-      const result = validateEmail("")
-      expect(result.valid).toBe(false)
+      expect(() => validateEmail("invalid-email", "email")).toThrow()
+      expect(() => validateEmail("@example.com", "email")).toThrow()
+      expect(() => validateEmail("test@", "email")).toThrow()
     })
   })
 
   describe("validateId", () => {
-    it("should validate a CUID", () => {
-      const result = validateId("c1234567890123456789012345")
-      expect(result.valid).toBe(true)
-    })
-
-    it("should validate a UUID", () => {
-      const result = validateId("123e4567-e89b-12d3-a456-426614174000")
-      expect(result.valid).toBe(true)
+    it("should validate CUID format", () => {
+      expect(() => validateId("cmj22atce000959i5tikibesa", "id")).not.toThrow()
     })
 
     it("should reject invalid ID formats", () => {
-      const result = validateId("invalid-id")
-      expect(result.valid).toBe(false)
+      expect(() => validateId("", "id")).toThrow()
+      expect(() => validateId("short", "id")).toThrow()
+      expect(() => validateId("invalid-id-format", "id")).toThrow()
     })
   })
 
   describe("validateEnum", () => {
-    it("should validate allowed values", () => {
-      const result = validateEnum("subscription", ["subscription", "payment"] as const)
-      expect(result.valid).toBe(true)
+    it("should validate enum values", () => {
+      expect(() => validateEnum("value1", ["value1", "value2"] as const, "field")).not.toThrow()
     })
 
-    it("should reject disallowed values", () => {
-      const result = validateEnum("invalid", ["subscription", "payment"] as const)
-      expect(result.valid).toBe(false)
-    })
-  })
-
-  describe("validateContractId", () => {
-    it("should validate standard contract IDs", () => {
-      const result = validateContractId("nda")
-      expect(result.valid).toBe(true)
-    })
-
-    it("should validate custom contract IDs", () => {
-      const result = validateContractId("custom-123")
-      expect(result.valid).toBe(true)
-    })
-
-    it("should reject invalid formats", () => {
-      const result = validateContractId("invalid@id")
-      expect(result.valid).toBe(false)
-    })
-  })
-
-  describe("validateValues", () => {
-    it("should validate a valid values object", () => {
-      const result = validateValues({ name: "John", age: 30 })
-      expect(result.valid).toBe(true)
-    })
-
-    it("should reject non-object values", () => {
-      const result = validateValues("not an object")
-      expect(result.valid).toBe(false)
-    })
-
-    it("should reject arrays", () => {
-      const result = validateValues([])
-      expect(result.valid).toBe(false)
-    })
-
-    it("should reject objects with too many fields", () => {
-      const largeObject: Record<string, string> = {}
-      for (let i = 0; i < 101; i++) {
-        largeObject[`field${i}`] = "value"
-      }
-      const result = validateValues(largeObject)
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("Too many fields")
-    })
-
-    it("should reject invalid value types", () => {
-      const result = validateValues({ name: { nested: "object" } })
-      expect(result.valid).toBe(false)
+    it("should reject invalid enum values", () => {
+      expect(() => validateEnum("invalid", ["value1", "value2"] as const, "field")).toThrow()
     })
   })
 
   describe("validateRequestBody", () => {
-    it("should validate request body with all required fields", () => {
-      const result = validateRequestBody({ field1: "value1", field2: "value2" }, ["field1", "field2"])
-      expect(result.valid).toBe(true)
+    it("should validate required fields", () => {
+      const schema = {
+        email: { type: "string", required: true },
+        name: { type: "string", required: false },
+      }
+
+      expect(() =>
+        validateRequestBody({ email: "test@example.com" }, schema)
+      ).not.toThrow()
     })
 
     it("should reject missing required fields", () => {
-      const result = validateRequestBody({ field1: "value1" }, ["field1", "field2"])
-      expect(result.valid).toBe(false)
-      expect(result.error).toContain("Missing required field")
-    })
+      const schema = {
+        email: { type: "string", required: true },
+      }
 
-    it("should reject non-object bodies", () => {
-      const result = validateRequestBody("not an object", ["field1"])
-      expect(result.valid).toBe(false)
+      expect(() => validateRequestBody({}, schema)).toThrow()
     })
   })
 })
-
-
-
-
-

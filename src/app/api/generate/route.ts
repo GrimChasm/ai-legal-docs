@@ -21,6 +21,7 @@ import {
   validateString,
 } from "@/lib/validation"
 import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from "@/lib/rate-limit"
+import { markdownToHTML } from "@/lib/markdown-to-html"
 
 export async function POST(req: Request) {
   // Rate limiting
@@ -138,9 +139,10 @@ export async function POST(req: Request) {
        !templateStructure.toLowerCase().includes("include sections:") &&
        !templateStructure.toLowerCase().includes("instructions:"))
 
-    // If it's a direct document, return it immediately without AI
+    // If it's a direct document, convert to HTML and return
     if (isDirectDocument) {
-      return NextResponse.json({ markdown: templateStructure })
+      const html = markdownToHTML(templateStructure)
+      return NextResponse.json({ html, markdown: templateStructure }) // Keep markdown for backward compatibility
     }
 
     // Otherwise, use GPT-4 to generate the document from the template structure
@@ -151,7 +153,10 @@ export async function POST(req: Request) {
         templateStructure,
       })
 
-      return NextResponse.json({ markdown })
+      // Convert markdown to HTML for storage
+      const html = markdownToHTML(markdown)
+
+      return NextResponse.json({ html, markdown }) // Return both HTML and markdown for backward compatibility
     } catch (error: any) {
       const errorMessage =
         error?.message ||

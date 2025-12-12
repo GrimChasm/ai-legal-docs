@@ -6,6 +6,8 @@ import { Providers } from "@/components/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { ErrorBoundary } from "@/components/error-boundary";
+import GoogleAnalytics from "@/components/google-analytics";
+import SentryInit from "@/components/sentry-init";
 
 // Modern SaaS typography - Inter for clean, professional feel
 const inter = Inter({
@@ -55,6 +57,8 @@ export default function RootLayout({
         className={`${inter.variable} ${geistMono.variable} ${caveat.variable} ${satisfy.variable} ${kalam.variable} antialiased`}
         suppressHydrationWarning
       >
+        <SentryInit />
+        <GoogleAnalytics />
         <Providers>
           <ErrorBoundary>
             <Header />

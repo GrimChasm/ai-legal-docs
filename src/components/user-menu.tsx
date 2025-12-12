@@ -60,6 +60,13 @@ export default function UserMenu() {
               >
                 My Drafts
               </Link>
+              <Link
+                href="/account"
+                className="block px-4 py-3 text-sm text-text-main hover:bg-bg-muted transition-colors active:bg-gray-200"
+                onClick={() => setIsOpen(false)}
+              >
+                Account
+              </Link>
               <div className="border-t border-border my-1" />
               <button
                 onClick={() => {

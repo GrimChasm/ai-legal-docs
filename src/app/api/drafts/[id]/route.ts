@@ -58,7 +58,7 @@ export async function PUT(
       )
     }
 
-    const { contractId, values, markdown } = body
+    const { contractId, values, html, markdown } = body
 
     // Validate required fields
     if (!contractId || !values) {
@@ -87,12 +87,28 @@ export async function PUT(
       )
     }
 
-    // Validate markdown if provided (allow null, undefined, or string)
+    // Validate html if provided (allow null, undefined, or string)
+    if (html !== undefined && html !== null && typeof html !== "string") {
+      return NextResponse.json(
+        { error: "html must be a string" },
+        { status: 400 }
+      )
+    }
+
+    // Validate markdown if provided (allow null, undefined, or string) - for backward compatibility
     if (markdown !== undefined && markdown !== null && typeof markdown !== "string") {
       return NextResponse.json(
         { error: "markdown must be a string" },
         { status: 400 }
       )
+    }
+
+    // Prefer HTML over markdown, but convert markdown to HTML if only markdown is provided
+    let finalHtml = html || ""
+    if (!finalHtml && markdown) {
+      // Import markdown converter
+      const { markdownToHTML } = await import("@/lib/markdown-to-html")
+      finalHtml = markdownToHTML(markdown)
     }
 
     // Check if draft exists and belongs to user
@@ -115,7 +131,7 @@ export async function PUT(
       data: {
         contractId,
         values: JSON.stringify(values),
-        markdown: markdown !== undefined ? (markdown || "") : undefined,
+        markdown: finalHtml || (markdown !== undefined ? (markdown || "") : undefined), // Store HTML in markdown field
         updatedAt: new Date(),
       },
     })

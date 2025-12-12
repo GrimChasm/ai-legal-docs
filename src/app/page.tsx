@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ContractDefinition, contractRegistry } from "@/lib/contracts"
 import Logo from "@/components/logo"
+import LegalDisclaimer from "@/components/legal-disclaimer"
 
 const popularTemplates = [
   "nda",
@@ -782,6 +783,13 @@ export default function Home() {
               Generate a document
             </Button>
           </Link>
+        </div>
+      </section>
+
+      {/* Legal Disclaimer */}
+      <section className="py-12 bg-bg-muted border-t border-border">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8" style={{ maxWidth: '1200px' }}>
+          <LegalDisclaimer variant="compact" />
         </div>
       </section>
     </div>

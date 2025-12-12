@@ -27,6 +27,7 @@ import React from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { DocumentStyle, getFontFamilyName, getFontSizePt, getLineSpacingValue } from "@/lib/document-styles"
+import { isHTML, ensureHTML } from "@/lib/markdown-to-html"
 
 interface DocumentRendererProps {
   content: string
@@ -76,7 +77,10 @@ export default function DocumentRenderer({
   className = "",
   forExport = false,
 }: DocumentRendererProps) {
-  const cleanedContent = cleanMarkdown(content)
+  // Check if content is HTML or markdown
+  const contentIsHTML = isHTML(content)
+  const processedContent = contentIsHTML ? content : cleanMarkdown(content)
+  
   const fontSize = getFontSizePt(style)
   const lineSpacing = getLineSpacingValue(style)
   const fontFamily = getFontFamilyName(style).split(",")[0].trim()
@@ -120,10 +124,23 @@ export default function DocumentRenderer({
         overflow: "hidden",
       }}
     >
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        skipHtml={false}
-        components={{
+      {contentIsHTML ? (
+        // Render HTML directly
+        <div
+          dangerouslySetInnerHTML={{ __html: processedContent }}
+          style={{
+            ...documentStyles,
+            width: "100%",
+            maxWidth: "100%",
+            boxSizing: "border-box",
+          }}
+        />
+      ) : (
+        // Render markdown (for backward compatibility)
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          skipHtml={false}
+          components={{
           h1: ({ children }) => (
             <h1
               className="document-heading document-heading-1"
@@ -387,8 +404,9 @@ export default function DocumentRenderer({
           ),
         }}
       >
-        {cleanedContent}
+        {processedContent}
       </ReactMarkdown>
+        )}
 
       {/* Signature blocks */}
       {signatures && signatures.length > 0 && (
@@ -478,4 +496,5 @@ export default function DocumentRenderer({
     </div>
   )
 }
+
 
