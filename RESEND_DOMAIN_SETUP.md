@@ -160,3 +160,4 @@ Once your domain is verified:
 - Resend Domain Docs: https://resend.com/docs/dashboard/domains/introduction
 - Resend Support: https://resend.com/support
 
+

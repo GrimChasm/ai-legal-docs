@@ -23,8 +23,10 @@ export default function TemplatePage() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  // useParams() returns params synchronously in client components
-  const templateId = (params?.id as string) || ""
+  // Extract templateId immediately to avoid React DevTools serialization issues
+  // useParams() returns synchronously in client components, but we extract
+  // the value immediately to prevent params object from being enumerated
+  const templateId = String(params?.id || "")
   const draftId = searchParams.get("draftId")
   const [template, setTemplate] = useState<Template | null>(null)
   const [loading, setLoading] = useState(true)

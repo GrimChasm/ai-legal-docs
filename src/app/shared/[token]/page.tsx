@@ -23,8 +23,10 @@ interface ShareInfo {
 
 export default function SharedDocumentPage() {
   const params = useParams()
-  // useParams() returns params synchronously in client components
-  const token = (params?.token as string) || ""
+  // Extract token immediately to avoid React DevTools serialization issues
+  // useParams() returns synchronously in client components, but we extract
+  // the value immediately to prevent params object from being enumerated
+  const token = String(params?.token || "")
   const [draft, setDraft] = useState<SharedDraft | null>(null)
   const [shareInfo, setShareInfo] = useState<ShareInfo | null>(null)
   const [loading, setLoading] = useState(true)

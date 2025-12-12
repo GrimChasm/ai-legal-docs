@@ -340,3 +340,4 @@ For email setup details, see:
 - `QUICK_EMAIL_SETUP.md` - Quick guide (recommended)
 - `EMAIL_SETUP.md` - Detailed guide
 
+

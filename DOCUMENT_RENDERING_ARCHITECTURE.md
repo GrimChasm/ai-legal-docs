@@ -192,3 +192,4 @@ src/
 3. **Consistent Structure**: Same HTML/semantic structure everywhere
 4. **Matching Dimensions**: Same page size and margins
 5. **Export Alignment**: Exports use the same styling as preview
+

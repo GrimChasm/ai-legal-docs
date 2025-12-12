@@ -21,8 +21,10 @@ import { defaultStyle } from "@/lib/document-styles"
 export default function SignPage() {
   const params = useParams()
   const router = useRouter()
-  // useParams() returns params synchronously in client components
-  const token = (params?.token as string) || ""
+  // Extract token immediately to avoid React DevTools serialization issues
+  // useParams() returns synchronously in client components, but we extract
+  // the value immediately to prevent params object from being enumerated
+  const token = String(params?.token || "")
 
   const [invite, setInvite] = useState<any>(null)
   const [loading, setLoading] = useState(true)
