@@ -3,10 +3,8 @@ import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  // Enable instrumentation for Sentry
-  experimental: {
-    instrumentationHook: true,
-  },
+  // Instrumentation is enabled by default in Next.js 16
+  // No need for experimental.instrumentationHook
   // Ensure Prisma Client is properly transpiled
   transpilePackages: ["@prisma/client"],
   // Configure webpack to handle markdown files and binary files (used with --webpack flag)
