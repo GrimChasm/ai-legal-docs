@@ -547,7 +547,7 @@ export default function ContractForm({
                     signatureData: sig.signatureData,
                     createdAt: sig.createdAt,
                   })) : undefined}
-                  onContentChange={async (newContent: string) => {
+                  onContentChange={!allPartiesSigned ? async (newContent: string) => {
                     // Update the result state with edited content
                     setResult(newContent)
                     

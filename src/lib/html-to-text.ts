@@ -27,16 +27,33 @@ export function htmlToPlainText(html: string): string {
 
   let text = html.trim()
 
-  // Step 1: Replace HTML entities first
-  text = text.replace(/&nbsp;/g, " ")
-  text = text.replace(/&amp;/g, "&")
-  text = text.replace(/&lt;/g, "<")
-  text = text.replace(/&gt;/g, ">")
-  text = text.replace(/&quot;/g, '"')
-  text = text.replace(/&#39;/g, "'")
-  text = text.replace(/&apos;/g, "'")
-  text = text.replace(/&#x27;/g, "'")
-  text = text.replace(/&#x2F;/g, "/")
+  // Step 1: Replace HTML entities first (comprehensive list)
+  const entityReplacements: Array<[RegExp, string]> = [
+    [/&nbsp;/g, " "],
+    [/&amp;/g, "&"],
+    [/&lt;/g, "<"],
+    [/&gt;/g, ">"],
+    [/&quot;/g, '"'],
+    [/&#39;/g, "'"],
+    [/&apos;/g, "'"],
+    [/&#x27;/g, "'"],
+    [/&#x2F;/g, "/"],
+    [/&#160;/g, " "], // Non-breaking space (numeric)
+    [/&copy;/g, "©"],
+    [/&reg;/g, "®"],
+    [/&trade;/g, "™"],
+    [/&mdash;/g, "—"],
+    [/&ndash;/g, "–"],
+    [/&hellip;/g, "…"],
+    [/&ldquo;/g, '"'],
+    [/&rdquo;/g, '"'],
+    [/&lsquo;/g, "'"],
+    [/&rsquo;/g, "'"],
+  ]
+  
+  for (const [regex, replacement] of entityReplacements) {
+    text = text.replace(regex, replacement)
+  }
 
   // Step 2: Process formatting tags (bold, italic) recursively to handle nesting
   // We need to process these first so nested formatting is preserved
@@ -71,6 +88,24 @@ export function htmlToPlainText(html: string): string {
 
   // Sections
   text = text.replace(/<section[^>]*>(.*?)<\/section>/gi, "$1\n")
+  
+  // Articles (common in legal documents)
+  text = text.replace(/<article[^>]*>(.*?)<\/article>/gi, "$1\n")
+  
+  // Blockquotes (convert to indented text)
+  text = text.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, "$1\n")
+  
+  // Preformatted text (code blocks) - preserve line breaks
+  text = text.replace(/<pre[^>]*>(.*?)<\/pre>/gis, "$1\n")
+  
+  // Code tags (inline code)
+  text = text.replace(/<code[^>]*>(.*?)<\/code>/gi, "$1")
+  
+  // Address tags
+  text = text.replace(/<address[^>]*>(.*?)<\/address>/gi, "$1\n")
+  
+  // HR (horizontal rules) - convert to separator line
+  text = text.replace(/<hr[^>]*>/gi, "\n---\n")
 
   // Line breaks
   text = text.replace(/<br\s*\/?>/gi, "\n")
@@ -97,10 +132,22 @@ export function htmlToPlainText(html: string): string {
   // Handle standalone list items (if lists weren't captured above)
   text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, "- $1\n")
 
-  // Step 4: Remove all remaining HTML tags
-  text = text.replace(/<[^>]+>/g, "")
+  // Step 4: Remove all remaining HTML tags and attributes
+  // This includes script, style, and any other tags that weren't processed
+  text = text.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "") // Remove script tags and content
+  text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "") // Remove style tags and content
+  text = text.replace(/<[^>]+>/g, "") // Remove all remaining HTML tags
 
   // Step 5: Decode any remaining HTML entities that might have been missed
+  // Handle numeric entities (decimal and hex)
+  text = text.replace(/&#(\d+);/g, (match, dec) => {
+    return String.fromCharCode(parseInt(dec, 10))
+  })
+  text = text.replace(/&#x([0-9a-fA-F]+);/g, (match, hex) => {
+    return String.fromCharCode(parseInt(hex, 16))
+  })
+  
+  // Handle common named entities
   const entityMap: Record<string, string> = {
     "&amp;": "&",
     "&lt;": "<",
@@ -111,7 +158,7 @@ export function htmlToPlainText(html: string): string {
     "&nbsp;": " ",
   }
   for (const [entity, char] of Object.entries(entityMap)) {
-    text = text.replace(new RegExp(entity, "gi"), char)
+    text = text.replace(new RegExp(entity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), char)
   }
 
   // Step 6: Clean up extra whitespace and newlines
@@ -143,4 +190,5 @@ export function contentToPlainText(content: string): string {
   // Otherwise, return as-is (markdown will be processed by existing parsers)
   return content
 }
+
 

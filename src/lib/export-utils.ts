@@ -416,7 +416,12 @@ export interface SignatureData {
 /**
  * Export markdown content as PDF with document styling and signatures
  * 
- * Improved version that better matches the preview
+ * IMPORTANT: This function ensures all exports are in plain language by:
+ * 1. Converting HTML to plain text (markdown-like format)
+ * 2. Cleaning markdown (removing code fences if present)
+ * 3. Parsing and rendering as plain text with consistent formatting
+ * 
+ * This ensures PDF exports are always in plain language, not HTML tags.
  */
 export async function exportToPDF(
   content: string,
@@ -425,7 +430,10 @@ export async function exportToPDF(
   signatures?: SignatureData[]
 ) {
   try {
-    const cleaned = cleanMarkdown(content)
+    // Convert HTML to plain text for consistent plain language export
+    // This ensures all document types export in plain language, not HTML
+    const processedContent = contentToPlainText(content)
+    const cleaned = cleanMarkdown(processedContent)
     const doc = new jsPDF()
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
@@ -682,7 +690,12 @@ export async function exportToPDF(
 /**
  * Export markdown content as DOCX with document styling and signatures
  * 
- * Improved version that better matches the preview
+ * IMPORTANT: This function ensures all exports are in plain language by:
+ * 1. Converting HTML to plain text (markdown-like format)
+ * 2. Parsing markdown structure into DOCX paragraphs
+ * 3. Applying consistent formatting across all document types
+ * 
+ * This ensures DOCX exports are always in plain language, not HTML tags.
  */
 export async function exportToDOCX(
   content: string,
@@ -691,7 +704,8 @@ export async function exportToDOCX(
   signatures?: SignatureData[]
 ) {
   try {
-    // Convert HTML to plain text if needed
+    // Convert HTML to plain text for consistent plain language export
+    // This ensures all document types export in plain language, not HTML
     const processedContent = contentToPlainText(content)
     const paragraphs = parseMarkdownToParagraphs(processedContent, style)
 

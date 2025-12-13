@@ -153,36 +153,6 @@ export async function PUT(
       )
     }
 
-    // Check if all parties have signed - if so, prevent edits
-    const [signatures, invites] = await Promise.all([
-      prisma.signature.findMany({
-        where: { draftId: id },
-      }),
-      prisma.signatureInvite.findMany({
-        where: { draftId: id },
-      }),
-    ])
-
-    // Check if user has signed
-    const userEmail = session.user.email?.toLowerCase()
-    const userSigned = signatures.some(sig => 
-      sig.role === "creator" || 
-      (userEmail && sig.signerEmail?.toLowerCase() === userEmail && sig.role !== "counterparty")
-    )
-
-    // Check if all recipients have signed
-    const allRecipientsSigned = invites.length > 0 && invites.every(invite => invite.status === "signed")
-
-    // All parties signed = user signed AND all recipients signed (if there are any)
-    const allPartiesSigned = userSigned && (invites.length === 0 || allRecipientsSigned)
-
-    if (allPartiesSigned) {
-      return NextResponse.json(
-        { error: "Cannot edit document: All parties have signed. The document is legally binding and cannot be modified. If changes are needed, create a new version or amendment." },
-        { status: 403 }
-      )
-    }
-
     // Check if content has changed and if there are signed recipients
     const oldHtml = existingDraft.markdown || ""
     const contentChanged = finalHtml && finalHtml !== oldHtml

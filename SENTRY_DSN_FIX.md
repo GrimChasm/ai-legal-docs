@@ -116,3 +116,4 @@ Once you've added the DSN and restarted:
 3. ✅ Real errors from your app will be tracked automatically
 
 
+

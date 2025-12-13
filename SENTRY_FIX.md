@@ -88,3 +88,4 @@ SENTRY_PROJECT="your-project"
 The configuration now follows Next.js 15 best practices and should work seamlessly!
 
 
+
