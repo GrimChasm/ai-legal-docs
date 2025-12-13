@@ -1,0 +1,246 @@
+/**
+ * Print CSS for Legal Documents
+ * 
+ * This stylesheet is specifically designed for legal document exports (PDF/DOCX).
+ * It ensures professional, consistent formatting suitable for legal use.
+ * 
+ * This file is served from /print.css for Playwright PDF exports.
+ */
+
+@page {
+  size: Letter;
+  margin: 1in;
+  
+  /* Header/Footer support for Playwright */
+  @top-center {
+    content: "";
+  }
+  @bottom-center {
+    content: counter(page);
+    font-size: 10pt;
+    color: #666;
+  }
+}
+
+/* Base typography - serif for legal documents */
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+  line-height: 1.35;
+  color: #000;
+  background: #fff;
+}
+
+/* Title - centered, large */
+h1 {
+  font-size: 16pt;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  page-break-after: avoid;
+}
+
+/* Major sections */
+h2 {
+  font-size: 14pt;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  page-break-after: avoid;
+}
+
+/* Subsections */
+h3 {
+  font-size: 13pt;
+  font-weight: 700;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+  page-break-after: avoid;
+}
+
+/* Paragraphs */
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  text-align: justify;
+  page-break-inside: avoid;
+  orphans: 3;
+  widows: 3;
+}
+
+/* Lists */
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  page-break-inside: avoid;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  page-break-inside: avoid;
+}
+
+/* Ordered lists - ensure numbering is visible */
+ol {
+  list-style-type: decimal;
+}
+
+ol ol {
+  list-style-type: lower-alpha;
+  padding-left: 2rem;
+}
+
+ol ol ol {
+  list-style-type: lower-roman;
+  padding-left: 2rem;
+}
+
+/* Unordered lists */
+ul {
+  list-style-type: disc;
+}
+
+ul ul {
+  list-style-type: circle;
+  padding-left: 2rem;
+}
+
+ul ul ul {
+  list-style-type: square;
+  padding-left: 2rem;
+}
+
+/* Strong emphasis */
+strong, b {
+  font-weight: 700;
+}
+
+/* Emphasis */
+em, i {
+  font-style: italic;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  page-break-inside: avoid;
+}
+
+th, td {
+  padding: 0.5rem;
+  border: 1px solid #000;
+  text-align: left;
+}
+
+th {
+  font-weight: 700;
+  background-color: #f5f5f5;
+}
+
+/* Signature section - always on new page */
+section.signatures {
+  page-break-before: always;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #000;
+}
+
+.signatures-heading {
+  font-size: 14pt;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.signature-block {
+  margin-bottom: 2rem;
+  page-break-inside: avoid;
+}
+
+.signature-block img {
+  max-width: 120px;
+  max-height: 40px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+/* Code blocks */
+pre, code {
+  font-family: "Courier New", monospace;
+  font-size: 10pt;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow-x: auto;
+  page-break-inside: avoid;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 0.125rem 0.25rem;
+  border-radius: 2px;
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 1rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid #ddd;
+  font-style: italic;
+  page-break-inside: avoid;
+}
+
+/* Horizontal rules */
+hr {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 1.5rem 0;
+  page-break-inside: avoid;
+}
+
+/* Remove UI elements */
+button, .button, .btn,
+input, select, textarea,
+nav, .nav,
+header, .header,
+footer, .footer,
+aside, .sidebar {
+  display: none !important;
+}
+
+/* Page break rules */
+.page-break-before {
+  page-break-before: always;
+}
+
+.page-break-after {
+  page-break-after: always;
+}
+
+.no-break {
+  page-break-inside: avoid;
+}
+
+/* Avoid orphaned headings */
+h1, h2, h3, h4, h5, h6 {
+  page-break-after: avoid;
+}
+
+/* Avoid splitting sections */
+section, article {
+  page-break-inside: avoid;
+}
+
+/* Ensure minimum lines on page */
+p, li {
+  orphans: 3;
+  widows: 3;
+}
+

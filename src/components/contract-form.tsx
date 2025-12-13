@@ -654,16 +654,90 @@ export default function ContractForm({
                       }
 
                       setExportingPDF(true)
+                      setError(null) // Clear any previous errors
                       try {
-                        const contract = contractRegistry[contractId]
-                        const stylePreset = Object.keys(presets).find(
-                          key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
-                        ) || "custom"
-                        const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
-                        const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
-                        await exportToPDF(result, filename, documentStyle, signatures)
+                        // Use new API endpoint that renders print route
+                        if (currentDraftId) {
+                          console.log("Exporting PDF for draft:", currentDraftId)
+                          // Get session cookie from document.cookie
+                          const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                            const [name, value] = cookie.trim().split('=')
+                            if (name && (name.includes('session') || name.includes('auth'))) {
+                              acc[name] = value
+                            }
+                            return acc
+                          }, {} as Record<string, string>)
+                          
+                          const response = await fetch("/api/export/pdf", {
+                            method: "POST",
+                            headers: { 
+                              "Content-Type": "application/json",
+                              // Pass cookie in header as fallback
+                              ...(Object.keys(cookies).length > 0 && {
+                                "X-Session-Cookie": JSON.stringify(cookies)
+                              })
+                            },
+                            credentials: "include", // Include cookies in request
+                            body: JSON.stringify({
+                              draftId: currentDraftId,
+                              format: "Letter",
+                              margin: { top: "0.5in", right: "0.5in", bottom: "0.5in", left: "0.5in" },
+                            }),
+                          })
+
+                          if (!response.ok) {
+                            let errorMessage = "Failed to export PDF"
+                            try {
+                              const data = await response.json()
+                              errorMessage = data.error || errorMessage
+                            } catch (e) {
+                              // If response is not JSON, get text
+                              const text = await response.text()
+                              errorMessage = text || errorMessage
+                            }
+                            console.error("PDF export error:", errorMessage)
+                            throw new Error(errorMessage)
+                          }
+
+                          // Download the PDF
+                          const blob = await response.blob()
+                          
+                          if (blob.size === 0) {
+                            throw new Error("PDF export returned empty file")
+                          }
+                          
+                          const url = window.URL.createObjectURL(blob)
+                          const a = document.createElement("a")
+                          a.href = url
+                          const contract = contractRegistry[contractId]
+                          const stylePreset = Object.keys(presets).find(
+                            key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                          ) || "custom"
+                          const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                          a.download = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
+                          document.body.appendChild(a)
+                          a.click()
+                          window.URL.revokeObjectURL(url)
+                          document.body.removeChild(a)
+                          
+                          console.log("PDF exported successfully")
+                        } else {
+                          console.log("No draft ID, using fallback client-side export")
+                          // Fallback to old client-side export if no draft ID
+                          const contract = contractRegistry[contractId]
+                          const stylePreset = Object.keys(presets).find(
+                            key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                          ) || "custom"
+                          const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                          const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.pdf`
+                          await exportToPDF(result, filename, documentStyle, signatures)
+                        }
                       } catch (err: any) {
-                        setError(err.message || "Failed to export PDF")
+                        console.error("PDF export error:", err)
+                        const errorMessage = err.message || "Failed to export PDF. Please try again."
+                        setError(errorMessage)
+                        // Show error for 5 seconds
+                        setTimeout(() => setError(null), 5000)
                       } finally {
                         setExportingPDF(false)
                       }
@@ -718,16 +792,72 @@ export default function ContractForm({
                       }
 
                       setExportingDOCX(true)
+                      setError(null) // Clear any previous errors
                       try {
-                        const contract = contractRegistry[contractId]
-                        const stylePreset = Object.keys(presets).find(
-                          key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
-                        ) || "custom"
-                        const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
-                        const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
-                        await exportToDOCX(result, filename, documentStyle, signatures)
+                        // Use new API endpoint if draft ID is available
+                        if (currentDraftId) {
+                          console.log("Exporting DOCX for draft:", currentDraftId)
+                          const response = await fetch("/api/export/docx", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              draftId: currentDraftId,
+                            }),
+                          })
+
+                          if (!response.ok) {
+                            let errorMessage = "Failed to export DOCX"
+                            try {
+                              const data = await response.json()
+                              errorMessage = data.error || errorMessage
+                            } catch (e) {
+                              // If response is not JSON, get text
+                              const text = await response.text()
+                              errorMessage = text || errorMessage
+                            }
+                            console.error("DOCX export error:", errorMessage)
+                            throw new Error(errorMessage)
+                          }
+
+                          // Download the DOCX
+                          const blob = await response.blob()
+                          
+                          if (blob.size === 0) {
+                            throw new Error("DOCX export returned empty file")
+                          }
+                          
+                          const url = window.URL.createObjectURL(blob)
+                          const a = document.createElement("a")
+                          a.href = url
+                          const contract = contractRegistry[contractId]
+                          const stylePreset = Object.keys(presets).find(
+                            key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                          ) || "custom"
+                          const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                          a.download = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
+                          document.body.appendChild(a)
+                          a.click()
+                          window.URL.revokeObjectURL(url)
+                          document.body.removeChild(a)
+                          
+                          console.log("DOCX exported successfully")
+                        } else {
+                          console.log("No draft ID, using fallback client-side export")
+                          // Fallback to old client-side export if no draft ID
+                          const contract = contractRegistry[contractId]
+                          const stylePreset = Object.keys(presets).find(
+                            key => JSON.stringify(presets[key]) === JSON.stringify(documentStyle)
+                          ) || "custom"
+                          const titleSlug = contract?.title ? contract.title.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "document"
+                          const filename = `${titleSlug}-${stylePreset}-${new Date().toISOString().split('T')[0]}.docx`
+                          await exportToDOCX(result, filename, documentStyle, signatures)
+                        }
                       } catch (err: any) {
-                        setError(err.message || "Failed to export DOCX")
+                        console.error("DOCX export error:", err)
+                        const errorMessage = err.message || "Failed to export DOCX. Please try again."
+                        setError(errorMessage)
+                        // Show error for 5 seconds
+                        setTimeout(() => setError(null), 5000)
                       } finally {
                         setExportingDOCX(false)
                       }
