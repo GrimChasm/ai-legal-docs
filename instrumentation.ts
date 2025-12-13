@@ -33,11 +33,18 @@ export function onRequestError(
     method: string
   }
 ) {
-  Sentry.captureRequestError(err, {
-    request: {
-      url: request.path,
-      headers: Object.fromEntries(request.headers.entries()),
-      method: request.method,
+  // Use captureException with request context instead of captureRequestError
+  // captureRequestError API may have changed in newer Sentry versions
+  Sentry.captureException(err, {
+    tags: {
+      component: "onRequestError",
+    },
+    extra: {
+      request: {
+        url: request.path,
+        headers: Object.fromEntries(request.headers.entries()),
+        method: request.method,
+      },
     },
   })
 }
