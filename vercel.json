@@ -1,5 +1,5 @@
 {
-  "installCommand": "bash scripts/install.sh",
+  "installCommand": "rm -f package-lock.json && npm install --legacy-peer-deps",
   "buildCommand": "npm run build",
   "functions": {
     "src/app/api/export/pdf/route.ts": {
