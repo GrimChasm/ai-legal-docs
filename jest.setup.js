@@ -1,5 +1,6 @@
 // Learn more: https://github.com/testing-library/jest-dom
-import "@testing-library/jest-dom"
+// Note: @testing-library/jest-dom removed to avoid React 19 peer dependency conflicts
+// The matchers are not needed for API tests
 
 // Mock Next.js router
 jest.mock("next/navigation", () => ({
