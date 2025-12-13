@@ -34,10 +34,10 @@ export async function POST(
     const share = await prisma.share.create({
       data: {
         draftId: id,
-        userId: session.user.id,
-        email,
-        role: role || "viewer",
-        token,
+        sharedBy: session.user.id,
+        sharedWith: email || null,
+        shareToken: token,
+        permission: role || "view",
       },
     })
 
