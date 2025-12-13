@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --legacy-peer-deps --no-package-lock",
+  "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "npm run build",
   "functions": {
     "src/app/api/export/pdf/route.ts": {
