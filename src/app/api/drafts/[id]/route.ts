@@ -124,6 +124,65 @@ export async function PUT(
       return NextResponse.json({ error: "Draft not found" }, { status: 404 })
     }
 
+    // Check if all parties have signed - if so, prevent edits
+    const [signatures, invites] = await Promise.all([
+      prisma.signature.findMany({
+        where: { draftId: id },
+      }),
+      prisma.signatureInvite.findMany({
+        where: { draftId: id },
+      }),
+    ])
+
+    // Check if user has signed
+    const userSigned = signatures.some(sig => 
+      sig.role === "creator" || 
+      (session.user.email && sig.signerEmail?.toLowerCase() === session.user.email.toLowerCase() && sig.role !== "counterparty")
+    )
+
+    // Check if all recipients have signed
+    const allRecipientsSigned = invites.length > 0 && invites.every(invite => invite.status === "signed")
+
+    // All parties signed = user signed AND all recipients signed (if there are any)
+    const allPartiesSigned = userSigned && (invites.length === 0 || allRecipientsSigned)
+
+    if (allPartiesSigned) {
+      return NextResponse.json(
+        { error: "Cannot edit document: All parties have signed. The document is legally binding and cannot be modified. If changes are needed, create a new version or amendment." },
+        { status: 403 }
+      )
+    }
+
+    // Check if all parties have signed - if so, prevent edits
+    const [signatures, invites] = await Promise.all([
+      prisma.signature.findMany({
+        where: { draftId: id },
+      }),
+      prisma.signatureInvite.findMany({
+        where: { draftId: id },
+      }),
+    ])
+
+    // Check if user has signed
+    const userEmail = session.user.email?.toLowerCase()
+    const userSigned = signatures.some(sig => 
+      sig.role === "creator" || 
+      (userEmail && sig.signerEmail?.toLowerCase() === userEmail && sig.role !== "counterparty")
+    )
+
+    // Check if all recipients have signed
+    const allRecipientsSigned = invites.length > 0 && invites.every(invite => invite.status === "signed")
+
+    // All parties signed = user signed AND all recipients signed (if there are any)
+    const allPartiesSigned = userSigned && (invites.length === 0 || allRecipientsSigned)
+
+    if (allPartiesSigned) {
+      return NextResponse.json(
+        { error: "Cannot edit document: All parties have signed. The document is legally binding and cannot be modified. If changes are needed, create a new version or amendment." },
+        { status: 403 }
+      )
+    }
+
     // Check if content has changed and if there are signed recipients
     const oldHtml = existingDraft.markdown || ""
     const contentChanged = finalHtml && finalHtml !== oldHtml
@@ -220,7 +279,7 @@ async function notifySignedRecipientsOfChanges(
     return // No changes, no need to notify
   }
 
-  // Get all signature invites where recipient has signed
+  // Get all signature invites where recipient has signed (include token for view URL)
   const signedInvites = await prisma.signatureInvite.findMany({
     where: {
       draftId,
@@ -230,6 +289,7 @@ async function notifySignedRecipientsOfChanges(
     select: {
       recipientName: true,
       recipientEmail: true,
+      token: true, // Include token to generate view URL
     },
   })
 
@@ -251,9 +311,8 @@ async function notifySignedRecipientsOfChanges(
 
   const documentTitle = draft?.contractId || "Document"
 
-  // Generate view URL
+  // Generate base URL
   const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  const viewUrl = `${baseUrl}/drafts/${draftId}`
 
   // Format changes for email
   const changesHtml = formatChangesForEmail(diff.changes)
@@ -268,6 +327,10 @@ async function notifySignedRecipientsOfChanges(
   // Send notification to each signed recipient
   const notificationPromises = signedInvites.map(async (invite) => {
     try {
+      // Generate view URL using the recipient's signature invite token
+      // This allows them to view the document without needing to log in
+      const viewUrl = `${baseUrl}/sign/${invite.token}`
+      
       const emailHtml = emailModule.generateDocumentChangeEmail(
         invite.recipientName,
         documentTitle,

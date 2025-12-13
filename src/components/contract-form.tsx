@@ -57,6 +57,7 @@ export default function ContractForm({
   const [showSendForSignatureModal, setShowSendForSignatureModal] = useState(false)
   const [signatures, setSignatures] = useState<Array<{ id: string; signerName: string; signerEmail: string; signatureData: string; createdAt: string; position?: "bottom" | "custom"; customY?: number }>>([])
   const [signatureInvites, setSignatureInvites] = useState<Array<{ id: string; recipientName: string; recipientEmail: string; status: string; signedAt: string | null }>>([])
+  const [allPartiesSigned, setAllPartiesSigned] = useState(false)
   const [showPaywallModal, setShowPaywallModal] = useState(false)
   const [paywallAction, setPaywallAction] = useState<"export" | "download" | "copy" | "save">("export")
   const [canExport, setCanExport] = useState<boolean | null>(null)
@@ -385,6 +386,45 @@ export default function ContractForm({
     }
   }, [filledCount, fields.length, result, loading])
 
+  // Check if all parties have signed
+  useEffect(() => {
+    if (!currentDraftId || !session?.user?.id) {
+      setAllPartiesSigned(false)
+      return
+    }
+
+    const checkAllSigned = async () => {
+      try {
+        const [signaturesRes, invitesRes] = await Promise.all([
+          fetch(`/api/signatures?draftId=${currentDraftId}`).catch(() => null),
+          fetch(`/api/signature-invites?draftId=${currentDraftId}`).catch(() => null),
+        ])
+
+        const signatures = signaturesRes?.ok ? (await signaturesRes.json()).signatures || [] : []
+        const invites = invitesRes?.ok ? (await invitesRes.json()).invites || [] : []
+
+        // Check if user has signed
+        const userEmail = session?.user?.email?.toLowerCase()
+        const userSigned = signatures.some((sig: any) => 
+          sig.role === "creator" || 
+          (userEmail && sig.signerEmail?.toLowerCase() === userEmail && sig.role !== "counterparty")
+        )
+
+        // Check if all recipients have signed
+        const allRecipientsSigned = invites.length > 0 && invites.every((invite: any) => invite.status === "signed")
+
+        // All parties signed = user signed AND all recipients signed (if there are any)
+        const allSigned = userSigned && (invites.length === 0 || allRecipientsSigned)
+        setAllPartiesSigned(allSigned)
+      } catch (error) {
+        console.error("Error checking signature status:", error)
+        setAllPartiesSigned(false)
+      }
+    }
+
+    checkAllSigned()
+  }, [currentDraftId, session?.user?.id, session?.user?.email, signatures, signatureInvites])
+
   // Load signatures and invites when draft is available
   useEffect(() => {
     if (currentDraftId && result) {
@@ -478,6 +518,26 @@ export default function ContractForm({
               </div>
               
               <CardContent className="p-8 md:p-10 lg:p-12">
+                {/* Warning if all parties have signed */}
+                {allPartiesSigned && (
+                  <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div>
+                        <h4 className="text-sm font-semibold text-yellow-800 mb-1">
+                          Document Locked - All Parties Have Signed
+                        </h4>
+                        <p className="text-sm text-yellow-800 leading-relaxed">
+                          This document has been signed by all parties and is now legally binding. 
+                          Editing is disabled to preserve document integrity. If changes are needed, 
+                          please create a new version or amendment that requires re-signing by all parties.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <ExportPreview
                   content={result || ""}
                   style={documentStyle}
@@ -519,9 +579,9 @@ export default function ContractForm({
                         setSavingDocument(false)
                       }
                     }
-                  }}
+                  } : undefined}
                   isSaving={savingDocument}
-                  showEditButton={!!result}
+                  showEditButton={!!result && !allPartiesSigned}
                 />
               </CardContent>
 

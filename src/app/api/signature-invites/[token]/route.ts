@@ -30,14 +30,8 @@ export async function GET(
       return NextResponse.json({ error: "Invite not found" }, { status: 404 })
     }
 
-    // Check if already signed
-    if (invite.status === "signed") {
-      return NextResponse.json(
-        { error: "This document has already been signed" },
-        { status: 400 }
-      )
-    }
-
+    // Allow access to view document even if already signed (for viewing updates)
+    // Only prevent duplicate signing in POST endpoint
     return NextResponse.json({ invite })
   } catch (error: any) {
     console.error("Error fetching signature invite:", error)

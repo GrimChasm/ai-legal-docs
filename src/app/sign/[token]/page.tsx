@@ -134,7 +134,11 @@ export default function SignPage() {
     )
   }
 
-  if (signed) {
+  // Check if already signed - if so, show document view instead of just success message
+  const isAlreadySigned = invite?.status === "signed" || signed
+
+  if (isAlreadySigned && !invite?.draft?.markdown) {
+    // If signed but no document data, show success message
     return (
       <div className="min-h-screen bg-bg-muted flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -165,11 +169,21 @@ export default function SignPage() {
       <div className="container mx-auto px-4 md:px-6 max-w-4xl">
         <div className="mb-8 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-text-main mb-2">
-            Sign Document
+            {isAlreadySigned ? "Document View" : "Sign Document"}
           </h1>
           <p className="text-text-muted">
-            Please review and sign the document below
+            {isAlreadySigned 
+              ? "You have already signed this document. View the document below."
+              : "Please review and sign the document below"}
           </p>
+          {isAlreadySigned && (
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-green-700 font-medium text-sm">Document signed on {invite?.signedAt ? new Date(invite.signedAt).toLocaleDateString() : "previously"}</span>
+            </div>
+          )}
         </div>
 
         {/* Document Preview */}
@@ -188,10 +202,11 @@ export default function SignPage() {
           </Card>
         )}
 
-        {/* Signing Form */}
-        <Card className="border-2 border-border">
-          <CardContent className="p-6 md:p-8">
-            {step === "details" ? (
+        {/* Signing Form - Only show if not already signed */}
+        {!isAlreadySigned && (
+          <Card className="border-2 border-border">
+            <CardContent className="p-6 md:p-8">
+              {step === "details" ? (
               <form onSubmit={handleDetailsSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="signerName" className="mb-2 block">
@@ -268,6 +283,7 @@ export default function SignPage() {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
     </div>
   )
