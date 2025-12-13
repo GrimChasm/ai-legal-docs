@@ -1,0 +1,146 @@
+/**
+ * HTML to Plain Text Converter
+ * 
+ * Converts HTML content to plain text for PDF and DOCX exports.
+ * Handles:
+ * - HTML entities (&amp;, &quot;, etc.)
+ * - Block-level tags (headings, paragraphs, lists)
+ * - Inline formatting (bold, italic)
+ * - Lists (ordered and unordered)
+ * 
+ * This utility ensures that HTML content is converted to readable plain text
+ * that can be processed by PDF and DOCX export functions.
+ */
+
+import { isHTML } from "./markdown-to-html"
+
+/**
+ * Converts HTML to plain text by stripping tags and extracting text content
+ * 
+ * @param html - HTML content to convert
+ * @returns Plain text with markdown-like formatting for headings and lists
+ */
+export function htmlToPlainText(html: string): string {
+  if (!html || typeof html !== "string") {
+    return ""
+  }
+
+  let text = html.trim()
+
+  // Step 1: Replace HTML entities first
+  text = text.replace(/&nbsp;/g, " ")
+  text = text.replace(/&amp;/g, "&")
+  text = text.replace(/&lt;/g, "<")
+  text = text.replace(/&gt;/g, ">")
+  text = text.replace(/&quot;/g, '"')
+  text = text.replace(/&#39;/g, "'")
+  text = text.replace(/&apos;/g, "'")
+  text = text.replace(/&#x27;/g, "'")
+  text = text.replace(/&#x2F;/g, "/")
+
+  // Step 2: Process formatting tags (bold, italic) recursively to handle nesting
+  // We need to process these first so nested formatting is preserved
+  let lastText = ""
+  let iterations = 0
+  const maxIterations = 10 // Prevent infinite loops
+  
+  while (text !== lastText && iterations < maxIterations) {
+    lastText = text
+    iterations++
+    
+    // Bold and strong (process nested ones first)
+    text = text.replace(/<(strong|b)[^>]*>(.*?)<\/(strong|b)>/gi, "**$2**")
+    // Italic and emphasis (process nested ones first)
+    text = text.replace(/<(em|i)[^>]*>(.*?)<\/(em|i)>/gi, "*$2*")
+  }
+
+  // Step 3: Process block-level tags with markdown-like formatting
+  // Headings (process from h6 to h1 to avoid conflicts with nested tags)
+  text = text.replace(/<h6[^>]*>(.*?)<\/h6>/gi, "\n###### $1\n")
+  text = text.replace(/<h5[^>]*>(.*?)<\/h5>/gi, "\n##### $1\n")
+  text = text.replace(/<h4[^>]*>(.*?)<\/h4>/gi, "\n#### $1\n")
+  text = text.replace(/<h3[^>]*>(.*?)<\/h3>/gi, "\n### $1\n")
+  text = text.replace(/<h2[^>]*>(.*?)<\/h2>/gi, "\n## $1\n")
+  text = text.replace(/<h1[^>]*>(.*?)<\/h1>/gi, "\n# $1\n")
+
+  // Paragraphs
+  text = text.replace(/<p[^>]*>(.*?)<\/p>/gi, "$1\n\n")
+
+  // Divs with content (treat as paragraphs)
+  text = text.replace(/<div[^>]*>(.*?)<\/div>/gi, "$1\n")
+
+  // Sections
+  text = text.replace(/<section[^>]*>(.*?)<\/section>/gi, "$1\n")
+
+  // Line breaks
+  text = text.replace(/<br\s*\/?>/gi, "\n")
+
+  // Lists - process list items first, then containers
+  // Ordered lists - convert to numbered list format
+  text = text.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (match, content) => {
+    const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
+    return "\n" + items.map((item: string, index: number) => {
+      const text = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
+      return `${index + 1}. ${text.trim()}`
+    }).join("\n") + "\n"
+  })
+  
+  // Unordered lists - convert to bullet list format
+  text = text.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (match, content) => {
+    const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
+    return "\n" + items.map((item: string) => {
+      const text = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
+      return `- ${text.trim()}`
+    }).join("\n") + "\n"
+  })
+  
+  // Handle standalone list items (if lists weren't captured above)
+  text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, "- $1\n")
+
+  // Step 4: Remove all remaining HTML tags
+  text = text.replace(/<[^>]+>/g, "")
+
+  // Step 5: Decode any remaining HTML entities that might have been missed
+  const entityMap: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&apos;": "'",
+    "&nbsp;": " ",
+  }
+  for (const [entity, char] of Object.entries(entityMap)) {
+    text = text.replace(new RegExp(entity, "gi"), char)
+  }
+
+  // Step 6: Clean up extra whitespace and newlines
+  text = text.replace(/\n{3,}/g, "\n\n") // Max 2 consecutive newlines
+  text = text.replace(/[ \t]+/g, " ") // Multiple spaces to single space
+  text = text.replace(/\n /g, "\n") // Remove leading spaces after newlines
+  text = text.replace(/ \n/g, "\n") // Remove trailing spaces before newlines
+  text = text.trim()
+
+  return text
+}
+
+/**
+ * Converts content to plain text, handling both HTML and markdown
+ * 
+ * @param content - HTML or markdown content
+ * @returns Plain text suitable for PDF/DOCX export
+ */
+export function contentToPlainText(content: string): string {
+  if (!content || typeof content !== "string") {
+    return ""
+  }
+
+  // Check if content is HTML
+  if (isHTML(content)) {
+    return htmlToPlainText(content)
+  }
+
+  // Otherwise, return as-is (markdown will be processed by existing parsers)
+  return content
+}
+

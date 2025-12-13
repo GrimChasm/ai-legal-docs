@@ -115,3 +115,4 @@ Once you've added the DSN and restarted:
 2. ✅ Test errors should appear in Sentry dashboard
 3. ✅ Real errors from your app will be tracked automatically
 
+

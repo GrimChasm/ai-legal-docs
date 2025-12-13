@@ -72,3 +72,4 @@ EMAIL_FROM="onboarding@resend.dev"
 4. Add to `.env.local`
 5. Install: `npm install ioredis`
 
+

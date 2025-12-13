@@ -162,3 +162,4 @@ Once Sentry is set up:
 - Sentry Docs: https://docs.sentry.io/platforms/javascript/guides/nextjs/
 - Sentry Support: https://sentry.io/support/
 
+

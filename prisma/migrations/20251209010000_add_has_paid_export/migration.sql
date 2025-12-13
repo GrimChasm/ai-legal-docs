@@ -5,3 +5,4 @@ ALTER TABLE "Draft" ADD COLUMN "hasPaidExport" BOOLEAN NOT NULL DEFAULT 0;
 
 
 
+

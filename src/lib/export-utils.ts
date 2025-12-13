@@ -24,12 +24,20 @@ import jsPDF from "jspdf"
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType } from "docx"
 import { saveAs } from "file-saver"
 import { DocumentStyle, getFontFamilyName, getFontSizePt, getLineSpacingValue, defaultStyle } from "./document-styles"
+import { isHTML } from "./markdown-to-html"
+import { htmlToPlainText, contentToPlainText } from "./html-to-text"
 
 /**
  * Clean markdown content - removes code fences if entire content is wrapped
+ * Also handles HTML content by converting it to plain text
  */
 export function cleanMarkdown(content: string): string {
   if (!content) return ""
+  
+  // If content is HTML, convert it to plain text first
+  if (isHTML(content)) {
+    return htmlToPlainText(content)
+  }
   
   const trimmed = content.trim()
   
@@ -284,22 +292,22 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
   const fontFamily = style ? getFontFamilyName(style).split(",")[0].trim() : "Arial"
   const lineSpacing = style ? getLineSpacingValue(style) : 1.15
 
-  // Calculate spacing in twips (1 twip = 1/20 of a point) - extremely tight
+  // Calculate spacing in twips (1 twip = 1/20 of a point) - aggressively minimal
   const getSpacing = (): number => {
-    if (!style) return 20 // Extremely tight: 1pt
+    if (!style) return 5 // Aggressively minimal: 0.25pt
     switch (style.paragraphSpacing) {
       case "compact":
-        return 10 // Extremely tight: 0.5pt
+        return 2 // Extremely minimal: 0.1pt
       case "roomy":
-        return 40 // Still very tight: 2pt
+        return 10 // Still minimal: 0.5pt
       default:
-        return 20 // Extremely tight: 1pt
+        return 5 // Aggressively minimal: 0.25pt
     }
   }
   
-  // Get heading bottom spacing (extremely tight)
+  // Get heading bottom spacing - aggressively minimal
   const getHeadingBottomSpacing = (): number => {
-    return 20 // Extremely tight: 1pt
+    return 5 // Aggressively minimal: 0.25pt after heading
   }
   
   // Track first element for tight spacing
@@ -330,8 +338,8 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
 
       const indent = style?.headingIndent === "indented" ? 720 : 0 // 0.5 inch = 720 twips
       
-      // First heading has no top margin, others have minimal
-      const topSpacing = isFirstContentElement ? 0 : 20 // 1pt for non-first headings
+      // First heading has no top margin, others have aggressively minimal spacing
+      const topSpacing = isFirstContentElement ? 0 : 5 // Aggressively minimal: 0.25pt between sections
       isFirstContentElement = false
 
       paragraphs.push(
@@ -344,7 +352,7 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
             : HeadingLevel.HEADING_3,
           spacing: {
             before: topSpacing,
-            after: getHeadingBottomSpacing(), // Very tight spacing after heading
+            after: getHeadingBottomSpacing(), // Aggressively minimal spacing after heading
           },
           indent: {
             left: indent,
@@ -431,35 +439,32 @@ export async function exportToPDF(
     const fontSize = style ? getFontSizePt(style) : 12
     const lineSpacing = style ? getLineSpacingValue(style) * fontSize : fontSize * 1.15
     
-    // Helper function to get paragraph spacing in points (extremely tight)
-    // Making spacing extremely minimal to match preview
+    // Helper function to get paragraph spacing in points - aggressively minimal
     const getParagraphSpacingPt = () => {
-      if (!style) return 1 // Extremely tight default
+      if (!style) return 0.25 // Aggressively minimal: 0.25pt
       switch (style.paragraphSpacing) {
         case "compact":
-          return 0.5 // Almost no spacing
+          return 0.1 // Extremely minimal: 0.1pt
         case "roomy":
-          return 2 // Still very tight even for "roomy"
+          return 0.5 // Still minimal: 0.5pt
         default:
-          return 1 // Extremely tight normal spacing
+          return 0.25 // Aggressively minimal: 0.25pt
       }
     }
     
-    // Helper function to get heading bottom spacing (after heading, before content)
-    // Making this extremely tight
+    // Helper function to get heading bottom spacing - aggressively minimal
     const getHeadingBottomSpacingPt = () => {
-      return 1 // Extremely tight spacing after heading
+      return 0.25 // Aggressively minimal: 0.25pt after heading
     }
     
-    // Helper function to get heading top margin in points (extremely tight)
-    // First heading has no top margin, others are minimal
+    // Helper function to get heading top margin - aggressively minimal
     let isFirstContentElement = true
     const getHeadingTopMarginPt = (level: number, isFirst: boolean) => {
       if (isFirst) {
         return 0 // First heading has no top margin
       }
-      // Extremely tight spacing - minimal margins
-      return 1 // Extremely small top margin for all headings
+      // Aggressively minimal spacing between sections
+      return 0.25 // 0.25pt between section headings
     }
     
     // Set font (matching preview fonts)
@@ -496,7 +501,7 @@ export async function exportToPDF(
       }
 
       if (element.type === "empty") {
-        yPosition += lineSpacing * 0.1 // Extremely minimal spacing for empty lines
+        yPosition += lineSpacing * 0.01 // Aggressively minimal: almost no spacing for empty lines
         continue
       }
 
@@ -531,13 +536,13 @@ export async function exportToPDF(
         // Move yPosition down by the height of the heading text
         const headingLineSpacingValue = style ? getLineSpacingValue(style) : 1.15
         const headingLineSpacing = headingLineSpacingValue * headingSize
-        yPosition += headingLines.length * headingLineSpacing * 0.3 // Ultra-tight heading line spacing (0.3x)
+        yPosition += headingLines.length * headingLineSpacing * 0.7 // Aggressively reduced line spacing for headings
 
         // Reset font
         doc.setFontSize(fontSize)
         doc.setFont(style?.fontFamily === "modern" ? "helvetica" : style?.fontFamily === "classic" ? "times" : "courier", "normal")
 
-        // Apply extremely tight spacing after heading
+        // Apply aggressively minimal spacing after heading
         const headingBottomSpacing = getHeadingBottomSpacingPt()
         yPosition += headingBottomSpacing
       } else if (element.type === "list" && element.children) {
@@ -558,12 +563,12 @@ export async function exportToPDF(
           const listText = "• " + item.content
           const listLines = doc.splitTextToSize(listText, maxWidth)
           doc.text(listLines, margin, yPosition, { maxWidth })
-          yPosition += listLines.length * lineSpacing * 0.95 // Slightly tighter line spacing
+          yPosition += listLines.length * lineSpacing * 0.7 // Aggressively reduced line spacing for lists
 
           // Reset font
           doc.setFont(style?.fontFamily === "modern" ? "helvetica" : style?.fontFamily === "classic" ? "times" : "courier", "normal")
           
-          // Apply paragraph spacing (matching preview: uses getParagraphSpacing)
+          // Apply aggressively minimal paragraph spacing
           const paragraphSpacing = getParagraphSpacingPt()
           yPosition += paragraphSpacing
         }
@@ -576,12 +581,12 @@ export async function exportToPDF(
         // Render paragraph text (jsPDF has limited formatting support)
         const lines = doc.splitTextToSize(element.content, maxWidth)
         doc.text(lines, margin, yPosition, { maxWidth })
-        yPosition += lines.length * lineSpacing * 0.95 // Slightly tighter line spacing
+        yPosition += lines.length * lineSpacing * 0.7 // Aggressively reduced line spacing for paragraphs
 
         // Reset font
         doc.setFont(style?.fontFamily === "modern" ? "helvetica" : style?.fontFamily === "classic" ? "times" : "courier", "normal")
 
-        // Apply paragraph spacing (matching preview: uses getParagraphSpacing)
+        // Apply aggressively minimal paragraph spacing
         const paragraphSpacing = getParagraphSpacingPt()
         yPosition += paragraphSpacing
       }
@@ -589,8 +594,8 @@ export async function exportToPDF(
 
     // Add signatures at the end of the document
     if (signatures && signatures.length > 0) {
-      // Add ultra-minimal spacing before signatures (0.3x)
-      yPosition += lineSpacing * 0.09
+      // Aggressively minimal spacing before signatures
+      yPosition += 6 // Minimal: 6pt instead of 36pt
       
       // Check if we need a new page for signatures
       const signatureBlockHeight = 80
@@ -604,8 +609,8 @@ export async function exportToPDF(
       doc.setFont(style?.fontFamily === "modern" ? "helvetica" : style?.fontFamily === "classic" ? "times" : "courier", "bold")
       const signatureHeaderLines = doc.splitTextToSize("Signatures", maxWidth)
       doc.text(signatureHeaderLines, margin, yPosition, { maxWidth })
-      yPosition += signatureHeaderLines.length * lineSpacing * 0.27 // Ultra-tight line spacing (0.3x)
-      yPosition += getHeadingBottomSpacingPt() // Ultra-tight spacing after heading
+      yPosition += signatureHeaderLines.length * lineSpacing * 0.7 // Aggressively reduced line spacing
+      yPosition += getHeadingBottomSpacingPt() // Aggressively minimal spacing after heading
       doc.setFontSize(fontSize)
       doc.setFont(style?.fontFamily === "modern" ? "helvetica" : style?.fontFamily === "classic" ? "times" : "courier", "normal")
 
@@ -644,13 +649,13 @@ export async function exportToPDF(
 
         // Add signer name
         doc.text(`Signed by: ${signature.signerName}`, margin, yPosition)
-        yPosition += lineSpacing * 0.6 // Extremely tight spacing
+        yPosition += lineSpacing * 0.6 // Aggressively reduced spacing
 
         // Add signer email
         doc.setFontSize(fontSize - 1)
         doc.setTextColor(100, 100, 100)
         doc.text(signature.signerEmail, margin, yPosition)
-        yPosition += lineSpacing * 0.6 // Extremely tight spacing
+        yPosition += lineSpacing * 0.6 // Aggressively reduced spacing
 
         // Add date
         const signDate = new Date(signature.createdAt).toLocaleDateString("en-US", {
@@ -659,7 +664,7 @@ export async function exportToPDF(
           day: "numeric",
         })
         doc.text(`Date: ${signDate}`, margin, yPosition)
-        yPosition += getParagraphSpacingPt() // Use tight paragraph spacing
+        yPosition += getParagraphSpacingPt() // Aggressively minimal paragraph spacing
 
         // Reset text color and size
         doc.setTextColor(16, 22, 35)
@@ -686,15 +691,17 @@ export async function exportToDOCX(
   signatures?: SignatureData[]
 ) {
   try {
-    const paragraphs = parseMarkdownToParagraphs(content, style)
+    // Convert HTML to plain text if needed
+    const processedContent = contentToPlainText(content)
+    const paragraphs = parseMarkdownToParagraphs(processedContent, style)
 
     // Add signature blocks if provided
     if (signatures && signatures.length > 0) {
-      // Add spacing paragraph
+      // Add aggressively minimal spacing paragraph
       paragraphs.push(
         new Paragraph({
           text: "",
-          spacing: { after: 400 },
+          spacing: { after: 10 }, // Aggressively minimal: 10 twips (0.5pt)
         })
       )
 
@@ -711,7 +718,7 @@ export async function exportToDOCX(
               font: fontFamily,
             }),
           ],
-          spacing: { after: 300 },
+          spacing: { after: 5 }, // Aggressively minimal: 5 twips (0.25pt)
         })
       )
 
@@ -737,7 +744,7 @@ export async function exportToDOCX(
                     font: fontFamily,
                   }),
                 ],
-                spacing: { after: 200 },
+                spacing: { after: 5 }, // Aggressively minimal: 5 twips (0.25pt)
               })
             )
           }
@@ -755,7 +762,7 @@ export async function exportToDOCX(
                   font: fontFamily,
                 }),
               ],
-              spacing: { after: 200 },
+              spacing: { after: 100 }, // Condensed: 100 twips (5pt) instead of 200 (10pt)
             })
           )
         }
@@ -771,7 +778,7 @@ export async function exportToDOCX(
                 font: fontFamily,
               }),
             ],
-            spacing: { after: 100 },
+            spacing: { after: 5 }, // Aggressively minimal: 5 twips (0.25pt)
           })
         )
 
@@ -786,7 +793,7 @@ export async function exportToDOCX(
                 font: fontFamily,
               }),
             ],
-            spacing: { after: 100 },
+            spacing: { after: 5 }, // Aggressively minimal: 5 twips (0.25pt)
           })
         )
 
@@ -805,7 +812,7 @@ export async function exportToDOCX(
                 font: fontFamily,
               }),
             ],
-            spacing: { after: 400 },
+            spacing: { after: 10 }, // Aggressively minimal: 10 twips (0.5pt)
           })
         )
       }
