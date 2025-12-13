@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# package lock files (let npm generate fresh ones)
+package-lock.json
+
 # production
 /build
 
