@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "bash scripts/install.sh",
   "buildCommand": "npm run build",
   "functions": {
     "src/app/api/export/pdf/route.ts": {
