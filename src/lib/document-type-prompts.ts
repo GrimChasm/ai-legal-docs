@@ -1,9 +1,31 @@
 /**
  * Document Type-Specific Prompt Enhancements
  * 
- * Provides detailed, value-adding prompts for each specific legal document type.
- * These prompts enhance the base generation with document-specific requirements,
- * best practices, and important considerations.
+ * Provides comprehensive, holistic, attorney-level prompts for each specific legal document type.
+ * These prompts enhance the base generation with:
+ * - Document-specific requirements and best practices
+ * - Legal risk mitigation strategies
+ * - Compliance requirements (federal, state, industry-specific)
+ * - Enforcement mechanisms and dispute resolution
+ * - Quality assurance checklists
+ * - Professional standards and attorney-level requirements
+ * 
+ * This system is designed to minimize legal risk by:
+ * - Ensuring comprehensive coverage of all material terms
+ * - Including appropriate risk mitigation provisions
+ * - Complying with applicable laws and regulations
+ * - Using tested, enforceable language
+ * - Addressing edge cases and potential disputes proactively
+ * - Following professional legal document standards
+ * 
+ * IMPORTANT LEGAL NOTICE:
+ * These prompts are designed to guide AI generation of legal documents. However:
+ * - All generated documents should be reviewed by qualified legal counsel
+ * - These prompts do not constitute legal advice
+ * - Laws vary by jurisdiction and change over time
+ * - No guarantee is made as to the enforceability or suitability of generated documents
+ * - Users are solely responsible for ensuring compliance with applicable laws
+ * - This system provides templates that may require customization for specific circumstances
  */
 
 export interface DocumentTypePrompt {
@@ -21,6 +43,12 @@ export interface DocumentTypePrompt {
   legalConsiderations: string[]
   /** Critical legal protections that must be included */
   legalProtections: string[]
+  /** Risk mitigation strategies specific to this document type */
+  riskMitigation?: string[]
+  /** Compliance requirements (federal, state, industry-specific) */
+  complianceRequirements?: string[]
+  /** Enforcement mechanisms and dispute resolution */
+  enforcementProvisions?: string[]
   /** Best practices for this document type */
   bestPractices: string[]
   /** Common clauses that should be included with detailed descriptions */
@@ -33,6 +61,10 @@ export interface DocumentTypePrompt {
   optionalClauses?: string[]
   /** Jurisdiction-specific considerations */
   jurisdictionConsiderations?: string[]
+  /** Quality assurance checklist */
+  qualityChecklist?: string[]
+  /** Professional standards and attorney-level requirements */
+  professionalStandards?: string[]
 }
 
 /**
@@ -69,15 +101,84 @@ export const DOCUMENT_TYPE_PROMPTS: Record<string, DocumentTypePrompt> = {
       "Remedies for Breach": "Must include: (1) acknowledgment that monetary damages may be inadequate and that the disclosing party is entitled to seek injunctive relief and specific performance, (2) the right to recover actual damages, (3) the right to recover reasonable attorney fees and costs, (4) the right to seek both legal and equitable remedies, and (5) acknowledgment that breach may cause irreparable harm."
     },
     legalConsiderations: [
-      "The definition of 'Confidential Information' must be comprehensive yet specific enough to be enforceable. Vague or overly broad definitions may be struck down by courts.",
-      "The duration of confidentiality obligations must be reasonable. While trade secrets can be protected indefinitely, general business information typically has a 2-5 year term. Courts may invalidate unreasonably long terms.",
-      "Exclusions must be clearly stated to prevent disputes. The 'independently developed' exclusion is particularly important for protecting the receiving party's right to develop similar products or services.",
-      "Remedies provisions must be carefully drafted. While injunctive relief is typically available, liquidated damages clauses must be reasonable and not punitive.",
-      "Governing law selection is critical. Choose the jurisdiction most favorable to your interests and where enforcement is most likely.",
+      "The definition of 'Confidential Information' must be comprehensive yet specific enough to be enforceable. Vague or overly broad definitions may be struck down by courts. Include specific examples relevant to the business context to strengthen enforceability.",
+      "The duration of confidentiality obligations must be reasonable. While trade secrets can be protected indefinitely, general business information typically has a 2-5 year term. Courts may invalidate unreasonably long terms as against public policy.",
+      "Exclusions must be clearly stated to prevent disputes. The 'independently developed' exclusion is particularly important for protecting the receiving party's right to develop similar products or services without using confidential information.",
+      "Remedies provisions must be carefully drafted. While injunctive relief is typically available, liquidated damages clauses must be reasonable and not punitive. Unreasonable liquidated damages may be unenforceable.",
+      "Governing law selection is critical. Choose the jurisdiction most favorable to your interests and where enforcement is most likely. Consider the location of parties, assets, and courts with expertise in the subject matter.",
       "The agreement must clearly distinguish between unilateral (one-way) and mutual (two-way) NDAs. Use appropriate language based on whether both parties are disclosing confidential information.",
-      "Consider including a 'residuals' clause if the receiving party may develop similar products independently, but be aware that some jurisdictions (like California) restrict such clauses.",
-      "Include provisions for handling confidential information after the agreement terminates, including return or destruction requirements.",
-      "Ensure the agreement complies with applicable state and federal laws, including any restrictions on non-compete or non-solicitation provisions if included."
+      "Consider including a 'residuals' clause if the receiving party may develop similar products independently, but be aware that some jurisdictions (like California) restrict such clauses. Consult jurisdiction-specific laws.",
+      "Include comprehensive provisions for handling confidential information after the agreement terminates, including return or destruction requirements with certification procedures.",
+      "Ensure the agreement complies with applicable state and federal laws, including any restrictions on non-compete or non-solicitation provisions if included. Some states heavily restrict or prohibit such provisions.",
+      "Address electronic and digital information security requirements, including encryption, secure storage, and access controls to demonstrate reasonable efforts to protect confidential information.",
+      "Consider including dispute resolution provisions (arbitration or mediation) to reduce costs and maintain confidentiality, but ensure the process is fair and enforceable under applicable law.",
+      "Include provisions addressing what happens if the receiving party receives conflicting obligations (e.g., court order vs. NDA obligations), including notice requirements and cooperation in seeking protective orders.",
+      "Address international considerations if parties are in different countries, including cross-border data transfer restrictions (GDPR, etc.) and enforceability across jurisdictions."
+    ],
+    riskMitigation: [
+      "Define 'Confidential Information' comprehensively but with specific examples to reduce disputes about what is covered and strengthen enforceability in court.",
+      "Include multiple layers of protection: contractual obligations, acknowledgment of trade secret status, and reference to statutory protections (Defend Trade Secrets Act, Uniform Trade Secrets Act).",
+      "Require immediate notification of unauthorized disclosure to enable swift response and damage mitigation, including details of the breach and remedial actions taken.",
+      "Include attorney fee-shifting provisions to deter breaches and ensure that prevailing party can recover costs, making enforcement economically viable.",
+      "Specify exact procedures for return/destruction with certification requirements to ensure compliance and create evidence trail if dispute arises.",
+      "Include 'no license granted' provisions to prevent receiving party from claiming any rights to confidential information or intellectual property.",
+      "Address third-party access comprehensively, requiring confidentiality agreements from all third parties and limiting access to 'need to know' basis only.",
+      "Include survival provisions ensuring confidentiality obligations continue even after termination of underlying business relationship, with clear duration specified.",
+      "Address potential conflicts between NDA obligations and legal requirements (subpoenas, regulatory requests) with procedures for handling such situations.",
+      "Include provisions allowing disclosure of confidential information to legal, financial, and other advisors bound by professional confidentiality obligations, with restrictions on use.",
+      "Address potential corporate transactions (mergers, acquisitions) and whether confidential information may be disclosed in connection with due diligence, with appropriate safeguards."
+    ],
+    complianceRequirements: [
+      "Comply with the Defend Trade Secrets Act (DTSA) if trade secrets are involved, including providing notice of immunity for whistleblower disclosures in confidential reporting to government officials or attorneys.",
+      "Comply with applicable state trade secret laws (Uniform Trade Secrets Act in most states) and ensure definitions align with statutory definitions where beneficial.",
+      "Ensure any non-compete or non-solicitation provisions comply with applicable state laws (some states like California prohibit non-compete agreements except in limited circumstances).",
+      "Comply with data protection laws (GDPR, CCPA, etc.) if personal information is included in confidential information, including data subject rights and breach notification requirements.",
+      "Ensure compliance with securities laws if confidential information relates to publicly traded companies or securities offerings (insider trading restrictions, etc.).",
+      "Comply with export control laws if confidential information relates to controlled technologies or information subject to export regulations.",
+      "Ensure compliance with antitrust laws - confidentiality agreements must not be used to facilitate anticompetitive behavior or market allocation.",
+      "Address employment law considerations if employees are involved, including restrictions on post-employment confidentiality obligations and compliance with state-specific employee rights."
+    ],
+    enforcementProvisions: [
+      "Include comprehensive remedies: injunctive relief (temporary and permanent), monetary damages (actual and consequential), attorney fees and costs, and acknowledgment of irreparable harm making equitable relief appropriate.",
+      "Specify that injunctive relief is available without bond or with minimal bond to reduce barriers to obtaining emergency relief for breaches.",
+      "Include provisions allowing for expedited discovery and evidentiary procedures to enable swift enforcement actions.",
+      "Specify governing law and exclusive jurisdiction or venue for disputes, choosing jurisdiction favorable to enforcement (typically where disclosing party is located or where harm occurs).",
+      "Include dispute resolution mechanisms appropriate for the parties and circumstances: litigation for maximum protection, arbitration for speed and confidentiality, or mediation for relationship preservation.",
+      "Include provisions for recovery of investigation costs and expenses incurred in detecting and responding to breaches.",
+      "Specify that breach of confidentiality obligations constitutes material breach allowing for termination of any underlying agreements.",
+      "Include provisions for liquidated damages if breach results in quantifiable harm, but ensure amounts are reasonable and not punitive to avoid unenforceability.",
+      "Address remedies for inadvertent disclosure, including immediate notification requirements and obligations to cooperate in remediation efforts."
+    ],
+    qualityChecklist: [
+      "All required sections are present and fully developed with comprehensive detail",
+      "Definition of 'Confidential Information' is comprehensive, specific, and includes relevant examples",
+      "All exclusions are clearly stated and comprehensive (public domain, prior knowledge, independent development, third-party receipt, legal requirements)",
+      "Obligations of receiving party are clearly specified with mandatory language ('shall', 'must')",
+      "Remedies provisions are comprehensive and include injunctive relief, damages, and attorney fees",
+      "Survival provisions clearly specify duration of confidentiality obligations after termination",
+      "Return/destruction procedures are detailed with certification requirements",
+      "Governing law and jurisdiction are specified and appropriate for the parties",
+      "All defined terms are capitalized consistently throughout the document",
+      "Cross-references between sections are accurate and helpful",
+      "The agreement clearly states whether it is unilateral or mutual",
+      "Provisions are reasonable and likely to be enforceable in applicable jurisdiction",
+      "Language is precise, unambiguous, and uses professional legal terminology",
+      "The document addresses electronic/digital information security requirements",
+      "The document includes appropriate risk mitigation and enforcement mechanisms"
+    ],
+    professionalStandards: [
+      "Use precise, tested legal language that has been upheld in court cases involving similar agreements. Avoid innovative language that may create ambiguity or enforcement issues.",
+      "Structure the document logically with clear section headers and subsections, making it easy to navigate and reference specific provisions during negotiations or disputes.",
+      "Include comprehensive provisions addressing not only the primary obligations but also edge cases, potential disputes, and exceptional circumstances (regulatory requests, corporate transactions, etc.).",
+      "Ensure all provisions are reasonable and balanced to maximize enforceability - overly one-sided agreements may be challenged or partially invalidated by courts.",
+      "Use mandatory language ('shall', 'must', 'will') for obligations and permissive language ('may') only for rights or discretionary actions.",
+      "Include appropriate qualifiers ('reasonable', 'material', 'substantial') to provide flexibility while maintaining enforceability - but avoid over-qualification that weakens protections.",
+      "Cross-reference related provisions to create a cohesive document where sections support and reinforce each other, avoiding contradictions or gaps.",
+      "Follow standard legal document conventions: formal preamble, recitals, defined terms section, numbered sections with lettered subsections, and proper execution language.",
+      "Ensure the document can stand alone and be understood without reference to external documents (except for defined agreements that are incorporated by reference).",
+      "Include appropriate legal protections for both parties while ensuring the document achieves its primary purpose of protecting confidential information.",
+      "Address jurisdiction-specific requirements and restrictions (e.g., California's restrictions on residuals clauses) to ensure enforceability.",
+      "Use consistent terminology throughout - once a term is defined, use it consistently rather than using synonyms that could create ambiguity."
     ],
     legalProtections: [
       "Protection against unauthorized disclosure of proprietary information",
@@ -186,16 +287,87 @@ export const DOCUMENT_TYPE_PROMPTS: Record<string, DocumentTypePrompt> = {
       "Termination Provisions": "Must include: (1) grounds for termination (with cause, without cause, convenience), (2) notice requirements for each type of termination, (3) effect of termination on payment obligations, (4) return of Company property and materials, (5) survival of certain provisions (confidentiality, IP, indemnification), (6) payment for work completed prior to termination, and (7) procedures for transition of work."
     },
     legalConsiderations: [
-      "The independent contractor classification is critical for tax and liability purposes. The agreement must clearly establish factors demonstrating independence to avoid misclassification risks, which can result in significant penalties, back taxes, and liability for employee benefits.",
-      "The scope of work must be detailed enough to prevent scope creep and disputes, but flexible enough to allow for reasonable modifications. Include clear procedures for change orders.",
-      "Intellectual property ownership must be explicitly addressed. Under copyright law, work made for hire belongs to the hiring party, but this only applies in specific circumstances. Include both work-made-for-hire language and assignment provisions as backup.",
-      "Payment terms must be clear and comply with applicable laws. Some jurisdictions require prompt payment for contractor services. Specify invoicing requirements, payment deadlines, and late payment consequences.",
-      "Confidentiality provisions are essential to protect business information. Ensure they are reasonable in scope and duration to be enforceable.",
-      "Non-compete and non-solicitation clauses must be reasonable in geographic scope, duration, and scope of restricted activities. Overly broad restrictions may be unenforceable, especially in states like California.",
-      "Termination provisions must balance flexibility with protection. Include provisions for termination with cause (breach, failure to perform) and without cause (convenience), with appropriate notice requirements.",
-      "Indemnification clauses should be carefully drafted. Consider mutual indemnification for breaches of the agreement, but be cautious of overly broad indemnification that could expose the contractor to unlimited liability.",
-      "Ensure compliance with applicable labor laws, including worker classification tests (IRS 20-factor test, ABC test in some states, economic realities test). The agreement should support proper classification.",
-      "Consider including dispute resolution provisions (arbitration or mediation) to avoid costly litigation, but ensure the contractor has a fair process."
+      "The independent contractor classification is critical for tax and liability purposes. The agreement must clearly establish factors demonstrating independence to avoid misclassification risks, which can result in significant penalties, back taxes, and liability for employee benefits. Include explicit statements about contractor status, tax obligations, benefits, and control over work methods.",
+      "The scope of work must be detailed enough to prevent scope creep and disputes, but flexible enough to allow for reasonable modifications. Include clear procedures for change orders with pricing adjustments.",
+      "Intellectual property ownership must be explicitly addressed. Under copyright law, work made for hire belongs to the hiring party, but this only applies in specific circumstances. Include both work-made-for-hire language and assignment provisions as backup to ensure comprehensive IP protection.",
+      "Payment terms must be clear and comply with applicable laws. Some jurisdictions require prompt payment for contractor services. Specify invoicing requirements, payment deadlines, late payment consequences, and currency if applicable.",
+      "Confidentiality provisions are essential to protect business information. Ensure they are reasonable in scope and duration to be enforceable. Consider including return/destruction requirements upon termination.",
+      "Non-compete and non-solicitation clauses must be reasonable in geographic scope, duration, and scope of restricted activities. Overly broad restrictions may be unenforceable, especially in states like California where non-compete clauses are generally prohibited except in limited circumstances.",
+      "Termination provisions must balance flexibility with protection. Include provisions for termination with cause (breach, failure to perform) and without cause (convenience), with appropriate notice requirements and payment for completed work.",
+      "Indemnification clauses should be carefully drafted. Consider mutual indemnification for breaches of the agreement, but be cautious of overly broad indemnification that could expose the contractor to unlimited liability. Include reasonable limitations on liability.",
+      "Ensure compliance with applicable labor laws, including worker classification tests (IRS 20-factor test, ABC test in some states, economic realities test). The agreement should support proper classification with explicit provisions demonstrating independence.",
+      "Consider including dispute resolution provisions (arbitration or mediation) to avoid costly litigation, but ensure the contractor has a fair process and the choice aligns with strategic interests.",
+      "Address insurance requirements if applicable (general liability, professional liability, workers' compensation) to protect both parties and ensure contractor has appropriate coverage.",
+      "Include provisions addressing subcontracting, if permitted, including approval requirements and ensuring subcontractors are bound by similar obligations.",
+      "Address work location, schedule, and methods - while contractors typically control methods, you may specify deliverables, deadlines, and quality standards without creating employment relationship."
+    ],
+    riskMitigation: [
+      "Include explicit 'Independent Contractor Relationship' section with comprehensive statements about non-employee status, tax obligations, benefits, and control over work methods to minimize misclassification risk.",
+      "Address intellectual property comprehensively with both 'work made for hire' provisions and assignment language to ensure complete IP ownership protection regardless of copyright law applicability.",
+      "Include detailed scope of work with acceptance criteria, milestones, and change order procedures to prevent scope creep and disputes about deliverables.",
+      "Specify comprehensive payment terms including rates, schedule, invoicing requirements, and late payment consequences to ensure timely payment and reduce payment disputes.",
+      "Include reasonable confidentiality provisions to protect business information while ensuring enforceability - overly broad restrictions may be invalidated.",
+      "If including non-compete or non-solicitation provisions, ensure they are reasonable in scope, duration, and geography to maximize enforceability and avoid invalidation by courts.",
+      "Include comprehensive termination provisions addressing multiple scenarios (with cause, without cause, convenience) with appropriate notice and payment requirements to provide flexibility while protecting interests.",
+      "Include indemnification provisions that protect Company from claims arising from Contractor's work, but ensure limitations are reasonable to avoid contractor exposure to unlimited liability.",
+      "Address insurance requirements if the nature of work creates liability exposure, ensuring Contractor maintains appropriate coverage to protect both parties.",
+      "Include dispute resolution provisions (arbitration or mediation) to reduce costs and maintain business relationships, but ensure the process is fair and enforceable.",
+      "Specify governing law and jurisdiction favorable to enforcement, typically where Company is located or where services are performed.",
+      "Include 'no employment relationship' acknowledgment and factors demonstrating independence (use of own tools, control over methods, ability to work for others) to strengthen classification."
+    ],
+    complianceRequirements: [
+      "Comply with IRS worker classification guidelines (20-factor test) - the agreement should support factors indicating contractor independence, not employee status.",
+      "Comply with state-specific worker classification tests (ABC test in California, Massachusetts, New Jersey; economic realities test used by DOL and some states).",
+      "Ensure compliance with state prompt payment laws for contractor services - some states require payment within specific timeframes (e.g., 30-45 days).",
+      "Comply with state restrictions on non-compete clauses - many states restrict or prohibit non-compete agreements for independent contractors (especially California).",
+      "Ensure compliance with employment tax requirements - verify that agreement properly establishes contractor status to avoid employer tax obligations.",
+      "Comply with applicable labor laws and regulations, including minimum wage and overtime requirements if contractor classification is challenged.",
+      "If services involve regulated industries (healthcare, finance, etc.), ensure compliance with industry-specific licensing and regulatory requirements.",
+      "Comply with data protection laws (GDPR, CCPA, etc.) if Contractor has access to personal information or customer data.",
+      "Ensure compliance with export control laws if services involve controlled technologies or information subject to export regulations.",
+      "Address workers' compensation requirements - contractors are typically not covered, but verify state-specific requirements."
+    ],
+    enforcementProvisions: [
+      "Include comprehensive remedies for breach: monetary damages, injunctive relief for IP/confidentiality breaches, termination rights, and recovery of attorney fees and costs.",
+      "Specify that breach of material provisions (confidentiality, IP, non-compete) constitutes material breach allowing immediate termination and enforcement action.",
+      "Include provisions for recovery of damages including lost profits, costs of replacement services, investigation costs, and other consequential damages (subject to reasonable limitations).",
+      "Specify governing law and exclusive jurisdiction or venue for disputes, choosing jurisdiction favorable to enforcement (typically where Company is located).",
+      "Include dispute resolution mechanisms: litigation for maximum protection and precedent, arbitration for speed and confidentiality, or mediation for relationship preservation.",
+      "Include attorney fee-shifting provisions to enable recovery of costs in enforcement actions and deter breaches.",
+      "Address IP enforcement specifically - include provisions for immediate injunctive relief for IP breaches and require Contractor to assist in enforcement.",
+      "Include provisions allowing for expedited discovery and evidentiary procedures for IP and confidentiality breaches.",
+      "Specify that termination does not affect survival of key provisions (confidentiality, IP, indemnification, non-compete) to ensure ongoing protection."
+    ],
+    qualityChecklist: [
+      "Independent contractor relationship section is comprehensive and explicitly states non-employee status with supporting factors",
+      "Scope of work is detailed with specific deliverables, acceptance criteria, timelines, and performance standards",
+      "Intellectual property provisions include both 'work made for hire' and assignment language for complete protection",
+      "Payment terms are clear and specific: rates, schedule, invoicing requirements, payment method, and late payment consequences",
+      "Confidentiality provisions are comprehensive yet reasonable to ensure enforceability",
+      "Termination provisions address multiple scenarios (with cause, without cause, convenience) with appropriate notice and payment requirements",
+      "Indemnification provisions are reasonable and include appropriate limitations on liability",
+      "Non-compete/non-solicitation provisions (if included) are reasonable in scope, duration, and geography",
+      "All defined terms are capitalized consistently throughout the document",
+      "Cross-references between sections are accurate (e.g., termination provisions reference survival clauses)",
+      "The agreement supports proper worker classification with explicit statements and factors demonstrating independence",
+      "Governing law and jurisdiction are specified and appropriate for the parties",
+      "Dispute resolution mechanisms are appropriate for the parties and circumstances",
+      "The document complies with applicable state and federal worker classification requirements",
+      "Language is precise, unambiguous, and uses professional legal terminology throughout"
+    ],
+    professionalStandards: [
+      "Use precise, tested legal language for independent contractor agreements that has been upheld in court cases and supports proper classification.",
+      "Structure the document logically with clear sections addressing relationship status, scope, payment, IP, confidentiality, termination, and enforcement.",
+      "Include comprehensive provisions addressing worker classification factors explicitly to minimize misclassification risk and support proper tax treatment.",
+      "Ensure all provisions are reasonable and balanced - overly one-sided agreements may be challenged as employment contracts in disguise.",
+      "Use mandatory language ('shall', 'must', 'will') for obligations, permissive language ('may') only for rights or discretionary actions.",
+      "Include appropriate qualifiers ('reasonable', 'material') to provide flexibility while maintaining enforceability, but avoid over-qualification.",
+      "Cross-reference related provisions to create cohesive document (e.g., termination references IP/confidentiality survival provisions).",
+      "Follow standard legal document conventions: formal preamble, recitals, defined terms, numbered sections with subsections.",
+      "Ensure the agreement clearly distinguishes contractor relationship from employment relationship with explicit statements and supporting factors.",
+      "Address edge cases and potential disputes proactively (scope changes, IP ownership, payment disputes, termination scenarios).",
+      "Include appropriate legal protections for both parties while ensuring the document achieves its primary purpose of establishing contractor relationship and protecting Company interests.",
+      "Use consistent terminology throughout - use 'Contractor' and 'Company' consistently, capitalize defined terms, avoid synonyms that create ambiguity."
     ],
     legalProtections: [
       "Protection against worker misclassification claims and associated tax and liability exposure",
@@ -984,15 +1156,74 @@ Be aware of these jurisdiction-specific requirements:
 ${typePrompt.jurisdictionConsiderations.map((j, i) => `- ${j}`).join("\n")}
 ` : ""}
 
+${typePrompt.riskMitigation && typePrompt.riskMitigation.length > 0 ? `
+### Risk Mitigation Requirements
+To minimize legal risk and maximize enforceability, the document MUST include these risk mitigation strategies:
+${typePrompt.riskMitigation.map((r, i) => `${i + 1}. ${r}`).join("\n")}
+` : ""}
+
+${typePrompt.complianceRequirements && typePrompt.complianceRequirements.length > 0 ? `
+### Compliance Requirements
+The document MUST comply with the following legal requirements:
+${typePrompt.complianceRequirements.map((c, i) => `${i + 1}. ${c}`).join("\n")}
+` : `
+### Compliance Requirements
+Ensure compliance with all applicable federal, state, and local laws, regulations, and industry standards relevant to this document type. Consider jurisdiction-specific requirements, industry regulations, and any mandatory legal provisions that must be included.`}
+
+${typePrompt.enforcementProvisions && typePrompt.enforcementProvisions.length > 0 ? `
+### Enforcement and Dispute Resolution
+The document MUST include comprehensive enforcement mechanisms:
+${typePrompt.enforcementProvisions.map((e, i) => `${i + 1}. ${e}`).join("\n")}
+` : `
+### Enforcement and Dispute Resolution
+Include comprehensive enforcement mechanisms, including remedies for breach, dispute resolution procedures (litigation, arbitration, or mediation), venue selection, and choice of law provisions appropriate for the document type and parties involved.`}
+
+${typePrompt.qualityChecklist && typePrompt.qualityChecklist.length > 0 ? `
+### Quality Assurance Checklist
+Before finalizing the document, verify that it includes:
+${typePrompt.qualityChecklist.map((q, i) => `- ${q}`).join("\n")}
+` : `
+### Quality Assurance Checklist
+Before finalizing the document, verify that it includes:
+- All required sections are present and fully developed
+- All defined terms are capitalized and used consistently
+- All cross-references between sections are accurate
+- All obligations are clearly stated with mandatory language ("shall", "must", "will")
+- All legal protections are comprehensive and enforceable
+- The document complies with applicable laws and regulations
+- The language is precise, unambiguous, and professional
+- The structure follows standard legal document conventions`}
+
+${typePrompt.professionalStandards && typePrompt.professionalStandards.length > 0 ? `
+### Professional Standards
+This document must meet attorney-level professional standards:
+${typePrompt.professionalStandards.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+` : `
+### Professional Standards
+This document must meet attorney-level professional standards:
+1. Use precise, tested legal language that has been upheld in court
+2. Include comprehensive provisions covering all material terms
+3. Address potential disputes and edge cases proactively
+4. Ensure all provisions are reasonable and enforceable
+5. Use clear structure and formatting for easy review
+6. Include appropriate legal protections for all parties
+7. Comply with ethical standards and professional best practices`}
+
 ### Quality Standards
 The final document must:
-- Be comprehensive and include ALL required sections with full detail
-- Use precise, professional legal language throughout
-- Include all standard clauses with proper legal terminology
-- Be ready for execution/signing without additional legal review
-- Comply with applicable laws and regulations
-- Provide maximum legal protection for all parties
-- Be structured like an attorney-drafted document
+- Be comprehensive and include ALL required sections with full detail (attorney-level quality)
+- Use precise, professional legal language throughout that has been tested in court
+- Include all standard clauses with proper legal terminology and comprehensive detail
+- Comply with applicable federal, state, and local laws and regulations
+- Provide maximum legal protection while remaining reasonable and enforceable
+- Be structured like an attorney-drafted document used in professional practice
+- Address all material terms and potential edge cases proactively
+- Include appropriate risk mitigation and enforcement mechanisms
+- Be clear, unambiguous, and ready for execution
+- Follow professional legal document formatting conventions
+
+### Critical Legal Disclaimer
+IMPORTANT: While this document is generated using comprehensive legal templates and attorney-level guidance, it is a template and may require customization for specific circumstances. The generated document should be reviewed by qualified legal counsel familiar with the applicable jurisdiction and subject matter. Laws vary by jurisdiction and change over time. No warranty or guarantee is provided as to the enforceability, suitability, or legal compliance of this document for any specific purpose. Users are solely responsible for ensuring the document is appropriate for their specific situation and complies with all applicable laws.
 
 `
 

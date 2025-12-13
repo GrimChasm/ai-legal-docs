@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth-helper"
 import { prisma } from "@/lib/prisma"
+import { generateDocumentDiff, formatChangesForEmail } from "@/lib/html-diff"
 
 export async function GET(
   request: NextRequest,
@@ -123,6 +124,10 @@ export async function PUT(
       return NextResponse.json({ error: "Draft not found" }, { status: 404 })
     }
 
+    // Check if content has changed and if there are signed recipients
+    const oldHtml = existingDraft.markdown || ""
+    const contentChanged = finalHtml && finalHtml !== oldHtml
+
     // Update the draft and return the updated draft
     const updatedDraft = await prisma.draft.update({
       where: {
@@ -135,6 +140,21 @@ export async function PUT(
         updatedAt: new Date(),
       },
     })
+
+    // If content changed and there are signed recipients, notify them
+    if (contentChanged && finalHtml) {
+      try {
+        await notifySignedRecipientsOfChanges(
+          id,
+          oldHtml,
+          finalHtml,
+          session.user.id
+        )
+      } catch (error) {
+        // Log error but don't fail the update
+        console.error("Error notifying recipients of document changes:", error)
+      }
+    }
 
     return NextResponse.json({ draft: updatedDraft })
   } catch (error: any) {
@@ -182,5 +202,94 @@ export async function DELETE(
       { status: 500 }
     )
   }
+}
+
+/**
+ * Notify all signed recipients when a document is changed
+ */
+async function notifySignedRecipientsOfChanges(
+  draftId: string,
+  oldHtml: string,
+  newHtml: string,
+  senderUserId: string
+): Promise<void> {
+  // Generate diff
+  const diff = generateDocumentDiff(oldHtml, newHtml)
+  
+  if (!diff.hasChanges) {
+    return // No changes, no need to notify
+  }
+
+  // Get all signature invites where recipient has signed
+  const signedInvites = await prisma.signatureInvite.findMany({
+    where: {
+      draftId,
+      status: "signed",
+      signedAt: { not: null },
+    },
+    select: {
+      recipientName: true,
+      recipientEmail: true,
+    },
+  })
+
+  if (signedInvites.length === 0) {
+    return // No signed recipients to notify
+  }
+
+  // Get sender info
+  const sender = await prisma.user.findUnique({
+    where: { id: senderUserId },
+    select: { name: true, email: true },
+  })
+
+  // Get draft info for document title
+  const draft = await prisma.draft.findUnique({
+    where: { id: draftId },
+    select: { contractId: true },
+  })
+
+  const documentTitle = draft?.contractId || "Document"
+
+  // Generate view URL
+  const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const viewUrl = `${baseUrl}/drafts/${draftId}`
+
+  // Format changes for email
+  const changesHtml = formatChangesForEmail(diff.changes)
+
+  // Import email module
+  const emailModule = await import("@/lib/email").catch(() => null)
+  if (!emailModule) {
+    console.warn("Email module not available, cannot send change notifications")
+    return
+  }
+
+  // Send notification to each signed recipient
+  const notificationPromises = signedInvites.map(async (invite) => {
+    try {
+      const emailHtml = emailModule.generateDocumentChangeEmail(
+        invite.recipientName,
+        documentTitle,
+        viewUrl,
+        diff.summary,
+        changesHtml,
+        sender?.name || sender?.email || "ContractVault User"
+      )
+
+      await emailModule.sendEmail({
+        to: invite.recipientEmail,
+        subject: `Document Updated: ${documentTitle}`,
+        html: emailHtml,
+      })
+
+      console.log(`Change notification sent to ${invite.recipientEmail}`)
+    } catch (error) {
+      console.error(`Failed to send change notification to ${invite.recipientEmail}:`, error)
+      // Continue with other recipients even if one fails
+    }
+  })
+
+  await Promise.allSettled(notificationPromises)
 }
 

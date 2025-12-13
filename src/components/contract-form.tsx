@@ -479,7 +479,7 @@ export default function ContractForm({
               
               <CardContent className="p-8 md:p-10 lg:p-12">
                 <ExportPreview
-                  content={result}
+                  content={result || ""}
                   style={documentStyle}
                   signatures={signatures.length > 0 ? signatures.map(sig => ({
                     signerName: sig.signerName,
@@ -487,6 +487,41 @@ export default function ContractForm({
                     signatureData: sig.signatureData,
                     createdAt: sig.createdAt,
                   })) : undefined}
+                  onContentChange={async (newContent: string) => {
+                    // Update the result state with edited content
+                    setResult(newContent)
+                    
+                    // If there's a draft, save the changes
+                    if (currentDraftId && session?.user?.id) {
+                      setSavingDocument(true)
+                      try {
+                        const response = await fetch(`/api/drafts/${currentDraftId}`, {
+                          method: "PUT",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            contractId,
+                            values,
+                            html: newContent,
+                          }),
+                        })
+                        
+                        if (!response.ok) {
+                          const data = await response.json()
+                          throw new Error(data.error || "Failed to save changes")
+                        }
+                        
+                        setDocumentSaved(true)
+                        setTimeout(() => setDocumentSaved(false), 3000)
+                      } catch (err: any) {
+                        setError(err.message || "Failed to save changes")
+                        throw err // Re-throw so EditableDocument can show error
+                      } finally {
+                        setSavingDocument(false)
+                      }
+                    }
+                  }}
+                  isSaving={savingDocument}
+                  showEditButton={!!result}
                 />
               </CardContent>
 

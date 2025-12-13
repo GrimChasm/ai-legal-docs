@@ -153,6 +153,80 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 }
 
 /**
+ * Generate document change notification email HTML
+ */
+export function generateDocumentChangeEmail(
+  recipientName: string,
+  documentTitle: string,
+  viewUrl: string,
+  changesSummary: string,
+  changesHtml: string,
+  senderName?: string
+): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Updated</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+    <h1 style="color: #1A73E8; margin-top: 0;">ContractVault</h1>
+  </div>
+  
+  <div style="background-color: #ffffff; padding: 30px; border: 1px solid #e0e5ec; border-radius: 8px;">
+    <h2 style="color: #101623; margin-top: 0;">Document Has Been Updated</h2>
+    
+    <p>Hello ${recipientName},</p>
+    
+    <p>${senderName || "The document owner"} has made changes to a document you previously signed:</p>
+    
+    <div style="background-color: #f3f5f7; padding: 15px; border-radius: 4px; margin: 20px 0;">
+      <strong>${documentTitle}</strong>
+    </div>
+    
+    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+      <p style="margin: 0; font-weight: bold; color: #856404;">
+        ${changesSummary}
+      </p>
+    </div>
+    
+    <h3 style="color: #101623; margin-top: 30px;">Summary of Changes:</h3>
+    
+    ${changesHtml}
+    
+    <p><strong>Important:</strong> Since you have already signed this document, please review the updated version to ensure you are aware of all changes.</p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${viewUrl}" 
+         style="display: inline-block; background-color: #1A73E8; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+        View Updated Document
+      </a>
+    </div>
+    
+    <p style="font-size: 12px; color: #6c7783;">
+      Or copy and paste this link into your browser:<br>
+      <a href="${viewUrl}" style="color: #1A73E8; word-break: break-all;">${viewUrl}</a>
+    </p>
+    
+    <hr style="border: none; border-top: 1px solid #e0e5ec; margin: 30px 0;">
+    
+    <p style="font-size: 12px; color: #6c7783;">
+      This is an automated notification because you previously signed this document. If you have questions about the changes, please contact ${senderName || "the document owner"}.
+    </p>
+  </div>
+  
+  <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #6c7783;">
+    <p>© ${new Date().getFullYear()} ContractVault. All rights reserved.</p>
+  </div>
+</body>
+</html>
+  `.trim()
+}
+
+/**
  * Generate signature invite email HTML
  */
 export function generateSignatureInviteEmail(

@@ -320,11 +320,21 @@ export default function DraftsPage() {
                             )}
                             
                             {/* Summary */}
-                            {status.recipientSignatures.length > 0 && (
-                              <div className="pt-2 border-t border-blue-300 text-xs text-blue-700">
-                                {status.recipientSignatures.filter(r => r.status === "signed").length} of {status.recipientSignatures.length} signed
-                              </div>
-                            )}
+                            {(() => {
+                              // Calculate total expected signatures (user + recipients)
+                              const totalExpected = 1 + status.recipientSignatures.length
+                              // Calculate total signed (user + signed recipients)
+                              const totalSigned = (status.userSigned ? 1 : 0) + status.recipientSignatures.filter(r => r.status === "signed").length
+                              
+                              if (totalExpected > 0) {
+                                return (
+                                  <div className="pt-2 border-t border-blue-300 text-xs text-blue-700">
+                                    {totalSigned} of {totalExpected} signed
+                                  </div>
+                                )
+                              }
+                              return null
+                            })()}
                           </div>
                         </div>
                       )
