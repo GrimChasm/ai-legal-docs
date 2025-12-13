@@ -60,12 +60,12 @@ async function getDraftData(draftId: string, userId: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { preferences: true },
+      select: { documentStyle: true },
     })
-    if (user?.preferences) {
-      const prefs = JSON.parse(user.preferences)
-      if (prefs.documentStyle) {
-        documentStyle = { ...defaultStyle, ...prefs.documentStyle }
+    if (user?.documentStyle) {
+      const prefs = JSON.parse(user.documentStyle)
+      if (prefs) {
+        documentStyle = { ...defaultStyle, ...prefs }
       }
     }
   } catch (error) {

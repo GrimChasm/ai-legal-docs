@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       try {
         const user = await prisma.user.findUnique({
           where: { id: session.user.id },
-          select: { preferences: true },
+          select: { documentStyle: true },
         })
         if (user?.preferences) {
           const prefs = JSON.parse(user.preferences)
