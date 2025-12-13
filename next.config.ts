@@ -67,11 +67,9 @@ export default withSentryConfig(nextConfig, {
   // side errors will fail.
   tunnelRoute: "/monitoring",
 
-  // Configure source maps
-  sourcemaps: {
-    // Don't include source maps in client bundles (they're uploaded to Sentry separately)
-    assets: process.env.NODE_ENV === "production" ? [] : undefined,
-  },
+  // Source maps configuration - source maps are uploaded to Sentry but not included in bundles
+  // The hideSourceMaps option was removed in newer Sentry versions
+  // Source maps are automatically excluded from client bundles when uploaded to Sentry
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
