@@ -42,7 +42,7 @@ export async function POST(
     })
 
     // In a real app, you would send an email here with the share link
-    const shareUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/shared/${token}`
+    const shareUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/shared/${share.shareToken}`
 
     return NextResponse.json({ share, shareUrl })
   } catch (error: any) {
