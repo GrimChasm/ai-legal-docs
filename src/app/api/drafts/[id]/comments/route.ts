@@ -17,7 +17,7 @@ export async function GET(
       id: comment.id,
       content: comment.content,
       userId: comment.authorId,
-      userName: comment.user?.name || comment.user?.email || comment.authorName || "Unknown",
+      userName: comment.authorName || comment.authorEmail || "Unknown",
       createdAt: comment.createdAt.toISOString(),
       resolved: comment.resolved,
     }))
@@ -62,7 +62,7 @@ export async function POST(
         id: comment.id,
         content: comment.content,
         userId: comment.authorId,
-        userName: comment.user?.name || comment.user?.email || comment.authorName || "Unknown",
+        userName: comment.authorName || comment.authorEmail || "Unknown",
         createdAt: comment.createdAt.toISOString(),
         resolved: comment.resolved,
       },
