@@ -1,4 +1,6 @@
 {
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "npm run build",
   "functions": {
     "src/app/api/export/pdf/route.ts": {
       "maxDuration": 30
@@ -9,7 +11,6 @@
       "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
     }
   },
-  "installCommand": "npm install --legacy-peer-deps",
   "regions": ["iad1"]
 }
 
