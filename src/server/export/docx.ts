@@ -21,10 +21,7 @@
  */
 
 import { renderHtmlForExport, type DocumentData, type SignatureData } from "./renderHtml"
-import Docxtemplater from "docxtemplater"
-import PizZip from "pizzip"
-import { readFileSync } from "fs"
-import { join } from "path"
+import { DocumentStyle, getFontSizePt, getLineSpacingValue } from "@/lib/document-styles"
 
 /**
  * Convert HTML content to plain text for DOCX template
@@ -116,75 +113,467 @@ export async function exportToDOCX(
   data: DocumentData
 ): Promise<Buffer> {
   // Import the existing DOCX export logic
-  const { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun, Media } = await import("docx")
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun } = await import("docx")
   
-  // Convert HTML to plain text
+  // Get style values to match the preview exactly
+  const style = data.style
+  const baseFontSize = getFontSizePt(style) // Returns font size in points
+  const lineSpacing = getLineSpacingValue(style) // Returns line spacing multiplier
+  
+  // Convert line spacing multiplier to Word line spacing (240 = single, 360 = 1.5, etc.)
+  const wordLineSpacing = Math.round(lineSpacing * 240)
+  
+  // Calculate paragraph spacing based on style (in twips: 1pt = 20 twips)
+  const getParagraphSpacing = () => {
+    switch (style.paragraphSpacing) {
+      case "compact":
+        return Math.round(baseFontSize * 0.5 * 20) // Half font size
+      case "roomy":
+        return Math.round(baseFontSize * 1.5 * 20) // 1.5x font size
+      case "normal":
+      default:
+        return Math.round(baseFontSize * 1 * 20) // 1x font size
+    }
+  }
+  
+  const paragraphSpacing = getParagraphSpacing()
+  
+  // Get font family name
+  const getFontFamily = () => {
+    switch (style.fontFamily) {
+      case "classic":
+        return "Times New Roman"
+      case "mono":
+        return "Courier New"
+      case "modern":
+      default:
+        return "Calibri" // Word's default modern font
+    }
+  }
+  
+  const fontFamily = getFontFamily()
+  
+  // Convert HTML to structured content - parse HTML directly instead of plain text
   const html = renderHtmlForExport(data)
-  const plainText = htmlToPlainText(html)
-  
-  // Parse content into paragraphs
-  const lines = plainText.split("\n")
   const paragraphs: Paragraph[] = []
   
-  for (const line of lines) {
-    const trimmed = line.trim()
-    
-    if (!trimmed) {
-      // Empty line - create empty paragraph with children array
-      paragraphs.push(new Paragraph({ 
-        children: [new TextRun({ text: "" })] 
-      }))
-      continue
+  // Parse HTML to extract structure - process elements in document order
+  const parseHTMLToParagraphs = async (htmlContent: string) => {
+    // Extract body content from full HTML document
+    let bodyContent = htmlContent
+    const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
+    if (bodyMatch) {
+      bodyContent = bodyMatch[1]
     }
     
-    // Check for headings
-    if (trimmed.startsWith("# ")) {
+    // Extract article content if present (from renderHtmlForExport)
+    const articleMatch = bodyContent.match(/<article[^>]*class="document-content"[^>]*>([\s\S]*?)<\/article>/i)
+    if (articleMatch) {
+      bodyContent = articleMatch[1]
+    } else {
+      // Try without class attribute
+      const articleMatch2 = bodyContent.match(/<article[^>]*>([\s\S]*?)<\/article>/i)
+      if (articleMatch2) {
+        bodyContent = articleMatch2[1]
+      }
+    }
+    
+    // Also try to find document-renderer content (from DocumentRenderer component)
+    const rendererMatch = bodyContent.match(/<div[^>]*class="[^"]*document-renderer[^"]*"[^>]*>([\s\S]*?)<\/div>/i)
+    if (rendererMatch) {
+      bodyContent = rendererMatch[1]
+    }
+    
+    // Remove script and style tags
+    let cleanHtml = bodyContent.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    cleanHtml = cleanHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    
+    const elements: Array<{ 
+      type: string
+      content: string
+      isBold?: boolean
+      isItalic?: boolean
+      position: number
+      listIndex?: number
+    }> = []
+    
+    // Helper to extract text and formatting from HTML
+    const extractTextAndFormatting = (html: string): { text: string; isBold: boolean; isItalic: boolean } => {
+      let text = html
+      let isBold = false
+      let isItalic = false
+      
+      // Check for bold tags
+      if (/<(strong|b)[^>]*>/i.test(text)) {
+        isBold = true
+        text = text.replace(/<(strong|b)[^>]*>/gi, "").replace(/<\/(strong|b)>/gi, "")
+      }
+      
+      // Check for italic tags
+      if (/<(em|i)[^>]*>/i.test(text)) {
+        isItalic = true
+        text = text.replace(/<(em|i)[^>]*>/gi, "").replace(/<\/(em|i)>/gi, "")
+      }
+      
+      // Remove all remaining HTML tags
+      text = text.replace(/<[^>]+>/g, "")
+      
+      // Decode HTML entities
+      text = text.replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&#x2F;/g, "/")
+        .replace(/&apos;/g, "'")
+      
+      // Decode numeric entities
+      text = text.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+      text = text.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+      
+      return { text: text.trim(), isBold, isItalic }
+    }
+    
+    // Find all block-level elements in document order
+    // Match: h1, h2, h3, p, ol, ul (and their closing tags)
+    const blockElementRegex = /<(h1|h2|h3|p|ol|ul|div|section)[^>]*>([\s\S]*?)<\/\1>/gi
+    
+    // Also need to handle self-closing tags and find all elements with their positions
+    const allMatches: Array<{
+      type: string
+      start: number
+      end: number
+      content: string
+      isList: boolean
+      isListItem: boolean
+    }> = []
+    
+    // Find all headings
+    const headingMatches = cleanHtml.matchAll(/<(h1|h2|h3)[^>]*>([\s\S]*?)<\/\1>/gi)
+    for (const match of headingMatches) {
+      allMatches.push({
+        type: match[1],
+        start: match.index!,
+        end: match.index! + match[0].length,
+        content: match[2],
+        isList: false,
+        isListItem: false,
+      })
+    }
+    
+    // Find all paragraphs (not inside lists)
+    const pMatches = cleanHtml.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)
+    for (const match of pMatches) {
+      allMatches.push({
+        type: "p",
+        start: match.index!,
+        end: match.index! + match[0].length,
+        content: match[1],
+        isList: false,
+        isListItem: false,
+      })
+    }
+    
+    // Find all ordered lists
+    const olMatches = cleanHtml.matchAll(/<ol[^>]*>([\s\S]*?)<\/ol>/gi)
+    for (const match of olMatches) {
+      allMatches.push({
+        type: "ol",
+        start: match.index!,
+        end: match.index! + match[0].length,
+        content: match[1],
+        isList: true,
+        isListItem: false,
+      })
+    }
+    
+    // Find all unordered lists
+    const ulMatches = cleanHtml.matchAll(/<ul[^>]*>([\s\S]*?)<\/ul>/gi)
+    for (const match of ulMatches) {
+      allMatches.push({
+        type: "ul",
+        start: match.index!,
+        end: match.index! + match[0].length,
+        content: match[1],
+        isList: true,
+        isListItem: false,
+      })
+    }
+    
+    // Sort all matches by position in document
+    allMatches.sort((a, b) => a.start - b.start)
+    
+    // Process elements in document order
+    for (const match of allMatches) {
+      if (match.type === "h1" || match.type === "h2" || match.type === "h3") {
+        const { text, isBold, isItalic } = extractTextAndFormatting(match.content)
+        if (text) {
+          elements.push({
+            type: match.type,
+            content: text,
+            isBold,
+            isItalic,
+            position: match.start,
+          })
+        }
+      } else if (match.type === "p") {
+        // Check if this paragraph is inside a list (shouldn't happen, but be safe)
+        const isInsideList = allMatches.some(
+          m => m.isList && match.start >= m.start && match.end <= m.end
+        )
+        if (!isInsideList) {
+          const { text, isBold, isItalic } = extractTextAndFormatting(match.content)
+          if (text) {
+            elements.push({
+              type: "p",
+              content: text,
+              isBold,
+              isItalic,
+              position: match.start,
+            })
+          }
+        }
+      } else if (match.type === "ol" || match.type === "ul") {
+        // Process list items
+        const liMatches = match.content.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)
+        let itemIndex = 1
+        for (const liMatch of liMatches) {
+          const { text, isBold, isItalic } = extractTextAndFormatting(liMatch[1])
+          if (text) {
+            elements.push({
+              type: match.type === "ol" ? "li-ordered" : "li-unordered",
+              content: match.type === "ol" ? `${itemIndex}. ${text}` : text,
+              isBold,
+              isItalic,
+              position: match.start + (liMatch.index || 0),
+              listIndex: itemIndex,
+            })
+            if (match.type === "ol") itemIndex++
+          }
+        }
+      }
+    }
+    
+    // Sort elements by position to ensure correct order
+    elements.sort((a, b) => a.position - b.position)
+    
+    // If we have very few elements (only headings), try to extract more content
+    // This handles cases where content might be in divs or other wrappers
+    if (elements.length > 0 && elements.length < 5) {
+      // Try to find any text content in divs that might contain paragraphs
+      const divMatches = cleanHtml.matchAll(/<div[^>]*>([\s\S]*?)<\/div>/gi)
+      for (const match of divMatches) {
+        const divContent = match[1]
+        // Skip if this div contains structured elements we already processed
+        const hasStructuredContent = /<(h1|h2|h3|p|ol|ul|li)[^>]*>/i.test(divContent)
+        if (!hasStructuredContent) {
+          // Extract plain text from div
+          const { text } = extractTextAndFormatting(divContent)
+          if (text && text.length > 20) { // Only add if substantial content
+            // Check if we already have this content
+            const alreadyExists = elements.some(e => e.content.includes(text.substring(0, 50)))
+            if (!alreadyExists) {
+              elements.push({
+                type: "p",
+                content: text,
+                position: match.index!,
+              })
+            }
+          }
+        }
+      }
+      // Re-sort after adding div content
+      elements.sort((a, b) => a.position - b.position)
+    }
+    
+    // If we have very few elements (only headings), use htmlToPlainText as fallback
+    // This ensures we capture all content even if HTML structure is unexpected
+    if (elements.length === 0 || (elements.length < 10 && elements.every(e => e.type.startsWith("h")))) {
+      // Use htmlToPlainText utility (imported at top of file)
+      const plainText = htmlToPlainText(htmlContent)
+      const lines = plainText.split("\n")
+      let position = 0
+      for (const line of lines) {
+        const trimmed = line.trim()
+        if (!trimmed) continue
+        
+        // Skip if this content already exists in elements
+        const alreadyExists = elements.some(e => {
+          const eText = e.content.substring(0, 30).toLowerCase()
+          const lineText = trimmed.substring(0, 30).toLowerCase()
+          return eText === lineText || lineText.includes(eText) || eText.includes(lineText)
+        })
+        if (alreadyExists) continue
+        
+        if (trimmed.startsWith("# ")) {
+          elements.push({ type: "h1", content: trimmed.substring(2), position: position++ })
+        } else if (trimmed.startsWith("## ")) {
+          elements.push({ type: "h2", content: trimmed.substring(3), position: position++ })
+        } else if (trimmed.startsWith("### ")) {
+          elements.push({ type: "h3", content: trimmed.substring(4), position: position++ })
+        } else if (trimmed.match(/^\d+\.\s/)) {
+          elements.push({ type: "li-ordered", content: trimmed, position: position++ })
+        } else if (trimmed.startsWith("- ")) {
+          elements.push({ type: "li-unordered", content: trimmed.substring(2), position: position++ })
+        } else {
+          elements.push({ type: "p", content: trimmed, position: position++ })
+        }
+      }
+      // Re-sort after adding from plain text
+      elements.sort((a, b) => a.position - b.position)
+    }
+    
+    return elements
+  }
+  
+  const elements = await parseHTMLToParagraphs(html)
+  
+  // Convert elements to DOCX paragraphs with matching styles
+  for (const element of elements) {
+    const content = element.content
+    const isBold = element.isBold || false
+    const isItalic = element.isItalic || false
+    
+    if (element.type === "h1") {
+      const headingText = style.headingCase === "uppercase" ? content.toUpperCase() : content
+      const indent = style.headingIndent === "indented" ? 720 : 0 // 0.5 inch in twips
+      
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed.substring(2), bold: true, size: 32 })],
+          children: [
+            new TextRun({ 
+              text: headingText, 
+              bold: style.headingStyle === "bold" || isBold,
+              italics: isItalic,
+              size: Math.round((baseFontSize + 4) * 2), // H1: base + 4pt, convert to half-points
+              font: fontFamily,
+            })
+          ],
           heading: HeadingLevel.HEADING_1,
-          spacing: { after: 240 },
+          spacing: { 
+            after: paragraphSpacing,
+            before: Math.round(baseFontSize * 0.75 * 20), // Reduced top margin
+          },
+          indent: indent > 0 ? { left: indent } : undefined,
         })
       )
-    } else if (trimmed.startsWith("## ")) {
+    } else if (element.type === "h2") {
+      const headingText = style.headingCase === "uppercase" ? content.toUpperCase() : content
+      const indent = style.headingIndent === "indented" ? 720 : 0
+      
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed.substring(3), bold: true, size: 28 })],
+          children: [
+            new TextRun({ 
+              text: headingText, 
+              bold: style.headingStyle === "bold" || isBold,
+              italics: isItalic,
+              size: Math.round((baseFontSize + 2) * 2), // H2: base + 2pt
+              font: fontFamily,
+            })
+          ],
           heading: HeadingLevel.HEADING_2,
-          spacing: { after: 200 },
+          spacing: { 
+            after: paragraphSpacing,
+            before: Math.round(baseFontSize * 0.75 * 20),
+          },
+          indent: indent > 0 ? { left: indent } : undefined,
         })
       )
-    } else if (trimmed.startsWith("### ")) {
+    } else if (element.type === "h3") {
+      const headingText = style.headingCase === "uppercase" ? content.toUpperCase() : content
+      const indent = style.headingIndent === "indented" ? 720 : 0
+      
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed.substring(4), bold: true, size: 24 })],
+          children: [
+            new TextRun({ 
+              text: headingText, 
+              bold: style.headingStyle === "bold" || isBold,
+              italics: isItalic,
+              size: Math.round(baseFontSize * 2), // H3: same as base
+              font: fontFamily,
+            })
+          ],
           heading: HeadingLevel.HEADING_3,
-          spacing: { after: 180 },
+          spacing: { 
+            after: paragraphSpacing,
+            before: Math.round(baseFontSize * 0.75 * 20),
+          },
+          indent: indent > 0 ? { left: indent } : undefined,
         })
       )
-    } else if (trimmed.match(/^\d+\.\s/)) {
-      // Numbered list item
+    } else if (element.type === "li-ordered") {
+      // Extract number and text
+      const match = content.match(/^(\d+)\.\s*(.*)/)
+      const itemText = match ? match[2] : content.replace(/^\d+\.\s*/, "")
+      const itemNumber = match ? parseInt(match[1], 10) : 1
+      
+      // For ordered lists, use manual numbering for now (more reliable)
+      // TODO: Implement proper Word numbering if needed
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed, size: 24 })],
-          spacing: { after: 120 },
+          children: [
+            new TextRun({ 
+              text: `${itemNumber}. ${itemText}`, 
+              bold: isBold,
+              italics: isItalic,
+              size: Math.round(baseFontSize * 2),
+              font: fontFamily,
+            })
+          ],
+          spacing: { 
+            after: Math.round(baseFontSize * 0.5 * 20),
+            line: wordLineSpacing,
+          },
+          indent: {
+            left: 360, // Indent for list items (0.25 inch)
+            hanging: 180, // Hanging indent for number
+          },
         })
       )
-    } else if (trimmed.startsWith("- ")) {
-      // Bullet list item - remove the "- " prefix for cleaner output
+    } else if (element.type === "li-unordered") {
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed.substring(2), size: 24 })],
+          children: [
+            new TextRun({ 
+              text: content, 
+              bold: isBold,
+              italics: isItalic,
+              size: Math.round(baseFontSize * 2),
+              font: fontFamily,
+            })
+          ],
           bullet: { level: 0 },
-          spacing: { after: 120 },
+          spacing: { 
+            after: Math.round(baseFontSize * 0.5 * 20),
+            line: wordLineSpacing,
+          },
+          indent: {
+            left: 360, // Indent for bullet items
+            hanging: 180, // Hanging indent for bullet
+          },
         })
       )
     } else {
       // Regular paragraph
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: trimmed, size: 24 })],
-          spacing: { after: 200 },
+          children: [
+            new TextRun({ 
+              text: content, 
+              bold: isBold,
+              italics: isItalic,
+              size: Math.round(baseFontSize * 2), // Convert to half-points
+              font: fontFamily,
+            })
+          ],
+          spacing: { 
+            after: paragraphSpacing,
+            line: wordLineSpacing,
+          },
         })
       )
     }
@@ -239,11 +628,19 @@ export async function exportToDOCX(
       })
     )
     
+    const signaturesHeading = style.headingCase === "uppercase" ? "SIGNATURES" : "Signatures"
     paragraphs.push(
       new Paragraph({
-        children: [new TextRun({ text: "SIGNATURES", bold: true, size: 28 })],
+        children: [
+          new TextRun({ 
+            text: signaturesHeading, 
+            bold: style.headingStyle === "bold",
+            size: Math.round((baseFontSize + 2) * 2), // H2 size
+            font: fontFamily,
+          })
+        ],
         heading: HeadingLevel.HEADING_2,
-        spacing: { after: 240 },
+        spacing: { after: paragraphSpacing },
       })
     )
     
@@ -300,8 +697,17 @@ export async function exportToDOCX(
       // Add signer name
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: `Signed by: ${signature.signerName || "Unknown"}`, size: 24 })],
-          spacing: { after: 120 },
+          children: [
+            new TextRun({ 
+              text: `Signed by: ${signature.signerName || "Unknown"}`, 
+              size: Math.round(baseFontSize * 2),
+              font: fontFamily,
+            })
+          ],
+          spacing: { 
+            after: Math.round(baseFontSize * 0.5 * 20),
+            line: wordLineSpacing,
+          },
         })
       )
       
@@ -309,8 +715,17 @@ export async function exportToDOCX(
       if (signature.signerEmail && signature.signerEmail.trim()) {
         paragraphs.push(
           new Paragraph({
-            children: [new TextRun({ text: signature.signerEmail, size: 20 })],
-            spacing: { after: 120 },
+            children: [
+              new TextRun({ 
+                text: signature.signerEmail, 
+                size: Math.round((baseFontSize - 1) * 2), // Slightly smaller
+                font: fontFamily,
+              })
+            ],
+            spacing: { 
+              after: Math.round(baseFontSize * 0.5 * 20),
+              line: wordLineSpacing,
+            },
           })
         )
       }
@@ -324,8 +739,17 @@ export async function exportToDOCX(
       
       paragraphs.push(
         new Paragraph({
-          children: [new TextRun({ text: `Date: ${signDate}`, size: 24 })],
-          spacing: { after: 240 },
+          children: [
+            new TextRun({ 
+              text: `Date: ${signDate}`, 
+              size: Math.round(baseFontSize * 2),
+              font: fontFamily,
+            })
+          ],
+          spacing: { 
+            after: paragraphSpacing,
+            line: wordLineSpacing,
+          },
         })
       )
     }
@@ -352,8 +776,11 @@ export async function exportToDOCX(
   
   const validParagraphs = paragraphs
   
-  // Create document with proper structure
-  // Use simpler structure to avoid corruption
+  // Calculate margins based on layout (matching DocumentViewer)
+  const marginMm = style.layout === "wide" ? 25 : 20 // mm
+  const marginTwips = Math.round(marginMm * 56.6929) // Convert mm to twips (1mm = 56.6929 twips)
+  
+  // Create document with proper structure matching the preview
   const doc = new Document({
     sections: [
       {
@@ -365,10 +792,10 @@ export async function exportToDOCX(
               height: 15840, // 11 inches in twips
             },
             margin: {
-              top: 1440, // 1 inch
-              right: 1440,
-              bottom: 1440,
-              left: 1440,
+              top: marginTwips,
+              right: marginTwips,
+              bottom: marginTwips,
+              left: marginTwips,
             },
           },
         },
