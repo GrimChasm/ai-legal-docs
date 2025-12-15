@@ -351,11 +351,15 @@ export async function exportToPDFFromPrintRoute(
         const src = (img as HTMLImageElement).src || ''
         const alt = (img as HTMLImageElement).alt || ''
         const id = (img as HTMLElement).id || ''
-        const className = typeof img.className === 'string' 
-          ? img.className 
-          : (typeof img.className === 'object' && img.className !== null && 'baseVal' in img.className
-            ? (img.className as any).baseVal
-            : (img.className?.toString() || ''))
+        // Handle className which can be string (HTML) or SVGAnimatedString (SVG)
+        let className: string = ''
+        if (typeof img.className === 'string') {
+          className = img.className
+        } else if (img.className && typeof img.className === 'object' && 'baseVal' in img.className) {
+          className = (img.className as any).baseVal || ''
+        } else if (img.className) {
+          className = String(img.className)
+        }
         const classNameStr = String(className).toLowerCase()
         const idStr = String(id).toLowerCase()
         
