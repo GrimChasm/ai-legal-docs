@@ -688,7 +688,7 @@ export async function exportToDOCX(
       if (signatureImage && signatureImage.buffer) {
         paragraphs.push(
           new Paragraph({
-            children: [new TextRun({ text: "[Signature Image]", italic: true, color: "999999" })],
+            children: [new TextRun({ text: "[Signature Image]", italics: true, color: "999999" })],
             spacing: { after: 120 },
           })
         )
