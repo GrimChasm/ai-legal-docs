@@ -21,18 +21,37 @@
 
 import Stripe from "stripe"
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error(
-    "STRIPE_SECRET_KEY is missing. Please add it to your .env.local file.\n" +
-    "Get your keys from: https://dashboard.stripe.com/apikeys"
-  )
+// Lazy initialization function for Stripe client
+// This prevents build-time errors when STRIPE_SECRET_KEY is not set
+function getStripeClient(): Stripe {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error(
+      "STRIPE_SECRET_KEY is missing. Please add it to your .env.local file.\n" +
+      "Get your keys from: https://dashboard.stripe.com/apikeys"
+    )
+  }
+
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-11-17.clover", // Use the latest API version
+    typescript: true,
+  })
 }
 
-// Initialize Stripe with your secret key
-// This is the server-side Stripe instance (never expose this to the client)
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-11-17.clover", // Use the latest API version
-  typescript: true,
+// Use a Proxy to lazily initialize Stripe only when actually used
+// This allows the module to be imported during build without errors
+let stripeInstance: Stripe | null = null
+
+export const stripe = new Proxy({} as Stripe, {
+  get(target, prop) {
+    if (!stripeInstance) {
+      stripeInstance = getStripeClient()
+    }
+    const value = (stripeInstance as any)[prop]
+    if (typeof value === "function") {
+      return value.bind(stripeInstance)
+    }
+    return value
+  },
 })
 
 // Get the publishable key (safe to use on client-side)
