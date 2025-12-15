@@ -237,7 +237,9 @@ export default function SignaturePad({ onSign, onCancel, initialName = "" }: Sig
       return
     }
 
-    onSign(signatureData, mode, mode === "type" ? typedName : undefined)
+    // Map SignatureMode to signatureType expected by onSign
+    const signatureType = mode === "draw" ? "drawn" : mode === "type" ? "typed" : "uploaded"
+    onSign(signatureData, signatureType, mode === "type" ? typedName : undefined)
   }
 
   return (
