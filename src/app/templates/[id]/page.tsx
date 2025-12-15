@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,7 +19,7 @@ interface Template {
   userId: string
 }
 
-export default function TemplatePage() {
+function TemplateContent() {
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -127,6 +127,20 @@ export default function TemplatePage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function TemplatePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F3F5F7] py-12">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <div className="text-center py-20 text-[#6C7783]">Loading template...</div>
+        </div>
+      </div>
+    }>
+      <TemplateContent />
+    </Suspense>
   )
 }
 
