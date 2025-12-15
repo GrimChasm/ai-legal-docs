@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import DocumentViewer from "@/components/document-viewer"
 import { contractRegistry } from "@/lib/contracts"
+import { defaultStyle } from "@/lib/document-styles"
 
 interface SharedDraft {
   id: string
@@ -105,7 +106,7 @@ export default function SharedDocumentPage() {
         {draft.markdown ? (
           <Card className="border border-[#E0E5EC] shadow-card">
             <CardContent className="p-8">
-              <DocumentViewer content={draft.markdown} />
+              <DocumentViewer content={draft.markdown} style={defaultStyle} />
             </CardContent>
           </Card>
         ) : (
