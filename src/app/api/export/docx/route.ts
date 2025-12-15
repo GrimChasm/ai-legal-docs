@@ -143,7 +143,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Return DOCX file
-    return new NextResponse(docxBuffer, {
+    // Convert Buffer to Uint8Array for NextResponse compatibility
+    return new NextResponse(new Uint8Array(docxBuffer), {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "Content-Disposition": `attachment; filename="${filename}"`,
