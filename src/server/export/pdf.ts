@@ -342,7 +342,7 @@ export async function exportToPDFFromPrintRoute(
     // Hide any Next.js icons or watermarks before PDF generation
     // Be very specific to avoid hiding document content
     const watermarkInfo = await page.evaluate(() => {
-      const watermarks: Array<{ tag: string; src?: string; text?: string; className?: string; id?: string }> = []
+      const watermarks: Array<{ tag: string; src?: string; alt?: string; text?: string; className?: string; id?: string }> = []
       
       // Only target specific elements that are likely watermarks, not document content
       // 1. Images/SVGs with Next.js/Vercel in src or alt
