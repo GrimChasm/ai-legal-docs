@@ -328,12 +328,23 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
       const textRuns = parseInlineFormatting(headingText, style)
       const headingSize = fontSize + (4 - (element.level || 1))
       
-      // Apply heading style
-      textRuns.forEach(run => {
-        if (style?.headingStyle === "bold") {
-          run.bold = true
+      // Apply heading style - create new TextRun objects with updated properties
+      const styledRuns = textRuns.map(run => {
+        const runOptions: any = {
+          text: run.options.text || "",
+          size: headingSize * 2,
+          font: run.options.font,
         }
-        run.size = headingSize * 2
+        
+        // Preserve existing bold/italic formatting, or apply heading style
+        if (run.options.bold || style?.headingStyle === "bold") {
+          runOptions.bold = true
+        }
+        if (run.options.italics) {
+          runOptions.italics = true
+        }
+        
+        return new TextRun(runOptions)
       })
 
       const indent = style?.headingIndent === "indented" ? 720 : 0 // 0.5 inch = 720 twips
@@ -344,7 +355,7 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
 
       paragraphs.push(
         new Paragraph({
-          children: textRuns,
+          children: styledRuns,
           heading: element.level === 1 
             ? HeadingLevel.HEADING_1 
             : element.level === 2 
