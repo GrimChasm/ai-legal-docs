@@ -31,7 +31,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 // Initialize Stripe with your secret key
 // This is the server-side Stripe instance (never expose this to the client)
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-12-18.acacia", // Use the latest API version
+  apiVersion: "2025-11-17.clover", // Use the latest API version
   typescript: true,
 })
 
