@@ -155,7 +155,7 @@ export async function exportToDOCX(
   
   // Convert HTML to structured content - parse HTML directly instead of plain text
   const html = renderHtmlForExport(data)
-  const paragraphs: Paragraph[] = []
+  const paragraphs: any[] = [] // Will be populated with Paragraph instances after dynamic import
   
   // Parse HTML to extract structure - process elements in document order
   const parseHTMLToParagraphs = async (htmlContent: string) => {
