@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export default function BillingSuccessPage() {
+function BillingSuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const sessionId = searchParams.get("session_id")
@@ -69,6 +69,22 @@ export default function BillingSuccessPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function BillingSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-bg flex items-center justify-center px-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <p className="text-text-muted">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <BillingSuccessContent />
+    </Suspense>
   )
 }
 
