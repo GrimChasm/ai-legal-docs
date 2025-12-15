@@ -349,7 +349,7 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
 
       paragraphs.push(
         new Paragraph({
-          children: styledRuns,
+          children: textRuns,
           heading: element.level === 1 
             ? HeadingLevel.HEADING_1 
             : element.level === 2 
