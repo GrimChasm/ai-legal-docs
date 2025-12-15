@@ -127,6 +127,7 @@ function parseInlineFormatting(
           text: beforeText,
           size: fontSize * 2, // Size is in half-points
           font: fontFamily,
+          bold: options?.forceBold,
         }))
       }
     }
@@ -144,13 +145,14 @@ function parseInlineFormatting(
   // Add remaining text
   if (currentPos < text.length) {
     const remainingText = text.substring(currentPos)
-    if (remainingText) {
-      runs.push(new TextRun({ 
-        text: remainingText,
-        size: fontSize * 2,
-        font: fontFamily,
-      }))
-    }
+      if (remainingText) {
+        runs.push(new TextRun({ 
+          text: remainingText,
+          size: fontSize * 2,
+          font: fontFamily,
+          bold: options?.forceBold,
+        }))
+      }
   }
 
   // If no formatting found, return single run
@@ -159,6 +161,7 @@ function parseInlineFormatting(
       text,
       size: fontSize * 2,
       font: fontFamily,
+      bold: options?.forceBold,
     }))
   }
 
