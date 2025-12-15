@@ -41,7 +41,7 @@ function htmlToPlainText(html: string): string {
   text = text.replace(/<p[^>]*>(.*?)<\/p>/gi, "$1\n\n")
 
   // Convert lists
-  text = text.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (match, content) => {
+  text = text.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (match, content) => {
     const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
     return "\n" + items.map((item: string, index: number) => {
       const itemText = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
