@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { getSubscriptionPlans, getOneTimeProducts, type Plan, type OneTimeProduct } from "@/lib/pricing"
 
-export default function PricingPage() {
+function PricingContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -380,5 +380,21 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-bg">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-20 md:py-28" style={{ maxWidth: '1200px' }}>
+          <div className="text-center">
+            <p className="text-text-muted">Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <PricingContent />
+    </Suspense>
   )
 }
