@@ -96,7 +96,7 @@ export function htmlToPlainText(html: string): string {
   text = text.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, "$1\n")
   
   // Preformatted text (code blocks) - preserve line breaks
-  text = text.replace(/<pre[^>]*>(.*?)<\/pre>/gis, "$1\n")
+  text = text.replace(/<pre[^>]*>([\s\S]*?)<\/pre>/gi, "$1\n")
   
   // Code tags (inline code)
   text = text.replace(/<code[^>]*>(.*?)<\/code>/gi, "$1")
@@ -112,7 +112,7 @@ export function htmlToPlainText(html: string): string {
 
   // Lists - process list items first, then containers
   // Ordered lists - convert to numbered list format
-  text = text.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (match, content) => {
+  text = text.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (match, content) => {
     const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
     return "\n" + items.map((item: string, index: number) => {
       const text = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
@@ -121,7 +121,7 @@ export function htmlToPlainText(html: string): string {
   })
   
   // Unordered lists - convert to bullet list format
-  text = text.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (match, content) => {
+  text = text.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (match, content) => {
     const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
     return "\n" + items.map((item: string) => {
       const text = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
