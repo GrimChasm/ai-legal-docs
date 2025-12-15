@@ -23,6 +23,7 @@ import {
   validateEnum,
   validateId,
   validateEmail,
+  validateString,
 } from "@/lib/validation"
 import { checkRateLimit, getRateLimitHeaders, RATE_LIMITS } from "@/lib/rate-limit"
 
