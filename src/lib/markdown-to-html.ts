@@ -40,7 +40,6 @@ export function markdownToHTML(markdown: string | null | undefined): string {
   marked.setOptions({
     gfm: true, // GitHub Flavored Markdown
     breaks: false, // Don't convert line breaks to <br>
-    headerIds: false, // Don't add IDs to headers
     mangle: false, // Don't mangle email addresses
   })
 
