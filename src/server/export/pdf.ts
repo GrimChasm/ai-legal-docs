@@ -353,7 +353,9 @@ export async function exportToPDFFromPrintRoute(
         const id = (img as HTMLElement).id || ''
         const className = typeof img.className === 'string' 
           ? img.className 
-          : (img.className?.baseVal || img.className?.toString() || '')
+          : (typeof img.className === 'object' && img.className !== null && 'baseVal' in img.className
+            ? (img.className as any).baseVal
+            : (img.className?.toString() || ''))
         const classNameStr = String(className).toLowerCase()
         const idStr = String(id).toLowerCase()
         
