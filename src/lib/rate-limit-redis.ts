@@ -24,7 +24,12 @@ async function getRedisClient() {
   try {
     // Only import if REDIS_URL is set
     if (process.env.REDIS_URL) {
-      const Redis = (await import("ioredis")).default
+      // Dynamic import with type assertion for optional dependency
+      const RedisModule = await import("ioredis").catch(() => null)
+      if (!RedisModule) {
+        throw new Error("ioredis module not found")
+      }
+      const Redis = RedisModule.default
       redisClient = new Redis(process.env.REDIS_URL, {
         maxRetriesPerRequest: 3,
         retryStrategy: (times) => {
