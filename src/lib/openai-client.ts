@@ -11,16 +11,36 @@
 import OpenAI from "openai"
 import { OPENAI_MODEL, OPENAI_SETTINGS, SYSTEM_INSTRUCTIONS } from "@/config/openai"
 
-// Initialize OpenAI client
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error(
-    "OPENAI_API_KEY is missing. Please add it to your .env.local file.\n" +
-    "Get your key from: https://platform.openai.com/api-keys"
-  )
+// Lazy initialization function for OpenAI client
+// This prevents build-time errors when OPENAI_API_KEY is not set
+function getOpenAIClient(): OpenAI {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error(
+      "OPENAI_API_KEY is missing. Please add it to your .env.local file.\n" +
+      "Get your key from: https://platform.openai.com/api-keys"
+    )
+  }
+
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
 }
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// Use a Proxy to lazily initialize OpenAI only when actually used
+// This allows the module to be imported during build without errors
+let openaiInstance: OpenAI | null = null
+
+export const openai = new Proxy({} as OpenAI, {
+  get(target, prop) {
+    if (!openaiInstance) {
+      openaiInstance = getOpenAIClient()
+    }
+    const value = (openaiInstance as any)[prop]
+    if (typeof value === "function") {
+      return value.bind(openaiInstance)
+    }
+    return value
+  },
 })
 
 /**
