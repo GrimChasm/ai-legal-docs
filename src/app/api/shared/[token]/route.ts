@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { token } = await params
     const share = await prisma.share.findUnique({
-      where: { token },
+      where: { shareToken: token },
       include: {
         draft: true,
       },
@@ -36,8 +36,8 @@ export async function GET(
         updatedAt: draft.updatedAt.toISOString(),
       },
       share: {
-        role: share.role,
-        email: share.email,
+        permission: share.permission,
+        sharedWith: share.sharedWith,
       },
     })
   } catch (error: any) {

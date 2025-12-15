@@ -66,11 +66,23 @@ export async function POST(
     const body = await request.json()
     const { markdown } = body
 
+    // Get the latest version number to increment
+    const latestVersion = await prisma.version.findFirst({
+      where: { draftId: id },
+      orderBy: { versionNumber: "desc" },
+      select: { versionNumber: true },
+    })
+
+    const versionNumber = latestVersion ? latestVersion.versionNumber + 1 : 1
+
     const version = await prisma.version.create({
       data: {
         draftId: id,
-        userId: session.user.id,
-        markdown,
+        createdBy: session.user.id,
+        versionNumber,
+        generatedContent: markdown,
+        formValues: draft.values, // Store current form values
+        selectedStyle: null, // Can be enhanced later to store style
       },
     })
 
