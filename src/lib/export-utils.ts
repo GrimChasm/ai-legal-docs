@@ -61,7 +61,14 @@ export function cleanMarkdown(content: string): string {
 /**
  * Parse inline markdown formatting (bold, italic) into TextRun array
  */
-function parseInlineFormatting(text: string, style?: DocumentStyle): TextRun[] {
+function parseInlineFormatting(
+  text: string, 
+  style?: DocumentStyle,
+  options?: {
+    size?: number
+    forceBold?: boolean
+  }
+): TextRun[] {
   const runs: TextRun[] = []
   
   if (!text) {
@@ -108,7 +115,7 @@ function parseInlineFormatting(text: string, style?: DocumentStyle): TextRun[] {
 
   // Build TextRun array
   let currentPos = 0
-  const fontSize = style ? getFontSizePt(style) : 12
+  const fontSize = options?.size ? options.size / 2 : (style ? getFontSizePt(style) : 12)
   const fontFamily = style ? getFontFamilyName(style).split(",")[0].trim() : "Arial"
   
   for (const match of matches) {
@@ -126,7 +133,7 @@ function parseInlineFormatting(text: string, style?: DocumentStyle): TextRun[] {
     // Add matched text with formatting
     runs.push(new TextRun({ 
       text: match.text, 
-      bold: match.bold, 
+      bold: options?.forceBold || match.bold, 
       italics: match.italic,
       size: fontSize * 2,
       font: fontFamily,
@@ -325,26 +332,10 @@ function parseMarkdownToParagraphs(markdown: string, style?: DocumentStyle): Par
         headingText = headingText.toUpperCase()
       }
 
-      const textRuns = parseInlineFormatting(headingText, style)
       const headingSize = fontSize + (4 - (element.level || 1))
-      
-      // Apply heading style - create new TextRun objects with updated properties
-      const styledRuns = textRuns.map(run => {
-        const runOptions: any = {
-          text: run.options.text || "",
-          size: headingSize * 2,
-          font: run.options.font,
-        }
-        
-        // Preserve existing bold/italic formatting, or apply heading style
-        if (run.options.bold || style?.headingStyle === "bold") {
-          runOptions.bold = true
-        }
-        if (run.options.italics) {
-          runOptions.italics = true
-        }
-        
-        return new TextRun(runOptions)
+      const textRuns = parseInlineFormatting(headingText, style, {
+        size: headingSize * 2,
+        forceBold: style?.headingStyle === "bold",
       })
 
       const indent = style?.headingIndent === "indented" ? 720 : 0 // 0.5 inch = 720 twips
