@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
           const customerId = session.customer as string
 
           // Get subscription details from Stripe
-          const subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(subscriptionId)
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription
           const priceId = subscription.items.data[0]?.price.id
 
           // Update user in database
@@ -127,8 +127,8 @@ export async function POST(request: NextRequest) {
               stripePriceId: priceId,
               isPro: true,
               subscriptionStatus: subscription.status,
-              stripeCurrentPeriodEnd: subscription.current_period_end 
-                ? new Date(subscription.current_period_end * 1000)
+              stripeCurrentPeriodEnd: (subscription as any).current_period_end 
+                ? new Date((subscription as any).current_period_end * 1000)
                 : null,
             },
           })
@@ -194,7 +194,9 @@ export async function POST(request: NextRequest) {
             stripePriceId: priceId,
             isPro: isActive,
             subscriptionStatus: subscription.status,
-            stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+            stripeCurrentPeriodEnd: (subscription as any).current_period_end 
+              ? new Date((subscription as any).current_period_end * 1000)
+              : null,
           },
         })
 
