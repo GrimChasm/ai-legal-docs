@@ -49,7 +49,7 @@ function htmlToPlainText(html: string): string {
     }).join("\n") + "\n"
   })
 
-  text = text.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (match, content) => {
+  text = text.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (match, content) => {
     const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
     return "\n" + items.map((item: string) => {
       const itemText = item.replace(/<li[^>]*>(.*?)<\/li>/gi, "$1")
