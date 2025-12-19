@@ -60,21 +60,56 @@ if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "" || proce
 // This prevents build errors when DATABASE_URL is not set
 let prismaInstance: PrismaClient | null = null
 
+// Check if we're in a build context (Next.js build phase)
+// During build, we should allow the module to be imported without errors
+// Vercel sets VERCEL_ENV during builds, and Next.js sets NEXT_PHASE
+const isBuildTime = process.env.NEXT_PHASE === "phase-production-build" || 
+                    process.env.NEXT_PHASE === "phase-development-build" ||
+                    (typeof process.env.NEXT_PHASE !== "undefined" && process.env.NEXT_PHASE.includes("build")) ||
+                    (process.env.VERCEL === "1" && !process.env.DATABASE_URL && process.env.VERCEL_ENV)
+
 function getPrismaClient(): PrismaClient {
   if (prismaInstance) {
     return prismaInstance
   }
 
   // Check if DATABASE_URL is available
-  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "" || process.env.DATABASE_URL === "undefined") {
-    // During build, we might not have DATABASE_URL - create a mock client that will fail at runtime
-    // This allows the build to complete but will error when actually used
-    throw new Error(
-      "DATABASE_URL environment variable is required.\n" +
-      "For PostgreSQL: DATABASE_URL=\"postgresql://user:password@localhost:5432/contractvault?schema=public\"\n" +
-      "For SQLite (dev only): DATABASE_URL=\"file:./dev.db\"\n" +
-      "See POSTGRESQL_MIGRATION.md for setup instructions."
-    )
+  const hasDatabaseUrl = process.env.DATABASE_URL && 
+                        process.env.DATABASE_URL.trim() !== "" && 
+                        process.env.DATABASE_URL !== "undefined"
+
+  if (!hasDatabaseUrl) {
+    // During build time, we might not have DATABASE_URL - this is OK
+    // We'll create a stub that throws only when actually used at runtime
+    if (isBuildTime) {
+      // Return a mock client that will fail gracefully when used
+      // This allows the build to complete
+      return {} as PrismaClient
+    }
+    
+    // At runtime, throw an error if DATABASE_URL is missing
+    const isVercel = !!process.env.VERCEL
+    let errorMessage = "DATABASE_URL environment variable is required.\n"
+    
+    if (isVercel) {
+      errorMessage += 
+        "\n🔧 For Vercel deployments:\n" +
+        "1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables\n" +
+        "2. Add DATABASE_URL with your PostgreSQL connection string\n" +
+        "3. Make sure it's enabled for Production, Preview, and Development\n" +
+        "4. IMPORTANT: Redeploy your project after adding the variable\n" +
+        "   (Go to Deployments → Click ⋯ on latest deployment → Redeploy)\n\n" +
+        "Example: postgresql://user:password@host:5432/database?schema=public\n\n" +
+        "⚠️ Environment variables are only loaded at build/deploy time. " +
+        "You MUST redeploy after adding a new variable."
+    } else {
+      errorMessage +=
+        "\nFor PostgreSQL: DATABASE_URL=\"postgresql://user:password@localhost:5432/contractvault?schema=public\"\n" +
+        "For SQLite (dev only): DATABASE_URL=\"file:./dev.db\"\n" +
+        "See POSTGRESQL_MIGRATION.md for setup instructions."
+    }
+    
+    throw new Error(errorMessage)
   }
 
   // Get validated database URL and ensure it's set in environment
@@ -97,12 +132,41 @@ function getPrismaClient(): PrismaClient {
 // This allows the module to be imported during build without errors
 export const prisma = new Proxy({} as PrismaClient, {
   get(target, prop) {
-    const client = getPrismaClient()
-    const value = (client as any)[prop]
-    if (typeof value === "function") {
-      return value.bind(client)
+    // During build time, if DATABASE_URL is not available, return a stub
+    // This prevents build errors while still allowing the code to compile
+    if (isBuildTime && (!process.env.DATABASE_URL || 
+                       process.env.DATABASE_URL.trim() === "" || 
+                       process.env.DATABASE_URL === "undefined")) {
+      // Return a function that throws when called, or undefined for properties
+      if (typeof prop === "string" && prop !== "then" && prop !== "constructor") {
+        return () => {
+          throw new Error(
+            "DATABASE_URL is required at runtime. Please ensure it's set in your environment variables."
+          )
+        }
+      }
+      return undefined
     }
-    return value
+    
+    // At runtime or when DATABASE_URL is available, get the real client
+    try {
+      const client = getPrismaClient()
+      const value = (client as any)[prop]
+      if (typeof value === "function") {
+        return value.bind(client)
+      }
+      return value
+    } catch (error) {
+      // If we're in build time and this fails, return a stub
+      if (isBuildTime) {
+        return () => {
+          throw new Error(
+            "DATABASE_URL is required at runtime. Please ensure it's set in your environment variables."
+          )
+        }
+      }
+      throw error
+    }
   },
 })
 
