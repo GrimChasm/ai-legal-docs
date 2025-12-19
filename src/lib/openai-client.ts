@@ -14,15 +14,52 @@ import { OPENAI_MODEL, OPENAI_SETTINGS, SYSTEM_INSTRUCTIONS } from "@/config/ope
 // Lazy initialization function for OpenAI client
 // This prevents build-time errors when OPENAI_API_KEY is not set
 function getOpenAIClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error(
-      "OPENAI_API_KEY is missing. Please add it to your .env.local file.\n" +
-      "Get your key from: https://platform.openai.com/api-keys"
-    )
+  const apiKey = process.env.OPENAI_API_KEY
+  
+  if (!apiKey) {
+    // Debug: Log all environment variables that start with OPENAI
+    const openaiVars = Object.keys(process.env)
+      .filter(key => key.toUpperCase().includes('OPENAI'))
+      .map(key => `${key}=${process.env[key]?.substring(0, 10)}...`)
+    
+    const isVercel = !!process.env.VERCEL
+    const vercelEnv = process.env.VERCEL_ENV
+    
+    console.error("OpenAI API Key Debug Info:")
+    console.error("- OPENAI_API_KEY value:", apiKey || "undefined")
+    console.error("- All OPENAI-related env vars:", openaiVars)
+    console.error("- NODE_ENV:", process.env.NODE_ENV)
+    console.error("- VERCEL:", isVercel)
+    console.error("- VERCEL_ENV:", vercelEnv)
+    console.error("- Available env vars (first 20):", Object.keys(process.env).slice(0, 20))
+    
+    let errorMessage = "OPENAI_API_KEY is missing.\n\n"
+    
+    if (isVercel) {
+      errorMessage += 
+        "🔧 For Vercel deployments:\n" +
+        "1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables\n" +
+        "2. Add OPENAI_API_KEY with your OpenAI API key\n" +
+        "3. Make sure it's enabled for Production, Preview, and Development\n" +
+        "4. IMPORTANT: Redeploy your project after adding the variable\n" +
+        "   (Go to Deployments → Click ⋯ on latest deployment → Redeploy)\n\n" +
+        "Get your key from: https://platform.openai.com/api-keys\n\n" +
+        "⚠️ Environment variables are only loaded at build/deploy time. " +
+        "You MUST redeploy after adding a new variable."
+    } else {
+      errorMessage +=
+        "🔧 For local development:\n" +
+        "1. Add OPENAI_API_KEY to your .env.local file\n" +
+        "2. Restart your Next.js dev server (Ctrl+C then npm run dev)\n\n" +
+        "Get your key from: https://platform.openai.com/api-keys\n\n" +
+        "Next.js only loads environment variables when the server starts."
+    }
+    
+    throw new Error(errorMessage)
   }
 
   return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: apiKey,
   })
 }
 
