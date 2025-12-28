@@ -56,19 +56,11 @@ if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "" || proce
   }
 }
 
-// Only initialize Prisma if DATABASE_URL is available
-// This prevents build errors when DATABASE_URL is not set
+// Lazy initialization - only create client when actually accessed
 let prismaInstance: PrismaClient | null = null
 
-// Check if we're in a build context (Next.js build phase)
-// During build, we should allow the module to be imported without errors
-// Vercel sets VERCEL_ENV during builds, and Next.js sets NEXT_PHASE
-const isBuildTime = process.env.NEXT_PHASE === "phase-production-build" || 
-                    process.env.NEXT_PHASE === "phase-development-build" ||
-                    (typeof process.env.NEXT_PHASE !== "undefined" && process.env.NEXT_PHASE.includes("build")) ||
-                    (process.env.VERCEL === "1" && !process.env.DATABASE_URL && process.env.VERCEL_ENV)
-
 function getPrismaClient(): PrismaClient {
+  // Return cached instance if available
   if (prismaInstance) {
     return prismaInstance
   }
@@ -79,15 +71,6 @@ function getPrismaClient(): PrismaClient {
                         process.env.DATABASE_URL !== "undefined"
 
   if (!hasDatabaseUrl) {
-    // During build time, we might not have DATABASE_URL - this is OK
-    // We'll create a stub that throws only when actually used at runtime
-    if (isBuildTime) {
-      // Return a mock client that will fail gracefully when used
-      // This allows the build to complete
-      return {} as PrismaClient
-    }
-    
-    // At runtime, throw an error if DATABASE_URL is missing
     const isVercel = !!process.env.VERCEL
     let errorMessage = "DATABASE_URL environment variable is required.\n"
     
@@ -116,60 +99,38 @@ function getPrismaClient(): PrismaClient {
   const databaseUrl = getDatabaseUrl()
   process.env.DATABASE_URL = databaseUrl
 
-  // Create Prisma client
-  prismaInstance = globalForPrisma.prisma ?? new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-  })
+  // Use global instance in development, create new in production
+  if (process.env.NODE_ENV !== "production" && globalForPrisma.prisma) {
+    prismaInstance = globalForPrisma.prisma
+  } else {
+    // Create Prisma client
+    prismaInstance = new PrismaClient({
+      log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    })
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = prismaInstance
+    // Store in global to prevent multiple instances in development
+    if (process.env.NODE_ENV !== "production") {
+      globalForPrisma.prisma = prismaInstance
+    }
   }
 
   return prismaInstance
 }
 
-// Export a getter function that lazily initializes Prisma
-// This allows the module to be imported during build without errors
+// Export Prisma client using getter property
+// This ensures the client is initialized when first accessed, not at module load time
+// The proxy forwards all property access to the actual Prisma client instance
 export const prisma = new Proxy({} as PrismaClient, {
-  get(target, prop) {
-    // During build time, if DATABASE_URL is not available, return a stub
-    // This prevents build errors while still allowing the code to compile
-    if (isBuildTime && (!process.env.DATABASE_URL || 
-                       process.env.DATABASE_URL.trim() === "" || 
-                       process.env.DATABASE_URL === "undefined")) {
-      // Return a function that throws when called, or undefined for properties
-      if (typeof prop === "string" && prop !== "then" && prop !== "constructor") {
-        return () => {
-          throw new Error(
-            "DATABASE_URL is required at runtime. Please ensure it's set in your environment variables."
-          )
-        }
-      }
-      return undefined
+  get(_target, prop) {
+    const client = getPrismaClient()
+    const value = (client as any)[prop]
+    // For direct methods on the client (like $connect, $disconnect), bind them
+    // For model delegates (like user, draft), return them as-is (they're already properly structured)
+    if (typeof value === "function" && prop.toString().startsWith("$")) {
+      // Prisma client methods like $connect, $disconnect need binding
+      return value.bind(client)
     }
-    
-    // At runtime or when DATABASE_URL is available, get the real client
-    try {
-      const client = getPrismaClient()
-      const value = (client as any)[prop]
-      if (typeof value === "function") {
-        return value.bind(client)
-      }
-      return value
-    } catch (error) {
-      // If we're in build time and this fails, return a stub
-      if (isBuildTime) {
-        return () => {
-          throw new Error(
-            "DATABASE_URL is required at runtime. Please ensure it's set in your environment variables."
-          )
-        }
-      }
-      throw error
-    }
+    // For everything else (including model delegates), return as-is
+    return value
   },
-})
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma
-}
+}) as PrismaClient
