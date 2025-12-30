@@ -1,6 +1,6 @@
 {
-  "installCommand": "bash scripts/vercel-install.sh",
   "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "functions": {
     "src/app/api/export/pdf/route.ts": {
       "maxDuration": 30
